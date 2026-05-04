@@ -127,3 +127,13 @@
   font-size: 0.68rem;
   color: var(--color-text-muted);
 }
+/* Reemplaza el valor anterior de min-width */
+.room-item__hora {
+  font-size: 0.68rem;
+  font-weight: 700;
+  min-width: 82px;       /* ← antes era 24px */
+  padding-top: 1px;
+  opacity: 0.75;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
