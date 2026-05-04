@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────
-// BLOQUES HORARIOS
+// BLOQUES HORARIOS - MATUTINO (7:00 a 14:10)
 // ─────────────────────────────────────────────
 export const BLOQUES = [
   { id: 1, inicio: "07:00", fin: "07:50" },
@@ -12,6 +12,9 @@ export const BLOQUES = [
   { id: 8, inicio: "13:20", fin: "14:10" },
 ];
 
+// ─────────────────────────────────────────────
+// BLOQUES HORARIOS - VESPERTINO (15:30 a 21:20)
+// ─────────────────────────────────────────────
 export const BLOQUES_VESPERTINO = [
   { id: 1, inicio: "15:30", fin: "16:20" },
   { id: 2, inicio: "16:20", fin: "17:10" },
@@ -24,7 +27,6 @@ export const BLOQUES_VESPERTINO = [
 
 export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
-// ✅ ESTO DEBE QUEDAR:
 export const getBloqueById = (id, turno = "Matutino") => {
   const lista = turno === "Vespertino" ? BLOQUES_VESPERTINO : BLOQUES;
   return lista.find(b => b.id === id);
@@ -34,7 +36,7 @@ export const getClasesActuales = () => {
   const ahora = new Date();
   const diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
   const diaActual  = diasSemana[ahora.getDay()];
-  const horaActual = ahora.toTimeString().slice(0, 5);
+  const horaActual = ahora.toTimeString().slice(0,5);
   return horarios.filter(h => {
     const bloque = getBloqueById(h.bloque, h.turno);
     if (!bloque) return false;
@@ -42,875 +44,1327 @@ export const getClasesActuales = () => {
   });
 };
 
+export const getSalones = () => [...new Set(horarios.map(h => h.salon))].sort();
+export const getGrupos  = () => [...new Set(horarios.map(h => `${h.carrera}-${h.grupo}`))].sort();
+export const getCarreras= () => [...new Set(horarios.map(h => h.carrera))].sort();
+export const getTurnos  = () => [...new Set(horarios.map(h => h.turno))].sort();
+
 // ─────────────────────────────────────────────
 // ESTRUCTURA DE CADA ENTRADA:
 // { carrera, turno, grupo, dia, bloque, materia, profesor, salon }
 // ─────────────────────────────────────────────
 export const horarios = [
+    // ═══════════════════════════════════════════════════════════════════════════
+  // TSU DSM - TURNO MATUTINO (Basado en PDF: 2026B TSU DSM M Distribución.pdf)
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  // ══════════════════════════════════════════
-  // DSM (Desarrollo de Software Multiplataforma)
-  // TURNO MATUTINO
-  // ══════════════════════════════════════════
+  // ==========================================
+// GRUPO: PRIMERO A
+// ==========================================
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 1, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 2, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 3, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 4, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 5, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 6, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 7, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
 
-  // ── PRIMERO A ──
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Lunes",     bloque:1, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Lunes",     bloque:2, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Lunes",     bloque:3, materia:"Tutorías",                              profesor:"Sergio Ramírez Ulloa",                        salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Lunes",     bloque:4, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Lunes",     bloque:5, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Martes",    bloque:1, materia:"Desarrollo Humano y Valores",           profesor:"Juan Carlos López Lucio",                     salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Martes",    bloque:2, materia:"Fundamentos Matemáticos",               profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Martes",    bloque:3, materia:"Inglés I",                              profesor:"Mario Oscar Rodríguez Rodríguez",              salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Martes",    bloque:4, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Martes",    bloque:5, materia:"Inglés I",                              profesor:"Mario Oscar Rodríguez Rodríguez",              salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Miércoles", bloque:1, materia:"Inglés I",                              profesor:"Mario Oscar Rodríguez Rodríguez",              salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Miércoles", bloque:2, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Miércoles", bloque:3, materia:"Tutorías",                              profesor:"Sergio Ramírez Ulloa",                        salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Miércoles", bloque:4, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Miércoles", bloque:5, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:1, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:2, materia:"Física",                               profesor:"Héctor Jesús Guzmán Colin",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:3, materia:"Desarrollo Humano y Valores",           profesor:"Juan Carlos López Lucio",                     salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:4, materia:"Física",                               profesor:"Héctor Jesús Guzmán Colin",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:5, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:6, materia:"Fundamentos Matemáticos",               profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:7, materia:"Fundamentos Matemáticos",               profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Jueves",    bloque:8, materia:"Inglés I",                              profesor:"Mario Oscar Rodríguez Rodríguez",              salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:1, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:2, materia:"Fundamentos Matemáticos",               profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:3, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:4, materia:"Fundamentos Matemáticos",               profesor:"Juan Antonio Martínez Carbajal",               salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:5, materia:"Física",                               profesor:"Héctor Jesús Guzmán Colin",                   salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:6, materia:"Física",                               profesor:"Héctor Jesús Guzmán Colin",                   salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:7, materia:"Física",                               profesor:"Héctor Jesús Guzmán Colin",                   salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1A", dia:"Viernes",   bloque:8, materia:"Inglés I",                              profesor:"Mario Oscar Rodríguez Rodríguez",              salon:"Aula 501" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 1, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 2, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 3, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 4, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 5, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 6, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Martes", bloque: 7, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
 
-  // ── PRIMERO B ──
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Lunes",     bloque:1, materia:"Desarrollo Humano y Valores",           profesor:"Juan Carlos López Lucio",                     salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Lunes",     bloque:2, materia:"Desarrollo Humano y Valores",           profesor:"Juan Carlos López Lucio",                     salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Lunes",     bloque:3, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Lunes",     bloque:4, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Lunes",     bloque:5, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Martes",    bloque:1, materia:"Fundamentos Matemáticos",               profesor:"José Luis Rojas Cisneros",                    salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Martes",    bloque:2, materia:"Fundamentos Matemáticos",               profesor:"José Luis Rojas Cisneros",                    salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Martes",    bloque:3, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Martes",    bloque:4, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Martes",    bloque:5, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Miércoles", bloque:1, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Taller PB07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Miércoles", bloque:2, materia:"Fundamentos de Programación",           profesor:"Marisol Guzmán Padilla",                      salon:"Taller PB07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Miércoles", bloque:3, materia:"Tutorías",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Taller PB07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Miércoles", bloque:4, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Taller PB07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Miércoles", bloque:5, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Taller PB07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:1, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:2, materia:"Física",                               profesor:"Eduardo Barbosa Olivares",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:3, materia:"Desarrollo Humano y Valores",           profesor:"Juan Carlos López Lucio",                     salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:4, materia:"Física",                               profesor:"Eduardo Barbosa Olivares",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:5, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:6, materia:"Fundamentos Matemáticos",               profesor:"José Luis Rojas Cisneros",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:7, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Jueves",    bloque:8, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:1, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:2, materia:"Fundamentos Matemáticos",               profesor:"José Luis Rojas Cisneros",                    salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:3, materia:"Comunicación y Habilidades Digitales", profesor:"Ana Luz Velázquez Moreno",                    salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:4, materia:"Física",                               profesor:"Eduardo Barbosa Olivares",                    salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:5, materia:"Física",                               profesor:"Eduardo Barbosa Olivares",                    salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:6, materia:"Fundamentos de Redes",                 profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:7, materia:"Fundamentos Matemáticos",               profesor:"José Luis Rojas Cisneros",                    salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"1B", dia:"Viernes",   bloque:8, materia:"Inglés I",                              profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula M08" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 1, materia: "Tutoría", profesor: "Sergio Ramírez Ulloa", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 2, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 3, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 4, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 5, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 6, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 7, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Miércoles", bloque: 8, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
 
-  // ── SEGUNDO A ──
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:2, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:3, materia:"Habilidades Socioemocionales",         profesor:"Juan Carlos López Lucio",                     salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:4, materia:"Habilidades Socioemocionales",         profesor:"Juan Carlos López Lucio",                     salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:1, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:2, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:3, materia:"Tutorías",                             profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:4, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Juan Antonio Martínez Carbajal",               salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:1, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:2, materia:"Programación Estructurada",            profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:3, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:4, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:1, materia:"Programación Estructurada",            profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:2, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:3, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:4, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Juan Antonio Martínez Carbajal",               salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:5, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:6, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:7, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:8, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:1, materia:"Programación Estructurada",            profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:2, materia:"Programación Estructurada",            profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:3, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:4, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:5, materia:"Programación Estructurada",            profesor:"Edgardo Emmanuel González Del Castillo",       salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:6, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:7, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:8, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",               salon:"Laboratorio M13" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 1, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 2, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 3, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 4, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 5, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Jueves", bloque: 6, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
 
-  // ── SEGUNDO B ──
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Lunes",     bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Lunes",     bloque:2, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Lunes",     bloque:3, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Lunes",     bloque:4, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                           salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Lunes",     bloque:5, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Aula 501" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Martes",    bloque:1, materia:"Habilidades Socioemocionales",         profesor:"Astrid Gómez Sahagún",                        salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Martes",    bloque:2, materia:"Habilidades Socioemocionales",         profesor:"Astrid Gómez Sahagún",                        salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Martes",    bloque:3, materia:"Tutorías",                             profesor:"Marlene Mora Olmos",                          salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Martes",    bloque:4, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Martes",    bloque:5, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:2, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:3, materia:"Habilidades Socioemocionales",         profesor:"Astrid Gómez Sahagún",                        salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:4, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:5, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:6, materia:"Inglés II",                            profesor:"Tania Sarai Jauregui López",                  salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Miércoles", bloque:7, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:1, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                           salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:2, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                           salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:3, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:4, materia:"Cálculo Diferencial",                  profesor:"José Luis Rojas Cisneros",                    salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:5, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:6, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:7, materia:"Cálculo Diferencial",                  profesor:"José Luis Rojas Cisneros",                    salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Jueves",    bloque:8, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodriguez",                     salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:2, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Andrea Villaseñor Sahagún",                   salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:3, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:4, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:5, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",             salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:6, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:7, materia:"Cálculo Diferencial",                  profesor:"José Luis Rojas Cisneros",                    salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"2B", dia:"Viernes",   bloque:8, materia:"Cálculo Diferencial",                  profesor:"José Luis Rojas Cisneros",                    salon:"Aula 505" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 1, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 2, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 3, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 4, materia: "Fundamentos matemáticos", profesor: "Juan Antonio Martínez Carbajal", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 5, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 6, materia: "Física", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 7, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 8, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 506" },
 
-  // ── TERCERO A ──
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:1, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:2, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:3, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:4, materia:"Proyecto Integrador I",                 profesor:"Marlene Mora Olmos",                  salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:5, materia:"Proyecto Integrador I",                 profesor:"Marlene Mora Olmos",                  salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:1, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:2, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:3, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:4, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:5, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:6, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:7, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:8, materia:"Tutorías",                               profesor:"Héctor Orlando Gómez Castellanos",     salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:3, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:5, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:6, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:1, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:2, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:3, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:4, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:6, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:7, materia:"Proyecto Integrador I",                 profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:8, materia:"Proyecto Integrador I",                 profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:1, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:2, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:3, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:6, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:7, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Aula 110" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:8, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Aula 110" },
+// ==========================================
+// GRUPO: PRIMERO B
+// ==========================================
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 3, materia: "Tutoría", profesor: "Andrea Villaseñor Sahagún", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 4, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 5, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 6, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 7, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 8, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Taller PB07" },
 
-  // ── TERCERO B ──
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Lunes",     bloque:1, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Lunes",     bloque:2, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Lunes",     bloque:3, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Lunes",     bloque:4, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Lunes",     bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:3, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Nelida Abril Zaragoza Carrillo", salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:4, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Nelida Abril Zaragoza Carrillo", salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:5, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:6, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Martes",    bloque:7, materia:"Tutorías",                               profesor:"Andrea Villaseñor Sahagún",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:1, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:2, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:3, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:5, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Miércoles", bloque:6, materia:"Cálculo Integral",                      profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:3, materia:"Proyecto Integrador I",                 profesor:"Andrea Villaseñor Sahagún",           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:4, materia:"Proyecto Integrador I",                 profesor:"Andrea Villaseñor Sahagún",           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:5, materia:"Cálculo Integral",                      profesor:"Héctor Jesús Guzmán Colin",           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Jueves",    bloque:6, materia:"Cálculo Integral",                      profesor:"Héctor Jesús Guzmán Colin",           salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:1, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:2, materia:"Inglés III",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula M10" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:3, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Nelida Abril Zaragoza Carrillo", salon:"Laboratorio M05" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Marlene Mora Olmos",          salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:5, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:6, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3B", dia:"Viernes",   bloque:7, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio M14" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 1, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 2, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 3, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 4, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 5, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 6, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 7, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Martes", bloque: 8, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
 
-  // ── TERCERO D ──
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Lunes",     bloque:1, materia:"Proyecto Integrador I",                 profesor:"Edgardo Emmanuel González Del Castillo", salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Lunes",     bloque:2, materia:"Proyecto Integrador I",                 profesor:"Edgardo Emmanuel González Del Castillo", salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Lunes",     bloque:3, materia:"Inglés III",                            profesor:"Tania Sarai Jauregui López",          salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Lunes",     bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Lunes",     bloque:5, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:3, materia:"Inglés III",                            profesor:"Tania Sarai Jauregui López",          salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:4, materia:"Inglés III",                            profesor:"Tania Sarai Jauregui López",          salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:5, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:6, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:7, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Martes",    bloque:8, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Miércoles", bloque:1, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Miércoles", bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Miércoles", bloque:3, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Miércoles", bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Miércoles", bloque:5, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Jueves",    bloque:1, materia:"Base de Datos",                         profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Jueves",    bloque:2, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Jueves",    bloque:3, materia:"Tutorías",                               profesor:"Tania Sarai Jauregui López",          salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Jueves",    bloque:4, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Jueves",    bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Viernes",   bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Sergio Ramírez Ulloa",                salon:"Aula 505" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Viernes",   bloque:2, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Viernes",   bloque:3, materia:"Proyecto Integrador I",                 profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Viernes",   bloque:4, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"3D", dia:"Viernes",   bloque:5, materia:"Cálculo Integral",                      profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 1, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 2, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 3, materia: "Comunicación y habilidades digitales", profesor: "Ana Luz Velázquez Moreno", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 4, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 5, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 6, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 7, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Miércoles", bloque: 8, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Taller PB07" },
 
-  // ── CUARTO A ──
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:1, materia:"Estructura de Datos",                   profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:2, materia:"Estructura de Datos",                   profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:3, materia:"Análisis y Diseño de Software",         profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:4, materia:"Análisis y Diseño de Software",         profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:5, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:1, materia:"Estructura de Datos",                   profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:2, materia:"Inglés IV",                             profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:3, materia:"Estructura de Datos",                   profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:4, materia:"Estructura de Datos",                   profesor:"Nelida Abril Zaragoza Carrillo",       salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:5, materia:"Análisis y Diseño de Software",         profesor:"Marlene Mora Olmos",                  salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:6, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:7, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:1, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:2, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:3, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:4, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:5, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:6, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:7, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 109" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:1, materia:"Inglés IV",                             profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:2, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:3, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:4, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:5, materia:"Análisis y Diseño de Software",         profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:6, materia:"Análisis y Diseño de Software",         profesor:"Marlene Mora Olmos",                  salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:7, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula M07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:1, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:2, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:3, materia:"Desarrollo de Aplicaciones Móviles",   profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:4, materia:"Tutorías",                              profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 503" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:5, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
-  { carrera:"DSM", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:6, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 1, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 2, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 3, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 4, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 5, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Taller PB07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Jueves", bloque: 6, materia: "Fundamentos matemáticos", profesor: "José Luis Rojas Cisneros", salon: "Taller PB07" },
 
-  // ── QUINTO AB ──
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Lunes",     bloque:1, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",      salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Lunes",     bloque:2, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Lunes",     bloque:3, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Lunes",     bloque:4, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Lunes",     bloque:5, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:1, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:2, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:3, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:4, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",      salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:5, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",      salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:6, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",           salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Martes",    bloque:7, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",           salon:"Aula M07" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Miércoles", bloque:1, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Miércoles", bloque:3, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Miércoles", bloque:4, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Miércoles", bloque:5, materia:"Tutorías",                             profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Miércoles", bloque:6, materia:"Bases de Datos Avanzadas",             profesor:"Carlos Iván Media López",             salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:1, materia:"Bases de Datos Avanzadas",             profesor:"Carlos Iván Media López",             salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:2, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:3, materia:"Bases de Datos Avanzadas",             profesor:"Carlos Iván Media López",             salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:4, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:5, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:6, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:7, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Jueves",    bloque:8, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:1, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:2, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:3, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:4, materia:"Estándares y Métricas",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:5, materia:"Bases de Datos Avanzadas",             profesor:"Carlos Iván Media López",             salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:6, materia:"Aplicaciones Web Orientadas a Servicios", profesor:"José Navarro Ríos",                salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:7, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Matutino", grupo:"5AB", dia:"Viernes",   bloque:8, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",           salon:"Aula M08" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 1, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 2, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 3, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 4, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 5, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 6, materia: "Inglés I", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 7, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 8, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
 
-  // ══════════════════════════════════════════
-  // EVND (Entretenimiento Visual y Narrativa Digital)
-  // TURNO MATUTINO
-  // ══════════════════════════════════════════
+// ==========================================
+// GRUPO: SEGUNDO A
+// ==========================================
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 1, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 2, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 3, materia: "Habilidades socioemocionales y manejo", profesor: "Juan Carlos López Lucio", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 4, materia: "Habilidades socioemocionales y manejo", profesor: "Juan Carlos López Lucio", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 5, materia: "Inglés II", profesor: "Tania Sarai Jauregui López", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 6, materia: "Inglés II", profesor: "Tania Sarai Jauregui López", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 8, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M05" },
 
-  // ── SEGUNDO A (EVND) ──
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:1, materia:"Habilidades Socioemocionales",         profesor:"Ana Luz Velázquez Moreno",            salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:2, materia:"Habilidades Socioemocionales",         profesor:"Ana Luz Velázquez Moreno",            salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:3, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                   salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:4, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodríguez",             salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Lunes",     bloque:5, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodríguez",             salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:1, materia:"Inglés II",                            profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:2, materia:"Inglés II",                            profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:3, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodríguez",             salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:5, materia:"Habilidades Socioemocionales",         profesor:"Ana Luz Velázquez Moreno",            salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:6, materia:"Inglés II",                            profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:7, materia:"Inglés II",                            profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Martes",    bloque:8, materia:"Tutorías",                             profesor:"Marlene Mora Olmos",                  salon:"Aula 505" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:1, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodríguez",             salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:2, materia:"Probabilidad y Estadística",           profesor:"Ernesto Roque Rodríguez",             salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:3, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",       salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:4, materia:"Habilidades Socioemocionales",         profesor:"Ana Luz Velázquez Moreno",            salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:5, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Carlos Iván Media López",             salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:6, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",     salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Miércoles", bloque:7, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",     salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Carlos Iván Media López",             salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:2, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Carlos Iván Media López",             salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:3, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                   salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:4, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",       salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:5, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",       salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:6, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",       salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Jueves",    bloque:7, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",     salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:1, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Carlos Iván Media López",             salon:"Laboratorio M11" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:2, materia:"Conmutación y Enrutamiento de Redes",  profesor:"Carlos Iván Media López",             salon:"Laboratorio M11" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:3, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                   salon:"Laboratorio M11" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:4, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                   salon:"Laboratorio M11" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:5, materia:"Sistemas Operativos",                  profesor:"Héctor Orlando Gómez Castellanos",     salon:"Aula M10" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:6, materia:"Cálculo Diferencial",                  profesor:"Candelario Castañeda Castañeda",       salon:"Aula M10" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:7, materia:"Programación Estructurada",            profesor:"José Navarro Ríos",                   salon:"Aula M10" },
-  { carrera:"EVND", turno:"Matutino", grupo:"2A", dia:"Viernes",   bloque:8, materia:"Tutorías",                             profesor:"Marlene Mora Olmos",                  salon:"Aula 501" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 1, materia: "Programación estructurada", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 2, materia: "Programación estructurada", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 3, materia: "Tutoría", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 4, materia: "Conmutación y enrutamiento de redes", profesor: "Juan Antonio Martínez Carbajal", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 5, materia: "Inglés II", profesor: "Tania Sarai Jauregui López", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 6, materia: "Inglés II", profesor: "Tania Sarai Jauregui López", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 7, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 8, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 504" },
 
-  // ── TERCERO A (EVND) ──
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:1, materia:"Proyecto Integrador I",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:2, materia:"Proyecto Integrador I",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:3, materia:"Inglés III",                           profesor:"Tania Sarai Jauregui López",          salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Lunes",     bloque:5, materia:"Base de Datos",                        profesor:"Eduardo Barbosa Olivares",             salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:1, materia:"Inglés III",                           profesor:"Tania Sarai Jauregui López",          salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:2, materia:"Inglés III",                           profesor:"Tania Sarai Jauregui López",          salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:3, materia:"Base de Datos",                        profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:5, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Astrid Gómez Sahagún",       salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:6, materia:"Base de Datos",                        profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Martes",    bloque:7, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:1, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Aula 501" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:2, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:3, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:4, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:5, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Miércoles", bloque:6, materia:"Cálculo Integral",                     profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:1, materia:"Base de Datos",                        profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:2, materia:"Tópicos de Calidad para el Diseño de Software", profesor:"Héctor Orlando Gómez Castellanos", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:3, materia:"Tutorías",                              profesor:"Eduardo Barbosa Olivares",             salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:4, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Jueves",    bloque:5, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:1, materia:"Programación Orientada a Objetos",      profesor:"Sergio Ramírez Ulloa",                salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:2, materia:"Cálculo Integral",                     profesor:"Bronislava Franco Llamas",            salon:"Laboratorio M02" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:3, materia:"Proyecto Integrador I",                profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:4, materia:"Cálculo Integral",                     profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"3A", dia:"Viernes",   bloque:5, materia:"Cálculo Integral",                     profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 1, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 2, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 3, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 4, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 6, materia: "Programación estructurada", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 7, materia: "Programación estructurada", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M05" },
 
-  // ── CUARTO A (EVND) ──
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:1, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:2, materia:"Modelado y Animación Digital",          profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:3, materia:"Mercadotecnia Digital",                 profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Lunes",     bloque:4, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:1, materia:"Inglés IV",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:2, materia:"Modelado y Animación Digital",          profesor:"Omar Enrique Moreno López",          salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:3, materia:"Tutorías",                             profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:4, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Martes",    bloque:5, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:1, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:2, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:3, materia:"Modelado y Animación Digital",          profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:4, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Miércoles", bloque:5, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:1, materia:"Inglés IV",                            profesor:"Bertha Guadalupe Vázquez López",       salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:2, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:3, materia:"Mercadotecnia Digital",                 profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 503" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:4, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:5, materia:"Modelado y Animación Digital",          profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:6, materia:"Modelado y Animación Digital",          profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:7, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Jueves",    bloque:8, materia:"Cálculo de Varias Variables",           profesor:"Bronislava Franco Llamas",            salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:1, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 506" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:2, materia:"Aplicaciones Web",                     profesor:"Edgardo Emmanuel González Del Castillo", salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:3, materia:"Mercadotecnia Digital",                 profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:4, materia:"Ética Profesional",                    profesor:"Astrid Gómez Sahagún",                salon:"Aula 502" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:5, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:6, materia:"Diseño Digital y Producción Audiovisual", profesor:"Omar Enrique Moreno López",         salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"4A", dia:"Viernes",   bloque:7, materia:"Mercadotecnia Digital",                 profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 109" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 1, materia: "Habilidades socioemocionales y manejo", profesor: "Juan Carlos López Lucio", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 2, materia: "Habilidades socioemocionales y manejo", profesor: "Juan Carlos López Lucio", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 3, materia: "Conmutación y enrutamiento de redes", profesor: "Juan Antonio Martínez Carbajal", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 4, materia: "Conmutación y enrutamiento de redes", profesor: "Juan Antonio Martínez Carbajal", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 6, materia: "Programación estructurada", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 7, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 8, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 502" },
 
-  // ── QUINTO A (EVND) ──
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Lunes",     bloque:1, materia:"Aplicaciones para Realidad Virtual",   profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Lunes",     bloque:2, materia:"Aplicaciones para Realidad Virtual",   profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Martes",    bloque:1, materia:"Aplicaciones para Realidad Aumentada", profesor:"Omar Enrique Moreno López",          salon:"Laboratorio M14" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Martes",    bloque:2, materia:"Aplicaciones para Realidad Aumentada", profesor:"Omar Enrique Moreno López",          salon:"Laboratorio M14" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Martes",    bloque:3, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",          salon:"Laboratorio M14" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Martes",    bloque:4, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",          salon:"Laboratorio M14" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Miércoles", bloque:1, materia:"Aplicaciones para Realidad Virtual",   profesor:"Omar Enrique Moreno López",          salon:"Aula M08" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Miércoles", bloque:2, materia:"Frameworks para Desarrollo Web",       profesor:"Carlos Iván Media López",             salon:"Aula M08" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Miércoles", bloque:3, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Laboratorio M12" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Miércoles", bloque:4, materia:"Proyecto Integrador II",               profesor:"Marisol Guzmán Padilla",              salon:"Laboratorio M12" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Miércoles", bloque:5, materia:"Tutorías",                             profesor:"Omar Enrique Moreno López",          salon:"Laboratorio M12" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Jueves",    bloque:1, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Jueves",    bloque:2, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio M12" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Jueves",    bloque:3, materia:"Aplicaciones para Realidad Aumentada", profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Jueves",    bloque:4, materia:"Frameworks para Desarrollo Web",       profesor:"Carlos Iván Media López",             salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Jueves",    bloque:5, materia:"Aplicaciones para Realidad Virtual",   profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:1, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula M08" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:2, materia:"Aplicaciones para Realidad Aumentada", profesor:"Omar Enrique Moreno López",          salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:3, materia:"Frameworks para Desarrollo Web",       profesor:"Carlos Iván Media López",             salon:"Laboratorio M12" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:4, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:5, materia:"Frameworks para Desarrollo Web",       profesor:"Carlos Iván Media López",             salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:6, materia:"Ecuaciones Diferenciales",             profesor:"Héctor Jesús Guzmán Colin",           salon:"Laboratorio 109" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:7, materia:"Liderazgo de Equipos de Alto Desempeño", profesor:"Ana Luz Velázquez Moreno",          salon:"Aula M08" },
-  { carrera:"EVND", turno:"Matutino", grupo:"5A", dia:"Viernes",   bloque:8, materia:"Inglés V",                             profesor:"Mario Oscar Rodríguez Rodríguez",     salon:"Aula M08" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Juan Antonio Martínez Carbajal", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 2, materia: "Conmutación y enrutamiento de redes", profesor: "Juan Antonio Martínez Carbajal", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 3, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 4, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 5, materia: "Inglés II", profesor: "Tania Sarai Jauregui López", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 6, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
 
-  // ══════════════════════════════════════════
-  // IDGS (Ingeniería en Desarrollo y Gestión de Software)
-  // TURNO VESPERTINO
-  // ══════════════════════════════════════════
+ // ==========================================
+// GRUPO: SEGUNDO B
+// ==========================================
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 2, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 3, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 4, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 5, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 6, materia: "Tutoría", profesor: "Marlene Mora Olmos", salon: "Aula M08" },
 
-  // ── SÉPTIMO A ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:1, materia:"Seguridad Informática",                    profesor:"Jesus Simental Pacheco",              salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:2, materia:"Seguridad Informática",                    profesor:"Jesus Simental Pacheco",              salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:3, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:4, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:5, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:1, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:2, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:3, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:4, materia:"Seguridad Informática",                    profesor:"Jesus Simental Pacheco",              salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:5, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:6, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:1, materia:"Tutorías",                                 profesor:"Iliana López Guillen",                salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:2, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:3, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:4, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:5, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:6, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:1, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:2, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:3, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:4, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:5, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:6, materia:"Seguridad Informática",                    profesor:"Jesus Simental Pacheco",              salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:1, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:2, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:3, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:4, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:5, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:6, materia:"Administración del Tiempo",                profesor:"Olivia Hernández Arce",               salon:"Aula 501" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 1, materia: "Habilidades socioemocionales y manejo", profesor: "Astrid Gómez Sahagun", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 2, materia: "Habilidades socioemocionales y manejo", profesor: "Astrid Gómez Sahagun", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 3, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 4, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 5, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 6, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 7, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Martes", bloque: 8, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula 505" },
 
-  // ── SÉPTIMO B ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Lunes",     bloque:1, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Lunes",     bloque:2, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Lunes",     bloque:3, materia:"Seguridad Informática",                    profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Lunes",     bloque:4, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Lunes",     bloque:5, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Martes",    bloque:1, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Martes",    bloque:2, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Martes",    bloque:3, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Martes",    bloque:4, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Martes",    bloque:5, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Miércoles", bloque:2, materia:"Tutorías",                                 profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Miércoles", bloque:3, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Miércoles", bloque:4, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Miércoles", bloque:5, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Miércoles", bloque:6, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Jueves",    bloque:3, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Jueves",    bloque:4, materia:"Arquitecturas de Software",                profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Jueves",    bloque:5, materia:"Seguridad Informática",                    profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Jueves",    bloque:6, materia:"Seguridad Informática",                    profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:1, materia:"Inglés VI",                                profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:2, materia:"Matemáticas para Ingeniería I",            profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:3, materia:"Administración del Tiempo",                profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:4, materia:"Seguridad Informática",                    profesor:"Edgar Miguel Baños Enríquez",         salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:5, materia:"Experiencia de Usuario",                   profesor:"Rubén González Ruíz",                 salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"7B", dia:"Viernes",   bloque:6, materia:"Metodologías para el Desarrollo de Proyectos", profesor:"Saúl Gutiérrez Garibay",         salon:"Laboratorio M14" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 2, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 3, materia: "Habilidades socioemocionales y manejo", profesor: "Astrid Gómez Sahagun", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 4, materia: "Habilidades socioemocionales y manejo", profesor: "Astrid Gómez Sahagun", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 5, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 6, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 7, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Miércoles", bloque: 8, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula M10" },
 
-  // ── OCTAVO A ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:1, materia:"Inglés VII",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:2, materia:"Inglés VII",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:3, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:1, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:2, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:3, materia:"Inglés VII",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:4, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:1, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:2, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Aula M10" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:3, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:5, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:1, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:2, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:3, materia:"Inglés VII",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:5, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:1, materia:"Tutorías",                                 profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula 504" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:2, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Aula 504" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:3, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Laboratorio 503" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:5, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 503" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 1, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 2, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 3, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 4, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 5, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 6, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 7, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Jueves", bloque: 8, materia: "Cálculo diferencial", profesor: "José Luis Rojas Cisneros", salon: "Aula 505" },
 
-  // ── OCTAVO B ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Lunes",     bloque:1, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Lunes",     bloque:2, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Lunes",     bloque:3, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Edgar Miguel Baños Enríquez",       salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Lunes",     bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Martes",    bloque:1, materia:"Desarrollo Web Profesional",               profesor:"Jesus Simental Pacheco",              salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Martes",    bloque:2, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Martes",    bloque:3, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Martes",    bloque:4, materia:"Matemáticas para Ingeniería II",           profesor:"Jorge Rodríguez Gallegos",            salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Miércoles", bloque:1, materia:"Desarrollo Web Profesional",               profesor:"Jesus Simental Pacheco",              salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Miércoles", bloque:2, materia:"Planeación y Organización del Trabajo",    profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Miércoles", bloque:3, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Miércoles", bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Jueves",    bloque:1, materia:"Matemáticas para Ingeniería II",           profesor:"Jorge Rodríguez Gallegos",            salon:"Aula 504" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Jueves",    bloque:2, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Jueves",    bloque:3, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Edgar Miguel Baños Enríquez",       salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Jueves",    bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Jueves",    bloque:5, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Edgar Miguel Baños Enríquez",       salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:1, materia:"Tutorías",                                 profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:2, materia:"Desarrollo Web Profesional",               profesor:"Jesus Simental Pacheco",              salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:3, materia:"Matemáticas para Ingeniería II",           profesor:"Jorge Rodríguez Gallegos",            salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:4, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Edgar Miguel Baños Enríquez",       salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:5, materia:"Matemáticas para Ingeniería II",           profesor:"Jorge Rodríguez Gallegos",            salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8B", dia:"Viernes",   bloque:6, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula 502" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 1, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 2, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 3, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 4, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 5, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio M05" },
 
-  // ── OCTAVO C ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Lunes",     bloque:1, materia:"Planeación y Organización del Trabajo",    profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Lunes",     bloque:2, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Lunes",     bloque:3, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio 503" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Lunes",     bloque:4, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio 503" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Martes",    bloque:2, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Laboratorio 503" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Martes",    bloque:3, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Martes",    bloque:4, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Miércoles", bloque:1, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Miércoles", bloque:2, materia:"Desarrollo Web Profesional",               profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Miércoles", bloque:3, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Miércoles", bloque:4, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Jueves",    bloque:1, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Jueves",    bloque:2, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Jueves",    bloque:3, materia:"Inglés VII",                               profesor:"Jose Antonio Ayllon Rios",            salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Jueves",    bloque:4, materia:"Seguridad en el Desarrollo de Aplicaciones", profesor:"Jesus Simental Pacheco",            salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Viernes",   bloque:2, materia:"Tutorías",                                 profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 503" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Viernes",   bloque:3, materia:"Administración de Base de Datos",          profesor:"Pedro González Echeverría",          salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Viernes",   bloque:4, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"8C", dia:"Viernes",   bloque:5, materia:"Matemáticas para Ingeniería II",           profesor:"Juan Carlos Morales Aragón",          salon:"Aula 502" },
+// ==========================================
+// GRUPO: TERCERO A
+// ==========================================
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 1, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 3, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 4, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 5, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 6, materia: "Tutoría", profesor: "Héctor Orlando Gómez Castellanos", salon: "Aula 110" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 7, materia: "Proyecto Integrador I", profesor: "Marlene Mora Olmos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 8, materia: "Proyecto Integrador I", profesor: "Marlene Mora Olmos", salon: "Laboratorio 506" },
 
-  // ── NOVENO A ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:1, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:2, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:3, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:4, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:5, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:1, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:2, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:3, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:4, materia:"Dirección de Equipos de Alto Rendimiento", profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:5, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:6, materia:"Tutorías",                                 profesor:"Felipe Belmont Polanco",              salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:1, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:3, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:4, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:5, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:1, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:2, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:3, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:4, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:1, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:2, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:3, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:4, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:5, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio PB07" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 3, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 4, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 6, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 7, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
 
-  // ── NOVENO B ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Lunes",     bloque:1, materia:"Dirección de Equipos de Alto Rendimiento", profesor:"Jesús Osvaldo Cortés Guerra",         salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Lunes",     bloque:2, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Lunes",     bloque:3, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Lunes",     bloque:4, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Lunes",     bloque:5, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:1, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:2, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:3, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:4, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:5, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Martes",    bloque:6, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Miércoles", bloque:1, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Miércoles", bloque:2, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Miércoles", bloque:3, materia:"Tutorías",                                 profesor:"Jose Antonio Ayllon Rios",            salon:"Aula M07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Miércoles", bloque:4, materia:"Desarrollo para Dispositivos Inteligentes", profesor:"Luis Manuel López Hernández",        salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Miércoles", bloque:5, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Jueves",    bloque:1, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Jueves",    bloque:2, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Jueves",    bloque:3, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M05" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Jueves",    bloque:4, materia:"Extracción de Conocimiento en Bases de Datos", profesor:"Adolfo Yakov Castañeda Navarrete", salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Viernes",   bloque:2, materia:"Administración de Proyectos de TI",        profesor:"Saúl Gutiérrez Garibay",              salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Viernes",   bloque:3, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M02" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Viernes",   bloque:4, materia:"Desarrollo Web Integral",                  profesor:"Felipe Belmont Polanco",              salon:"Aula M08" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"9B", dia:"Viernes",   bloque:5, materia:"Inglés VIII",                              profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M02" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 1, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 2, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 3, materia: "Proyecto Integrador I", profesor: "Marlene Mora Olmos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 4, materia: "Proyecto Integrador I", profesor: "Marlene Mora Olmos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 5, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 6, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 7, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 8, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 505" },
 
-  // ── DÉCIMO A ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:1, materia:"Negociación Empresarial",                  profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:2, materia:"Desarrollo Móvil Integral",                profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:3, materia:"Desarrollo Móvil Integral",                profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:4, materia:"Tutorías",                                 profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:1, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:2, materia:"Desarrollo Móvil Integral",                profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:3, materia:"Integradora",                             profesor:"Felipe Belmont Polanco",              salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:4, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:1, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:2, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:3, materia:"Desarrollo Móvil Integral",                profesor:"Felipe Belmont Polanco",              salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:4, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:5, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:1, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:2, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio M14" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:4, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:5, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio M13" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:4, materia:"Tutorías",                                 profesor:"Roberto Cazares Gomez",               salon:"Laboratorio PB07" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:5, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 501" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:6, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:7, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Aula 501" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 1, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 2, materia: "Programación orientada a objetos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 5, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 6, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M05" },
 
-  // ── DÉCIMO B ──
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Lunes",    bloque:1, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Lunes",    bloque:2, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Lunes",    bloque:3, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Lunes",    bloque:4, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Martes",   bloque:1, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Martes",   bloque:2, materia:"Tutorías",                                 profesor:"Rubén González Ruíz",                 salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Martes",   bloque:3, materia:"Desarrollo Móvil Integral",                profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Martes",   bloque:4, materia:"Negociación Empresarial",                  profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio 109" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Martes",   bloque:5, materia:"Desarrollo Móvil Integral",                profesor:"Edgar Miguel Baños Enríquez",         salon:"Aula 502" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Miércoles",bloque:2, materia:"Desarrollo Móvil Integral",                profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Miércoles",bloque:3, materia:"Integradora",                             profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Miércoles",bloque:4, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Miércoles",bloque:5, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Jueves",   bloque:1, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Jueves",   bloque:2, materia:"Optativa: Creación de Videojuegos",        profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Jueves",   bloque:3, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Jueves",   bloque:4, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Aula 505" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Viernes",  bloque:2, materia:"Aplicaciones Web Progresivas",             profesor:"Víctor Hugo Ramírez Salazar",         salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Viernes",  bloque:3, materia:"Integradora",                             profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Viernes",  bloque:4, materia:"Gestión del Proceso de Desarrollo de Software", profesor:"Iliana López Guillen",          salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Viernes",  bloque:5, materia:"Desarrollo Móvil Integral",                profesor:"Edgar Miguel Baños Enríquez",         salon:"Laboratorio 506" },
-  { carrera:"IDGS", turno:"Vespertino", grupo:"10B", dia:"Viernes",  bloque:6, materia:"Inglés IX",                               profesor:"Marcia Josefina Barajas Solorzano",   salon:"Laboratorio 506" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 1, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 4, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 7, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
+    
+  // ==========================================
+// GRUPO: TERCERO B
+// ==========================================
 
-  // ══════════════════════════════════════════
-  // IEVND (Ing. Entretenimiento Visual y Narrativa Digital)
-  // TURNO VESPERTINO
-  // ══════════════════════════════════════════
+// LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 2, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 3, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 4, materia: "Proyecto Integrador I", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 5, materia: "Proyecto Integrador I", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 6, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 7, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 8, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 503" },
 
-  // ── SÉPTIMO A (IEVND) ──
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:1, materia:"Programación de Videojuegos I",           profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Lunes",     bloque:2, materia:"Programación de Videojuegos I",           profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:1, materia:"Inglés VI",                               profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:2, materia:"Inglés VI",                               profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:3, materia:"Animación Digital Avanzada",              profesor:"Brandon Javier Devora Lucio",         salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Martes",    bloque:4, materia:"Animación Digital Avanzada",              profesor:"Brandon Javier Devora Lucio",         salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:1, materia:"Matemáticas para Ingeniería I",           profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:2, materia:"Matemáticas para Ingeniería I",           profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:3, materia:"Programación de Videojuegos I",           profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:4, materia:"Animación Digital Avanzada",              profesor:"Brandon Javier Devora Lucio",         salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:5, materia:"Animación Digital Avanzada",              profesor:"Brandon Javier Devora Lucio",         salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Miércoles", bloque:6, materia:"Administración del Tiempo",               profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:1, materia:"Inglés VI",                               profesor:"Silvia Ruth Magaña Valdes",           salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:2, materia:"Inglés VI",                               profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:3, materia:"Tutorías",                                 profesor:"Iliana López Guillen",                salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Jueves",    bloque:4, materia:"Programación de Videojuegos I",           profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:3, materia:"Producción de Efectos Visuales",          profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:4, materia:"Matemáticas para Ingeniería I",           profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:5, materia:"Producción de Efectos Visuales",          profesor:"Ricardo Ortiz Ponce",                 salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"7A", dia:"Viernes",   bloque:6, materia:"Matemáticas para Ingeniería I",           profesor:"Edgar Ulises Toledo Nares",           salon:"Aula 502" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 1, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 3, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 4, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 5, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 7, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Martes", bloque: 8, materia: "Tutoría", profesor: "Andrea Villaseñor Sahagún", salon: "Aula M07" },
 
-  // ── OCTAVO A (IEVND) ──
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:1, materia:"Planeación y Organización del Trabajo",   profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:2, materia:"Programación para Entornos Virtuales",    profesor:"Brandon Javier Devora Lucio",         salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:3, materia:"Emprendimiento Digital",                  profesor:"Saúl Gutiérrez Garibay",              salon:"Aula M07" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Lunes",     bloque:4, materia:"Programación de Videojuegos II",          profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:1, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:2, materia:"Programación de Videojuegos II",          profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:3, materia:"Inglés VII",                              profesor:"José Antonio Ayllón Ríos",            salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:4, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Martes",    bloque:5, materia:"Emprendimiento Digital",                  profesor:"Saúl Gutiérrez Garibay",              salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:1, materia:"Programación para Entornos Virtuales",    profesor:"Brandon Javier Devora Lucio",         salon:"Aula M07" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:2, materia:"Programación de Videojuegos II",          profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Miércoles", bloque:3, materia:"Inglés VII",                              profesor:"José Antonio Ayllón Ríos",            salon:"Laboratorio M13" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:1, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:2, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:3, materia:"Programación para Entornos Virtuales",    profesor:"Brandon Javier Devora Lucio",         salon:"Laboratorio M12" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Jueves",    bloque:4, materia:"Programación de Videojuegos II",          profesor:"Ricardo Ortiz Ponce",                 salon:"Laboratorio M12" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:1, materia:"Programación para Entornos Virtuales",    profesor:"Brandon Javier Devora Lucio",         salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:2, materia:"Programación para Entornos Virtuales",    profesor:"Brandon Javier Devora Lucio",         salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:3, materia:"Emprendimiento Digital",                  profesor:"Saúl Gutiérrez Garibay",              salon:"Aula M07" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:4, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Aula 502" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:5, materia:"Tutorías",                                profesor:"Felipe Belmont Polanco",              salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"8A", dia:"Viernes",   bloque:6, materia:"Base de Datos para Negocios Digitales",   profesor:"Rubén González Ruíz",                 salon:"Laboratorio M12" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 1, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 2, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 3, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 4, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 5, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 7, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Miércoles", bloque: 8, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
 
-  // ── NOVENO A (IEVND) ──
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:1, materia:"Dirección de Equipos de Alto Rendimiento", profesor:"Ana Eugenia Romo González",           salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:2, materia:"Matemáticas para Ingeniería II",          profesor:"Candelario Castañeda Castañeda",       salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:3, materia:"Analítica de Datos para Negocios Digitales", profesor:"Rubén González Ruíz",              salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Lunes",     bloque:4, materia:"Analítica de Datos para Negocios Digitales", profesor:"Rubén González Ruíz",              salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:1, materia:"Inglés VIII",                             profesor:"José Antonio Ayllón Ríos",            salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:2, materia:"Matemáticas para Ingeniería II",          profesor:"Candelario Castañeda Castañeda",       salon:"Laboratorio PB07" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:3, materia:"Analítica de Datos para Negocios Digitales", profesor:"Rubén González Ruíz",              salon:"Laboratorio M02" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Martes",    bloque:4, materia:"Gestión de Proyectos I",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Laboratorio M02" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:1, materia:"Ciberseguridad Aplicada a los Negocios",  profesor:"Rubén González Ruíz",                 salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:2, materia:"Ciberseguridad Aplicada a los Negocios",  profesor:"Rubén González Ruíz",                 salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:3, materia:"Gestión de Proyectos I",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:4, materia:"Matemáticas para Ingeniería II",          profesor:"Candelario Castañeda Castañeda",       salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Miércoles", bloque:5, materia:"Tutorías",                               profesor:"Felipe Belmont Polanco",               salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:1, materia:"Analítica de Datos para Negocios Digitales", profesor:"Rubén González Ruíz",              salon:"Laboratorio M02" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:2, materia:"Ciberseguridad Aplicada a los Negocios",  profesor:"Rubén González Ruíz",                 salon:"Laboratorio M02" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:3, materia:"Matemáticas para Ingeniería II",          profesor:"Candelario Castañeda Castañeda",       salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Jueves",    bloque:4, materia:"Gestión de Proyectos I",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Laboratorio 503" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:3, materia:"Inglés VIII",                             profesor:"José Antonio Ayllón Ríos",            salon:"Aula 505" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:4, materia:"Gestión de Proyectos I",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Aula 110" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:5, materia:"Inglés VIII",                             profesor:"José Antonio Ayllón Ríos",            salon:"Aula M10" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"9A", dia:"Viernes",   bloque:6, materia:"Ciberseguridad Aplicada a los Negocios",  profesor:"Rubén González Ruíz",                 salon:"Laboratorio 503" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 1, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 2, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 3, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 4, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 5, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 6, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 7, materia: "Proyecto Integrador I", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Jueves", bloque: 8, materia: "Proyecto Integrador I", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M14" },
 
-  // ── DÉCIMO A (IEVND) ──
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:1, materia:"Inglés IX",                               profesor:"Mario Óscar Rodríguez Rodríguez",     salon:"Aula M10" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:2, materia:"Integradora",                             profesor:"Iliana López Guillen",                salon:"Aula M10" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:3, materia:"Integradora",                             profesor:"Iliana López Guillen",                salon:"Aula M10" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Lunes",    bloque:4, materia:"Negociación Empresarial",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Aula M10" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:1, materia:"Inglés IX",                               profesor:"Mario Óscar Rodríguez Rodríguez",     salon:"Laboratorio M13" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:2, materia:"Inteligencia de Negocios",                profesor:"Pedro González Echeverría",           salon:"Laboratorio M13" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:3, materia:"Inteligencia de Negocios",                profesor:"Pedro González Echeverría",           salon:"Laboratorio M13" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Martes",   bloque:4, materia:"Gestión de Proyectos II",                 profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio M13" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:1, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Aula 505" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:2, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Aula 505" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:3, materia:"Inteligencia de Negocios",                profesor:"Pedro González Echeverría",           salon:"Laboratorio M05" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:4, materia:"Inteligencia de Negocios",                profesor:"Pedro González Echeverría",           salon:"Laboratorio M05" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Miércoles",bloque:5, materia:"Inteligencia de Negocios",                profesor:"Pedro González Echeverría",           salon:"Laboratorio M05" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:1, materia:"Gestión de Proyectos II",                 profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio M14" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:2, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Laboratorio M14" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:3, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:4, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Jueves",   bloque:5, materia:"Tutorías",                               profesor:"Brandon Javier Devora Lucio",          salon:"Aula M07" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:1, materia:"Negociación Empresarial",                  profesor:"Fernando Rafael Villaseñor Ulloa",    salon:"Laboratorio M05" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:2, materia:"Programación de Aplicaciones Web Progresivas", profesor:"Brandon Javier Devora Lucio",     salon:"Laboratorio M05" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:3, materia:"Gestión de Proyectos II",                 profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Laboratorio 109" },
-  { carrera:"IEVND", turno:"Vespertino", grupo:"10A", dia:"Viernes",  bloque:4, materia:"Gestión de Proyectos II",                 profesor:"Lorena del Rocio Santoyo Palafox",    salon:"Aula M07" },
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 1, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 2, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M05" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
 
-  // ══════════════════════════════════════════
-  // DSM VESPERTINO (TSU)
-  // ══════════════════════════════════════════
+// ==========================================
+// GRUPO: TERCERO D
+// ==========================================
 
-  // ── SEGUNDO C ──
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Lunes",     bloque:1, materia:"Habilidades Socioemocionales",           profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Lunes",     bloque:2, materia:"Conmutación y Enrutamiento de Redes",    profesor:"Iliana López Guillen",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Lunes",     bloque:3, materia:"Habilidades Socioemocionales",           profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Lunes",     bloque:4, materia:"Habilidades Socioemocionales",           profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Martes",    bloque:1, materia:"Sistemas Operativos",                    profesor:"Iliana López Guillen",                salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Martes",    bloque:2, materia:"Sistemas Operativos",                    profesor:"Iliana López Guillen",                salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Martes",    bloque:3, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Martes",    bloque:4, materia:"Cálculo Diferencial",                    profesor:"Edgar Ulises Toledo Nares",           salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Martes",    bloque:5, materia:"Cálculo Diferencial",                    profesor:"Edgar Ulises Toledo Nares",           salon:"Laboratorio M02" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Miércoles", bloque:1, materia:"Habilidades Socioemocionales",           profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Miércoles", bloque:2, materia:"Cálculo Diferencial",                    profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Miércoles", bloque:3, materia:"Cálculo Diferencial",                    profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Miércoles", bloque:4, materia:"Inglés II",                              profesor:"José Antonio Ayllón Ríos",            salon:"Aula M10" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Miércoles", bloque:5, materia:"Cálculo Diferencial",                    profesor:"Edgar Ulises Toledo Nares",           salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:1, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:2, materia:"Inglés II",                              profesor:"José Antonio Ayllón Ríos",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:3, materia:"Inglés II",                              profesor:"José Antonio Ayllón Ríos",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:4, materia:"Conmutación y Enrutamiento de Redes",    profesor:"Iliana López Guillen",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:5, materia:"Programación Estructurada",              profesor:"Roberto Cazares Gomez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:6, materia:"Inglés II",                              profesor:"José Antonio Ayllón Ríos",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Jueves",    bloque:7, materia:"Sistemas Operativos",                    profesor:"Iliana López Guillen",                salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:1, materia:"Habilidades Socioemocionales",           profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:2, materia:"Conmutación y Enrutamiento de Redes",    profesor:"Iliana López Guillen",                salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:3, materia:"Inglés II",                              profesor:"José Antonio Ayllón Ríos",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:4, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:5, materia:"Programación Estructurada",              profesor:"Roberto Cazares Gomez",               salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:6, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"2C", dia:"Viernes",   bloque:7, materia:"Conmutación y Enrutamiento de Redes",    profesor:"Iliana López Guillen",                salon:"Aula M08" },
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 1, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 2, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 3, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 4, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 5, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 6, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 7, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
 
-  // ── TERCERO C ──
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Lunes",     bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Olivia Hernández Arce",               salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Lunes",     bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Olivia Hernández Arce",               salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Lunes",     bloque:3, materia:"Programación Orientada a Objetos",       profesor:"Olivia Hernández Arce",               salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Martes",    bloque:2, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Martes",    bloque:3, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Martes",    bloque:4, materia:"Proyecto Integrador I",                 profesor:"Luis Manuel López Hernández",         salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Martes",    bloque:5, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Fernando Rafael Villaseñor Ulloa", salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Martes",    bloque:6, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Miércoles", bloque:2, materia:"Cálculo Integral",                      profesor:"Jorge Rodríguez Gallegos",            salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Miércoles", bloque:3, materia:"Cálculo Integral",                      profesor:"Jorge Rodríguez Gallegos",            salon:"Aula 110" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Miércoles", bloque:4, materia:"Tópicos de Calidad",                    profesor:"Roberto Cazares Gomez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Miércoles", bloque:5, materia:"Tópicos de Calidad",                    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio PB07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Jueves",    bloque:2, materia:"Inglés III",                            profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Jueves",    bloque:3, materia:"Inglés III",                            profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Jueves",    bloque:4, materia:"Desarrollo de Pensamiento y Toma de Decisiones", profesor:"Fernando Rafael Villaseñor Ulloa", salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Jueves",    bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Olivia Hernández Arce",               salon:"Laboratorio PB07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:2, materia:"Inglés III",                            profesor:"Silvia Ruth Magaña Valdes",           salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:3, materia:"Tópicos de Calidad",                    profesor:"Roberto Cazares Gomez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:4, materia:"Base de Datos",                        profesor:"Diego Iñiguez Jiménez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:5, materia:"Programación Orientada a Objetos",       profesor:"Olivia Hernández Arce",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:6, materia:"Base de Datos",                        profesor:"Diego Iñiguez Jiménez",               salon:"Aula M07" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"3C", dia:"Viernes",   bloque:7, materia:"Proyecto Integrador I",                 profesor:"Luis Manuel López Hernández",         salon:"Laboratorio PB07" },
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 1, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 2, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 501" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 5, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Martes", bloque: 6, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula M10" },
 
-  // ── CUARTO B ──
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Martes",    bloque:2, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Martes",    bloque:3, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Martes",    bloque:4, materia:"Tutorías",                               profesor:"Olivia Hernández Arce",               salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Martes",    bloque:5, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Miércoles", bloque:1, materia:"Programación Orientada a Objetos",       profesor:"Luis Manuel López Hernández",         salon:"Aula M10" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Miércoles", bloque:2, materia:"Programación Orientada a Objetos",       profesor:"Luis Manuel López Hernández",         salon:"Aula M10" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Miércoles", bloque:3, materia:"Programación Orientada a Objetos",       profesor:"Luis Manuel López Hernández",         salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Miércoles", bloque:4, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Jueves",    bloque:2, materia:"Inglés III",                            profesor:"José Antonio Ayllón Ríos",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Jueves",    bloque:3, materia:"Inglés III",                            profesor:"José Antonio Ayllón Ríos",            salon:"Laboratorio M11" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Jueves",    bloque:4, materia:"Base de Datos",                         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M14" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Viernes",   bloque:3, materia:"Programación Orientada a Objetos",       profesor:"Luis Manuel López Hernández",         salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Viernes",   bloque:4, materia:"Inglés III",                            profesor:"José Antonio Ayllón Ríos",            salon:"Laboratorio M13" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Viernes",   bloque:5, materia:"Inglés III",                            profesor:"José Antonio Ayllón Ríos",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Viernes",   bloque:6, materia:"Probabilidad y Estadística",             profesor:"Jaime Antonio Cerda Soto",            salon:"Aula M08" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"4B", dia:"Viernes",   bloque:7, materia:"Programación Orientada a Objetos",       profesor:"Luis Manuel López Hernández",         salon:"Laboratorio M11" },
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 2, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 3, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 5, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 6, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 7, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Miércoles", bloque: 8, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
 
-  // ── SEXTO C ──
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Martes",    bloque:2, materia:"Aplicaciones Web",                      profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Martes",    bloque:3, materia:"Desarrollo de Aplicaciones Móviles",    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Martes",    bloque:4, materia:"Desarrollo de Aplicaciones Móviles",    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Martes",    bloque:5, materia:"Estructura de Datos",                   profesor:"Adolfo Yakov Castañeda Navarrete",    salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Miércoles", bloque:2, materia:"Aplicaciones Web",                      profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Miércoles", bloque:3, materia:"Desarrollo de Aplicaciones Móviles",    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Miércoles", bloque:4, materia:"Análisis y Diseño de Software",         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Miércoles", bloque:5, materia:"Análisis y Diseño de Software",         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Jueves",    bloque:2, materia:"Estructura de Datos",                   profesor:"Adolfo Yakov Castañeda Navarrete",    salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Jueves",    bloque:3, materia:"Desarrollo de Aplicaciones Móviles",    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Jueves",    bloque:4, materia:"Desarrollo de Aplicaciones Móviles",    profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Viernes",   bloque:4, materia:"Aplicaciones Web",                      profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Viernes",   bloque:5, materia:"Análisis y Diseño de Software",         profesor:"Diego Iñiguez Jiménez",               salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Viernes",   bloque:6, materia:"Estructura de Datos",                   profesor:"Adolfo Yakov Castañeda Navarrete",    salon:"Laboratorio M12" },
-  { carrera:"DSM", turno:"Vespertino", grupo:"6C", dia:"Viernes",   bloque:7, materia:"Tutorías",                               profesor:"Roberto Cazares Gomez",               salon:"Laboratorio M12" },
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 1, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 2, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 5, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 7, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Jueves", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 3, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 4, materia: "Tutoría", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 5, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 6, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  // ==========================================
+// GRUPO: CUARTO A
+// ==========================================
+
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 1, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 2, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 3, materia: "Análisis y diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 4, materia: "Análisis y diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 5, materia: "Aplicaciones Web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 6, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 7, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 1, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 2, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 3, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 4, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 5, materia: "Análisis y diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 6, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 7, materia: "Ética profesional", profesor: "Astrid Gomez Sahagun", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 8, materia: "Ética profesional", profesor: "Astrid Gomez Sahagun", salon: "Aula 502" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 1, materia: "Aplicaciones Web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 2, materia: "Aplicaciones Web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 4, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 109" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 5, materia: "Ética profesional", profesor: "Astrid Gomez Sahagun", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 6, materia: "Ética profesional", profesor: "Astrid Gomez Sahagun", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 7, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 8, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 1, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 2, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 3, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 4, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 5, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 6, materia: "Análisis y diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 7, materia: "Análisis y diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M13" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 1, materia: "Aplicaciones Web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 2, materia: "Aplicaciones Web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 4, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 5, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
+  { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 6, materia: "Tutoría", profesor: "Eduardo Barbosa Olivares", salon: "Aula M07" },
+
+// ==========================================
+// GRUPO: QUINTO AB
+// ==========================================
+
+  // LUNES
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 3, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 4, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 5, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 6, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 7, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 8, materia: "Inglés V", profesor: "Mario Oscar Rodriguez Rodriguez", salon: "Laboratorio M13" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 3, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 4, materia: "Inglés V", profesor: "Mario Oscar Rodriguez Rodriguez", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 5, materia: "Inglés V", profesor: "Mario Oscar Rodriguez Rodriguez", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 6, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Martes", bloque: 7, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M07" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 1, materia: "Inglés V", profesor: "Mario Oscar Rodriguez Rodriguez", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 2, materia: "Inglés V", profesor: "Mario Oscar Rodriguez Rodriguez", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 3, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 4, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 5, materia: "Tutoría", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 6, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 7, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Miércoles", bloque: 8, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M08" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 1, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 2, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 3, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 4, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 6, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 7, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Jueves", bloque: 8, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 1, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 2, materia: "Aplicaciones Web orientadas a servicios", profesor: "José Navarro Rios", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 3, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 4, materia: "Estándares y métricas para el desarrollo de software", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 5, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 6, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 7, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M07" },
+    // ═══════════════════════════════════════════════════════════════════════════
+  // TSU EVND - TURNO MATUTINO (Basado en PDF: 2026B TSU EVND Distribución.pdf)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 2A (EVND)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 1, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 2, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 3, materia: "Programación estructurada", profesor: "José Navarro Ríos", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 4, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 5, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 6, materia: "Inglés II", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 7, materia: "Inglés II", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 8, materia: "Tutoría", profesor: "Marlene Mora Olmos", salon: "Aula 505" },
+
+  // MARTES
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 1, materia: "Inglés II", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 2, materia: "Inglés II", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 3, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 4, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 5, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 6, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Martes", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+
+  // MIÉRCOLES
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 1, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 2, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 3, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 4, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 5, materia: "Conmutación y enrutamiento de redes", profesor: "Carlos Iván Media López", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 6, materia: "Inglés II", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Miércoles", bloque: 8, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+
+  // JUEVES
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Carlos Iván Media López", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 2, materia: "Conmutación y enrutamiento de redes", profesor: "Carlos Iván Media López", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 3, materia: "Programación estructurada", profesor: "José Navarro Ríos", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 4, materia: "Programación estructurada", profesor: "José Navarro Ríos", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 5, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 6, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Jueves", bloque: 8, materia: "Tutoría", profesor: "Marlene Mora Olmos", salon: "Aula 501" },
+
+  // VIERNES
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Carlos Iván Media López", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 2, materia: "Conmutación y enrutamiento de redes", profesor: "Carlos Iván Media López", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 3, materia: "Programación estructurada", profesor: "José Navarro Ríos", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 4, materia: "Programación estructurada", profesor: "José Navarro Ríos", salon: "Laboratorio M11" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 5, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+  { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 6, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 3A (EVND)
+// ──────────────────────────────────────────────────────────────────────────
+
+  // LUNES
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 1, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 2, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 3, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 4, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 5, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 6, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 7, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+
+  // MARTES
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 1, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 2, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 501" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 5, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula M10" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Martes", bloque: 6, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula M10" },
+
+  // MIÉRCOLES
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 2, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 3, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 5, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 6, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 7, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Miércoles", bloque: 8, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+
+  // JUEVES
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 1, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 2, materia: "Base de datos", profesor: "Eduardo Barbosa Olivares", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 5, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 7, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Jueves", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Laboratorio 506" },
+
+  // VIERNES
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio M02" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 3, materia: "Inglés III", profesor: "Tania Sarai Jaurequi López", salon: "Aula 505" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 4, materia: "Tutoría", profesor: "Eduardo Barbosa Olivares", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 5, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 6, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+
+  // ──────────────────────────────────────────────────────────────────────────
+// Grupo: 4A (EVND)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 1, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 2, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 3, materia: "Mercadotecnia digital", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 4, materia: "Mercadotecnia digital", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 5, materia: "Aplicaciones web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 6, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 7, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+
+  // MARTES
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 1, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 2, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 3, materia: "Tutoría", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 4, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 5, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 6, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 7, materia: "Ética profesional", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Martes", bloque: 8, materia: "Ética profesional", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+
+  // MIÉRCOLES
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 1, materia: "Aplicaciones web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 2, materia: "Aplicaciones web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 3, materia: "Mercadotecnia digital", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio 503" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 4, materia: "Mercadotecnia digital", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio 503" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 5, materia: "Ética profesional", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 6, materia: "Ética profesional", profesor: "Astrid Gómez Sahagun", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 7, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Miércoles", bloque: 8, materia: "Cálculo de varias variables", profesor: "Bronislava Franco Llamas", salon: "Aula 502" },
+
+  // JUEVES
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 1, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 2, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 3, materia: "Inglés IV", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 502" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 5, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 6, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 7, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Jueves", bloque: 8, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+
+  // VIERNES
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 1, materia: "Aplicaciones web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 2, materia: "Aplicaciones web", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 4, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 5, materia: "Diseño digital y producción audiovisual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 6, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 7, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 5A (EVND)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 3, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 4, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 5, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 6, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 7, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 8, materia: "Inglés V", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio M13" },
+
+  // MARTES
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 1, materia: "Aplicaciones para realidad aumentada", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 3, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 4, materia: "Inglés V", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M07" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 5, materia: "Inglés V", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M07" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 6, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M07" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 7, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M07" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Martes", bloque: 8, materia: "Tutoría", profesor: "Omar Enrique Moreno López", salon: "Aula 110" },
+
+  // MIÉRCOLES
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 1, materia: "Inglés V", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 2, materia: "Inglés V", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 3, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 4, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 5, materia: "Aplicaciones para realidad aumentada", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 6, materia: "Aplicaciones para realidad aumentada", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 7, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Miércoles", bloque: 8, materia: "Liderazgo de equipos de alto desempeño", profesor: "Ana Luz Velázquez Moreno", salon: "Aula M08" },
+
+  // JUEVES
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 1, materia: "Aplicaciones para realidad aumentada", profesor: "Omar Enrique Moreno López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 2, materia: "Aplicaciones para realidad aumentada", profesor: "Omar Enrique Moreno López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 3, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 4, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 5, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 6, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 7, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Jueves", bloque: 8, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
+
+  // VIERNES
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 1, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 2, materia: "Aplicaciones para realidad virtual", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 3, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 4, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
+  { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 7, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M07" },
+    // ═══════════════════════════════════════════════════════════════════════════
+  // TSU DSM - TURNO VESPERTINO (Basado en PDF: 2026B TSU DSM V Distribución.pdf)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // ──────────────────────────────────────────────────────────────────────────
+// Grupo: 2C (DSM)
+// ──────────────────────────────────────────────────────────────────────────
+
+  // LUNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 2, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 3, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 4, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 5, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula 504" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 6, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 7, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 1, materia: "Sistemas operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 2, materia: "Sistemas operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 3, materia: "Sistemas operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 4, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 5, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 6, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Martes", bloque: 7, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 2, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 3, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 4, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 5, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 6, materia: "Sistemas operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Miércoles", bloque: 7, materia: "Sistemas operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 2, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 3, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 4, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 5, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 6, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Jueves", bloque: 7, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 2, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 3, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 4, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 5, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 7, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 3C (DSM)
+// ──────────────────────────────────────────────────────────────────────────
+
+  // LUNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 3, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 4, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 5, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 6, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 7, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 2, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 3, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 4, materia: "Proyecto integrador I", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 5, materia: "Proyecto integrador I", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 6, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Martes", bloque: 7, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M02" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 2, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula 110" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 3, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula 110" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 5, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 6, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Miércoles", bloque: 7, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M14" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 2, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 3, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 4, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 5, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 6, materia: "Proyecto integrador I", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Jueves", bloque: 7, materia: "Proyecto integrador I", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 7, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 4B (DSM)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 2, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 3, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 4, materia: "Tutoría", profesor: "Olivia Hernández Arce", salon: "Aula 110" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 5, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Aula 110" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 6, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 7, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 2, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 3, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 4, materia: "Probabilidad y estadística", profesor: "Jaime Antonio Cerda Soto", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 5, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 6, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Martes", bloque: 7, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Miércoles", bloque: 2, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Miércoles", bloque: 3, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Miércoles", bloque: 4, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Miércoles", bloque: 5, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Miércoles", bloque: 6, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M11" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Jueves", bloque: 4, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Laboratorio M13" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Jueves", bloque: 5, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Laboratorio M13" },
+
+  // VIERNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 3, materia: "Programación orientada a objetos", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 4, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 6C (DSM) - CORREGIDO
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 2, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 3, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 5, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 6, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 7, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+
+  // MARTES
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 5, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 6, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 7, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+
+  // MIÉRCOLES
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 5, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
+
+  // JUEVES
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 2, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 3, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 4, materia: "Tutoría", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 6, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 7, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+    // ═══════════════════════════════════════════════════════════════════════════
+  // IDGS - TURNO VESPERTINO (Basado en PDF: 2026B IDGS Distribución.pdf)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+ // ──────────────────────────────────────────────────────────────────────────
+// Grupo: 7A (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 1, materia: "Seguridad informática", profesor: "Jesús Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 2, materia: "Seguridad informática", profesor: "Jesús Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 3, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 4, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 5, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 6, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 1, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 2, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 3, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 4, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 5, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 6, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 1, materia: "Tutoría", profesor: "Iliana López Guillen", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 2, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 3, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 4, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 5, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 6, materia: "Seguridad informática", profesor: "Jesús Simental Pacheco", salon: "Laboratorio M13" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 1, materia: "Administración del Tiempo", profesor: "Olivia Hernández Arce", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 2, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 3, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 4, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 5, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 6, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 501" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 7B (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  // (Sin clases asignadas el lunes según la imagen)
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 1, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 2, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 3, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 4, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 5, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Martes", bloque: 6, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 1, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 3, materia: "Tutoría", profesor: "Marcia Josefina Barajas Solorzano", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 4, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 5, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 6, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 1, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 3, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 4, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 5, materia: "Experiencia de usuario", profesor: "Rubén González Ruiz", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Jueves", bloque: 6, materia: "Administración del tiempo", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula 502" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 1, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 3, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 4, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 5, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 6, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M14" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 8A (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 3, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 5, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 1, materia: "Inglés VII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 2, materia: "Inglés VII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 4, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 5, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 6, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M14" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 1, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 2, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 3, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 4, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M02" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 1, materia: "Tutoría", profesor: "Victor Hugo Ramírez Salazar", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 2, materia: "Planeación y organización del trabajo", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 3, materia: "Inglés VII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 4, materia: "Inglés VII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 5, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M10" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 6, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M14" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 1, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 3, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+  
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 8B (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 1, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 2, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 3, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 4, materia: "Planeación y organización del trabajo", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 5, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio M05" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Martes", bloque: 1, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Martes", bloque: 2, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Martes", bloque: 3, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Martes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 1, materia: "Desarrollo web profesional", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 2, materia: "Desarrollo web profesional", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 4, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 5, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Miércoles", bloque: 6, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula 502" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Jueves", bloque: 1, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Jueves", bloque: 3, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Jueves", bloque: 4, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 506" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 1, materia: "Desarrollo web profesional", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 2, materia: "Desarrollo web profesional", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 3, materia: "Tutoría", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M05" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 8C (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 1, materia: "Planeación y organización del trabajo", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 2, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 3, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 4, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 6, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Martes", bloque: 3, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Martes", bloque: 4, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Martes", bloque: 5, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Martes", bloque: 6, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Miércoles", bloque: 1, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Miércoles", bloque: 2, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Miércoles", bloque: 3, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Miércoles", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Miércoles", bloque: 5, materia: "Tutoría", profesor: "Ricardo Ortiz Ponce", salon: "Aula M10" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Jueves", bloque: 1, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Jueves", bloque: 5, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Jueves", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Viernes", bloque: 1, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Viernes", bloque: 2, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Viernes", bloque: 4, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 502" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 9A (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 1, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 2, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 3, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 4, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 5, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 6, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 2, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 3, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 1, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 2, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 3, materia: "Tutoría", profesor: "Felipe Belmont Polanco", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 4, materia: "Dirección de Equipos de Alto Rendimiento", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 5, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 1, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 2, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 3, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 4, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 6, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 1, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 2, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 3, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 9B (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 1, materia: "Dirección de Equipos de Alto Rendimiento", profesor: "Jesus Osvaldo Cortés Guerra", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 2, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 4, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Martes", bloque: 1, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Martes", bloque: 2, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Martes", bloque: 3, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Martes", bloque: 4, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Miércoles", bloque: 1, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Miércoles", bloque: 2, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Miércoles", bloque: 3, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Miércoles", bloque: 4, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 1, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 2, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 3, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 5, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Jueves", bloque: 6, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 1, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 2, materia: "Tutoría", profesor: "Jose Antonio Ayllon Rios", salon: "Aula M08" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 4, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 10A (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 1, materia: "Negociación Empresarial", profesor: "Jaime Antonio Cerda Soto", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 2, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 3, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 4, materia: "Tutoría", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 5, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 6, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 3, materia: "Integradora", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 4, materia: "Integradora", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 5, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 6, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 1, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 2, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 3, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 4, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 5, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 6, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 3, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 4, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 5, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 6, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 1, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 2, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 4, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 5, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 504" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 6, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio 506" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 10B (IDGS)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 1, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 2, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 3, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 4, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 5, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 502" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 6, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 502" },
+
+  // MARTES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Martes", bloque: 2, materia: "Tutoría", profesor: "Rubén González Ruiz", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Martes", bloque: 3, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Martes", bloque: 4, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Martes", bloque: 5, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Martes", bloque: 6, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+
+  // MIÉRCOLES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Miércoles", bloque: 2, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Miércoles", bloque: 3, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Miércoles", bloque: 4, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Miércoles", bloque: 5, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Miércoles", bloque: 6, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio 506" },
+
+  // JUEVES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Jueves", bloque: 1, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Jueves", bloque: 2, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Jueves", bloque: 3, materia: "Negociación Empresarial", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Jueves", bloque: 4, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 505" },
+
+  // VIERNES
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Viernes", bloque: 1, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Viernes", bloque: 2, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Viernes", bloque: 3, materia: "Desarrollo móvil integral", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Viernes", bloque: 4, materia: "Integradora", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Viernes", bloque: 5, materia: "Integradora", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Laboratorio 506" },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // IEVND - TURNO VESPERTINO (Basado en PDF: 2026B IEVND Distribución.pdf)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 7A (IEVND)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  // (Sin clases asignadas el lunes)
+
+  // MARTES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 1, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 2, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 3, materia: "Animación digital avanzada", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 4, materia: "Animación digital avanzada", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 5, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Martes", bloque: 6, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+
+  // MIÉRCOLES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 1, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 3, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 4, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 5, materia: "Animación digital avanzada", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Miércoles", bloque: 6, materia: "Producción de efectos visuales", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+
+  // JUEVES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 1, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 3, materia: "Tutoría", profesor: "Iliana López Guillen", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 4, materia: "Animación digital avanzada", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 5, materia: "Animación digital avanzada", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 6, materia: "Administración del Tiempo", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula 502" },
+
+  // VIERNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 1, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 3, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 4, materia: "Programación de videojuegos I", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 5, materia: "Producción de efectos visuales", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 6, materia: "Producción de efectos visuales", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 8A (IEVND)
+// ──────────────────────────────────────────────────────────────────────────
+
+  // LUNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 1, materia: "Planeación y organización del trabajo", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 3, materia: "Programación de videojuegos II", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 4, materia: "Programación de videojuegos II", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 5, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 6, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio 109" },
+
+  // MARTES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 1, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 2, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 3, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 4, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 5, materia: "Emprendimiento digital", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Martes", bloque: 6, materia: "Emprendimiento digital", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+
+  // MIÉRCOLES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 1, materia: "Emprendimiento digital", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 2, materia: "Programación de videojuegos II", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 3, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M13" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 4, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M13" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Miércoles", bloque: 5, materia: "Tutoría", profesor: "Felipe Belmont Polanco", salon: "Aula 110" },
+
+  // JUEVES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 1, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Jueves", bloque: 2, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+
+  // VIERNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 1, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M12" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 2, materia: "Programación para entornos virtuales", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M12" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 3, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M12" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 4, materia: "Base de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M12" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 5, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 6, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 9A (IEVND)
+// ──────────────────────────────────────────────────────────────────────────
+
+  // LUNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 1, materia: "Dirección de equipos de alto rendimiento", profesor: "Ana Eugenia Romo González", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 3, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M11" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 4, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio M11" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 5, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 6, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
+
+  // MARTES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 1, materia: "Matemáticas para Ingeniería II", profesor: "Candelario Castañeda Castañeda", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Candelario Castañeda Castañeda", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Candelario Castañeda Castañeda", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 5, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 505" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Martes", bloque: 6, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 505" },
+
+  // MIÉRCOLES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 1, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 3, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Miércoles", bloque: 4, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
+
+  // JUEVES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 1, materia: "Ciberseguridad aplicada a los negocios", profesor: "Rubén González Ruiz", salon: "Laboratorio M02" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 2, materia: "Ciberseguridad aplicada a los negocios", profesor: "Rubén González Ruiz", salon: "Laboratorio M02" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Candelario Castañeda Castañeda", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 4, materia: "Matemáticas para Ingeniería II", profesor: "Candelario Castañeda Castañeda", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 5, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 110" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Jueves", bloque: 6, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 110" },
+
+  // VIERNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 1, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 3, materia: "Tutoría", profesor: "Felipe Belmont Polanco", salon: "Aula M10" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 5, materia: "Ciberseguridad aplicada a los negocios", profesor: "Rubén González Ruiz", salon: "Laboratorio M12" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 6, materia: "Ciberseguridad aplicada a los negocios", profesor: "Rubén González Ruiz", salon: "Laboratorio M12" },
+
+
+// ──────────────────────────────────────────────────────────────────────────
+// Grupo: 10A (IEVND)
+// ──────────────────────────────────────────────────────────────────────────
+  // LUNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 1, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 3, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 4, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07" },
+
+  // MARTES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 1, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio M13" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio M13" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 3, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 4, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Martes", bloque: 6, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M05" },
+
+  // MIÉRCOLES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 1, materia: "Tutoría", profesor: "Brandon Javier Devora Lucio", salon: "Aula 505" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 2, materia: "Negociación Empresarial", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 505" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 3, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 5, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Miércoles", bloque: 6, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M05" },
+
+  // JUEVES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 1, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M14" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 2, materia: "Inteligencia de negocios", profesor: "Pedro González Echeverría", salon: "Laboratorio M14" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 3, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio M05" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 4, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Laboratorio 109" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Jueves", bloque: 5, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Laboratorio 109" },
+
+  // VIERNES
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 1, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 2, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 3, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
 ];
-
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
-export const getSalones = () => [...new Set(horarios.map(h => h.salon))].sort();
-export const getGrupos  = () => [...new Set(horarios.map(h => `${h.carrera}-${h.grupo}`))].sort();
-export const getCarreras= () => [...new Set(horarios.map(h => h.carrera))].sort();
-export const getTurnos  = () => [...new Set(horarios.map(h => h.turno))].sort();
 
