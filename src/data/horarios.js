@@ -34,9 +34,9 @@ export const getBloqueById = (id, turno = "Matutino") => {
 
 export const getClasesActuales = () => {
   const ahora = new Date();
-  const diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-  const diaActual  = diasSemana[ahora.getDay()];
-  const horaActual = ahora.toTimeString().slice(0,5);
+  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  const diaActual = diasSemana[ahora.getDay()];
+  const horaActual = ahora.toTimeString().slice(0, 5);
   return horarios.filter(h => {
     const bloque = getBloqueById(h.bloque, h.turno);
     if (!bloque) return false;
@@ -45,22 +45,22 @@ export const getClasesActuales = () => {
 };
 
 export const getSalones = () => [...new Set(horarios.map(h => h.salon))].sort();
-export const getGrupos  = () => [...new Set(horarios.map(h => `${h.carrera}-${h.grupo}`))].sort();
-export const getCarreras= () => [...new Set(horarios.map(h => h.carrera))].sort();
-export const getTurnos  = () => [...new Set(horarios.map(h => h.turno))].sort();
+export const getGrupos = () => [...new Set(horarios.map(h => `${h.carrera}-${h.grupo}`))].sort();
+export const getCarreras = () => [...new Set(horarios.map(h => h.carrera))].sort();
+export const getTurnos = () => [...new Set(horarios.map(h => h.turno))].sort();
 
 // ─────────────────────────────────────────────
 // ESTRUCTURA DE CADA ENTRADA:
 // { carrera, turno, grupo, dia, bloque, materia, profesor, salon }
 // ─────────────────────────────────────────────
 export const horarios = [
-    // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
   // TSU DSM - TURNO MATUTINO (Basado en PDF: 2026B TSU DSM M Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ==========================================
-// GRUPO: PRIMERO A
-// ==========================================
+  // GRUPO: PRIMERO A
+  // ==========================================
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 1, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
   { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Lunes", bloque: 2, materia: "Desarrollo humano y valores", profesor: "Juan Carlos López Lucio", salon: "Aula 501" },
@@ -107,9 +107,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 7, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 506" },
   { carrera: "DSM", turno: "Matutino", grupo: "1A", dia: "Viernes", bloque: 8, materia: "Fundamentos de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio 506" },
 
-// ==========================================
-// GRUPO: PRIMERO B
-// ==========================================
+  // ==========================================
+  // GRUPO: PRIMERO B
+  // ==========================================
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 3, materia: "Tutoría", profesor: "Andrea Villaseñor Sahagún", salon: "Taller PB07" },
   { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Lunes", bloque: 4, materia: "Fundamentos de programación", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M05" },
@@ -156,9 +156,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 7, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
   { carrera: "DSM", turno: "Matutino", grupo: "1B", dia: "Viernes", bloque: 8, materia: "Física", profesor: "Eduardo Barbosa Olivares", salon: "Aula M08" },
 
-// ==========================================
-// GRUPO: SEGUNDO A
-// ==========================================
+  // ==========================================
+  // GRUPO: SEGUNDO A
+  // ==========================================
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 1, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
   { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 2, materia: "Probabilidad y estadística", profesor: "Ernesto Roque Rodríguez", salon: "Aula M10" },
@@ -205,9 +205,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 6, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
   { carrera: "DSM", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 7, materia: "Sistemas Operativos", profesor: "Héctor Orlando Gómez Castellanos", salon: "Laboratorio M02" },
 
- // ==========================================
-// GRUPO: SEGUNDO B
-// ==========================================
+  // ==========================================
+  // GRUPO: SEGUNDO B
+  // ==========================================
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 1, materia: "Conmutación y enrutamiento de redes", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M02" },
   { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Lunes", bloque: 2, materia: "Inglés II", profesor: "Tania Sarai Jaurequi López", salon: "Aula 502" },
@@ -254,9 +254,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 5, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio M05" },
   { carrera: "DSM", turno: "Matutino", grupo: "2B", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "José Navarro Rios", salon: "Laboratorio M05" },
 
-// ==========================================
-// GRUPO: TERCERO A
-// ==========================================
+  // ==========================================
+  // GRUPO: TERCERO A
+  // ==========================================
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 1, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
   { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio 503" },
@@ -302,12 +302,12 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Bertha Guadalupe Vázquez López", salon: "Aula 505" },
   { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 7, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
   { carrera: "DSM", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 8, materia: "Cálculo integral", profesor: "Bronislava Franco Llamas", salon: "Aula 505" },
-    
-  // ==========================================
-// GRUPO: TERCERO B
-// ==========================================
 
-// LUNES
+  // ==========================================
+  // GRUPO: TERCERO B
+  // ==========================================
+
+  // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 2, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
   { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 3, materia: "Cálculo integral", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M08" },
   { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Lunes", bloque: 4, materia: "Proyecto Integrador I", profesor: "Andrea Villaseñor Sahagún", salon: "Laboratorio M11" },
@@ -353,9 +353,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Marlene Mora Olmos", salon: "Laboratorio M05" },
   { carrera: "DSM", turno: "Matutino", grupo: "3B", dia: "Viernes", bloque: 6, materia: "Programación orientada a objetos", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
 
-// ==========================================
-// GRUPO: TERCERO D
-// ==========================================
+  // ==========================================
+  // GRUPO: TERCERO D
+  // ==========================================
 
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Lunes", bloque: 1, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
@@ -403,8 +403,8 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 5, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
   { carrera: "DSM", turno: "Matutino", grupo: "3D", dia: "Viernes", bloque: 6, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
   // ==========================================
-// GRUPO: CUARTO A
-// ==========================================
+  // GRUPO: CUARTO A
+  // ==========================================
 
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 1, materia: "Estructura de datos", profesor: "Nelida Abril Zaragoza Carrillo", salon: "Laboratorio M13" },
@@ -452,9 +452,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 5, materia: "Desarrollo de aplicaciones móviles", profesor: "Sergio Ramírez Ulloa", salon: "Laboratorio 503" },
   { carrera: "DSM", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 6, materia: "Tutoría", profesor: "Eduardo Barbosa Olivares", salon: "Aula M07" },
 
-// ==========================================
-// GRUPO: QUINTO AB
-// ==========================================
+  // ==========================================
+  // GRUPO: QUINTO AB
+  // ==========================================
 
   // LUNES
   { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Lunes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
@@ -501,13 +501,13 @@ export const horarios = [
   { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 5, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
   { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 6, materia: "Bases de datos avanzadas", profesor: "Carlos Iván Media López", salon: "Laboratorio M14" },
   { carrera: "DSM", turno: "Matutino", grupo: "5AB", dia: "Viernes", bloque: 7, materia: "Ecuaciones Diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M07" },
-    // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
   // TSU EVND - TURNO MATUTINO (Basado en PDF: 2026B TSU EVND Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 2A (EVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 2A (EVND)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 1, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 505" },
   { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Lunes", bloque: 2, materia: "Habilidades socioemocionales y manejo", profesor: "Ana Luz Velázquez Moreno", salon: "Aula 505" },
@@ -555,9 +555,9 @@ export const horarios = [
   { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 5, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
   { carrera: "EVND", turno: "Matutino", grupo: "2A", dia: "Viernes", bloque: 6, materia: "Cálculo diferencial", profesor: "Candelario Castañeda Castañeda", salon: "Aula M10" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 3A (EVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 3A (EVND)
+  // ──────────────────────────────────────────────────────────────────────────
 
   // LUNES
   { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Lunes", bloque: 1, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
@@ -606,8 +606,8 @@ export const horarios = [
   { carrera: "EVND", turno: "Matutino", grupo: "3A", dia: "Viernes", bloque: 6, materia: "Proyecto Integrador I", profesor: "Edgardo Emmanuel Gonzalez Del C", salon: "Laboratorio 506" },
 
   // ──────────────────────────────────────────────────────────────────────────
-// Grupo: 4A (EVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 4A (EVND)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 1, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
   { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Lunes", bloque: 2, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
@@ -654,9 +654,9 @@ export const horarios = [
   { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 6, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
   { carrera: "EVND", turno: "Matutino", grupo: "4A", dia: "Viernes", bloque: 7, materia: "Modelado y animación digital", profesor: "Omar Enrique Moreno López", salon: "Laboratorio 109" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 5A (EVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 5A (EVND)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 2, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
   { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Lunes", bloque: 3, materia: "Proyecto integrador II", profesor: "Marisol Guzmán Padilla", salon: "Laboratorio M14" },
@@ -702,13 +702,13 @@ export const horarios = [
   { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 3, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
   { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 4, materia: "Frameworks para desarrollo Web", profesor: "Carlos Iván Media López", salon: "Laboratorio M12" },
   { carrera: "EVND", turno: "Matutino", grupo: "5A", dia: "Viernes", bloque: 7, materia: "Ecuaciones diferenciales", profesor: "Héctor Jesús Guzmán Colín", salon: "Aula M07" },
-    // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
   // TSU DSM - TURNO VESPERTINO (Basado en PDF: 2026B TSU DSM V Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ──────────────────────────────────────────────────────────────────────────
-// Grupo: 2C (DSM)
-// ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 2C (DSM)
+  // ──────────────────────────────────────────────────────────────────────────
 
   // LUNES
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Lunes", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
@@ -755,9 +755,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", dia: "Viernes", bloque: 7, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 3C (DSM)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 3C (DSM)
+  // ──────────────────────────────────────────────────────────────────────────
 
   // LUNES
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Lunes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
@@ -803,9 +803,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", dia: "Viernes", bloque: 7, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 4B (DSM)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 4B (DSM)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 2, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
   { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Lunes", bloque: 3, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
@@ -839,9 +839,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 4, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
   { carrera: "DSM", turno: "Vespertino", grupo: "4B", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 6C (DSM) - CORREGIDO
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 6C (DSM) - CORREGIDO
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 2, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 3, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
@@ -871,14 +871,15 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 6, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 7, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-    // ═══════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
   // IDGS - TURNO VESPERTINO (Basado en PDF: 2026B IDGS Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 7A (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 7A (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
+
   { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 2, materia: "Seguridad informática", profesor: "Jesús Simental Pacheco", salon: "Laboratorio M05" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 3, materia: "Seguridad informática", profesor: "Jesús Simental Pacheco", salon: "Laboratorio M05" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Lunes", bloque: 4, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M05" },
@@ -910,9 +911,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 6, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 501" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7A", dia: "Jueves", bloque: 7, materia: "Matemáticas para Ingeniería I", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 501" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 7B (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 7B (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   // (Sin clases asignadas el lunes según la imagen)
 
@@ -948,9 +949,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 6, materia: "Arquitecturas de software", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M14" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Viernes", bloque: 7, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M14" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 8A (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 8A (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M14" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio M14" },
@@ -984,10 +985,10 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesus Simental Pacheco", salon: "Laboratorio 503" },
-  
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 8B (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 8B (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Jorge Rodriguez Gallegos", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Lunes", bloque: 3, materia: "Inglés VII", profesor: "Jose Antonio Ayllon Rios", salon: "Aula M08" },
@@ -1022,9 +1023,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M05" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8B", dia: "Viernes", bloque: 6, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio M05" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 8C (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 8C (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 2, materia: "Planeación y organización del trabajo", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 502" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Lunes", bloque: 3, materia: "Administración de Base de datos", profesor: "Pedro González Echeverría", salon: "Laboratorio 503" },
@@ -1057,9 +1058,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Viernes", bloque: 3, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", dia: "Viernes", bloque: 5, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 502" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 9A (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 9A (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 2, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 3, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 505" },
@@ -1095,9 +1096,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 9B (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 9B (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 2, materia: "Dirección de Equipos de Alto Rendimiento", profesor: "Jesus Osvaldo Cortés Guerra", salon: "Aula 501" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Lunes", bloque: 3, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula 502" },
@@ -1133,9 +1134,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", dia: "Viernes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 10A (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 10A (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 2, materia: "Negociación Empresarial", profesor: "Jaime Antonio Cerda Soto", salon: "Laboratorio M13" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 3, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
@@ -1171,9 +1172,9 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 6, materia: "Gestión del proceso de desarrollo de software", profesor: "Iliana López Guillen", salon: "Aula 504" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", dia: "Viernes", bloque: 7, materia: "Aplicaciones web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio 506" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 10B (IDGS)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 10B (IDGS)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 2, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10B", dia: "Lunes", bloque: 3, materia: "Optativa 1: Creación de videojuegos", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
@@ -1213,9 +1214,9 @@ export const horarios = [
   // IEVND - TURNO VESPERTINO
   // ═══════════════════════════════════════════════════════════════════════════
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 7A (IEVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 7A (IEVND)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   // (Sin clases asignadas el lunes)
 
@@ -1251,9 +1252,9 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 6, materia: "Producción de efectos visuales", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "7A", dia: "Viernes", bloque: 7, materia: "Producción de efectos visuales", profesor: "Ricardo Ortiz Ponce", salon: "Laboratorio 109" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 8A (IEVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 8A (IEVND)
+  // ──────────────────────────────────────────────────────────────────────────
 
   // LUNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Lunes", bloque: 2, materia: "Planeación y organización del trabajo", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 502" },
@@ -1289,9 +1290,9 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 6, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "8A", dia: "Viernes", bloque: 7, materia: "Inglés VII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 502" },
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 9A (IEVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 9A (IEVND)
+  // ──────────────────────────────────────────────────────────────────────────
 
   // LUNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Lunes", bloque: 2, materia: "Dirección de equipos de alto rendimiento", profesor: "Ana Eugenia Romo González", salon: "Aula 110" },
@@ -1329,9 +1330,9 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", dia: "Viernes", bloque: 7, materia: "Ciberseguridad aplicada a los negocios", profesor: "Rubén González Ruiz", salon: "Laboratorio M12" },
 
 
-// ──────────────────────────────────────────────────────────────────────────
-// Grupo: 10A (IEVND)
-// ──────────────────────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────────────────────
+  // Grupo: 10A (IEVND)
+  // ──────────────────────────────────────────────────────────────────────────
   // LUNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", dia: "Lunes", bloque: 3, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
