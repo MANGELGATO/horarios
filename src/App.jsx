@@ -1,121 +1,120 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
+import { useState, useEffect } from 'react'
+import { horarios, getClasesActuales } from './data/horarios'
+import Navbar from './components/Navbar'
+import CurrentClassPanel from './components/CurrentClassPanel'
+import FiltersBar from './components/FiltersBar'
+import WeeklyTable from './components/WeeklyTable'
+import RoomCard from './components/RoomCard'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [vista, setVista]               = useState('tabla')
+  const [carreraFiltro, setCarreraFiltro] = useState('Todas')
+  const [turnoFiltro, setTurnoFiltro]     = useState('Todos')
+  const [grupoFiltro, setGrupoFiltro]     = useState('Todos')
+  const [diaFiltro, setDiaFiltro]         = useState('Todos')
+  const [salonFiltro, setSalonFiltro]     = useState('Todos')
+  const [clasesAhora, setClasesAhora]     = useState([])
+
+  useEffect(() => {
+    const actualizar = () => setClasesAhora(getClasesActuales())
+    actualizar()
+    const intervalo = setInterval(actualizar, 60000)
+    return () => clearInterval(intervalo)
+  }, [])
+
+  const carreras = ['Todas', ...new Set(horarios.map(h => h.carrera))]
+  const turnos   = ['Todos', ...new Set(horarios.map(h => h.turno))]
+  const salones  = ['Todos', ...new Set(horarios.map(h => h.salon))].sort()
+  const dias     = ['Todos', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+
+  const grupos = ['Todos', ...new Set(
+    horarios
+      .filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro)
+      .filter(h => turnoFiltro   === 'Todos'  || h.turno   === turnoFiltro)
+      .map(h => `${h.carrera} ${h.turno} ${h.grupo}`)
+  )]
+
+  const horariosFiltrados = horarios.filter(h => {
+    if (carreraFiltro !== 'Todas' && h.carrera !== carreraFiltro) return false
+    if (turnoFiltro   !== 'Todos' && h.turno   !== turnoFiltro)   return false
+    if (grupoFiltro   !== 'Todos' && `${h.carrera} ${h.turno} ${h.grupo}` !== grupoFiltro) return false
+    if (diaFiltro     !== 'Todos' && h.dia     !== diaFiltro)     return false
+    if (salonFiltro   !== 'Todos' && h.salon   !== salonFiltro)   return false
+    return true
+  })
+
+  // Para vista por salón: agrupa los filtrados por salón
+  const salonesAgrupados = horariosFiltrados.reduce((acc, h) => {
+    if (!acc[h.salon]) acc[h.salon] = []
+    acc[h.salon].push(h)
+    return acc
+  }, {})
+
+  const limpiarFiltros = () => {
+    setCarreraFiltro('Todas')
+    setTurnoFiltro('Todos')
+    setGrupoFiltro('Todos')
+    setDiaFiltro('Todos')
+    setSalonFiltro('Todos')
+  }
+
+  const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
+                     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' || salonFiltro !== 'Todos'
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app">
+      <Navbar vistaActual={vista} setVista={setVista} />
 
-      <div className="ticks"></div>
+      <main className="app-main">
+        <CurrentClassPanel clases={clasesAhora} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <FiltersBar
+          carreras={carreras}   carreraFiltro={carreraFiltro}   setCarreraFiltro={setCarreraFiltro}
+          turnos={turnos}       turnoFiltro={turnoFiltro}       setTurnoFiltro={setTurnoFiltro}
+          grupos={grupos}       grupoFiltro={grupoFiltro}       setGrupoFiltro={setGrupoFiltro}
+          dias={dias}           diaFiltro={diaFiltro}           setDiaFiltro={setDiaFiltro}
+          salones={salones}     salonFiltro={salonFiltro}       setSalonFiltro={setSalonFiltro}
+        />
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+        <div className="resultados-meta">
+          <span>
+            {horariosFiltrados.length === 0
+              ? 'Sin resultados'
+              : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
+          </span>
+          {hayFiltros && (
+            <button className="btn-limpiar" onClick={limpiarFiltros}>
+              Limpiar filtros
+            </button>
+          )}
+        </div>
+
+        {/* ── Vista por grupo (tabla semanal) ── */}
+        {vista === 'tabla' && (
+          <WeeklyTable horarios={horariosFiltrados} />
+        )}
+
+        {/* ── Vista por salón (room cards) ── */}
+        {vista === 'salones' && (
+          horariosFiltrados.length === 0 ? (
+            <div className="weekly-empty">
+              <span>🔍</span>
+              <p>Sin resultados — intenta cambiar los filtros</p>
+            </div>
+          ) : (
+            <div className="rooms-grid">
+              {Object.entries(salonesAgrupados)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([salon, clases]) => (
+                  <RoomCard key={salon} salon={salon} clases={clases} />
+                ))
+              }
+            </div>
+          )
+        )}
+      </main>
+    </div>
   )
 }
 
