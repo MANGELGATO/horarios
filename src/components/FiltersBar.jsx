@@ -2,17 +2,19 @@ import './FiltersBar.css'
 
 function FiltersBar({
   carreras, carreraFiltro, setCarreraFiltro,
-  turnos,   turnoFiltro,   setTurnoFiltro,
-  grupos,   grupoFiltro,   setGrupoFiltro,
-  dias,     diaFiltro,     setDiaFiltro,
-  salones,  salonFiltro,   setSalonFiltro,
+  turnos, turnoFiltro, setTurnoFiltro,
+  grupos, grupoFiltro, setGrupoFiltro,
+  dias, diaFiltro, setDiaFiltro,
+  salones, salonFiltro, setSalonFiltro,
+  profesores, profesorFiltro, setProfesorFiltro,
 }) {
   const hayFiltrosActivos =
     carreraFiltro !== 'Todas' ||
-    turnoFiltro   !== 'Todos' ||
-    grupoFiltro   !== 'Todos' ||
-    diaFiltro     !== 'Todos' ||
-    salonFiltro   !== 'Todos'
+    turnoFiltro !== 'Todos' ||
+    grupoFiltro !== 'Todos' ||
+    diaFiltro !== 'Todos' ||
+    salonFiltro !== 'Todos' ||
+    profesorFiltro !== 'Todos'
 
   return (
     <section className="filters-bar">
@@ -20,7 +22,7 @@ function FiltersBar({
         <h2 className="filters-bar__title">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
           </svg>
           Filtros
         </h2>
@@ -28,10 +30,11 @@ function FiltersBar({
           <span className="filters-bar__activos">
             {[
               carreraFiltro !== 'Todas' && carreraFiltro,
-              turnoFiltro   !== 'Todos' && turnoFiltro,
-              grupoFiltro   !== 'Todos' && grupoFiltro.split(' ').pop(),
-              diaFiltro     !== 'Todos' && diaFiltro,
-              salonFiltro   !== 'Todos' && salonFiltro,
+              turnoFiltro !== 'Todos' && turnoFiltro,
+              grupoFiltro !== 'Todos' && grupoFiltro.split(' ').pop(),
+              diaFiltro !== 'Todos' && diaFiltro,
+              salonFiltro !== 'Todos' && salonFiltro,
+              profesorFiltro !== 'Todos' && profesorFiltro.split('').pop()
             ].filter(Boolean).join(' · ')}
           </span>
         )}
@@ -111,6 +114,19 @@ function FiltersBar({
             onChange={e => setSalonFiltro(e.target.value)}
           >
             {salones.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        {/* Profesor */}
+        <div className="filter-group">
+          <label className="filter-group__label" htmlFor="f-profesor">Profesor</label>
+          <select
+            id="f-profesor"
+            className="filter-group__select"
+            value={profesorFiltro}
+            onChange={e => setProfesorFiltro(e.target.value)}
+          >
+            {profesores.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
 

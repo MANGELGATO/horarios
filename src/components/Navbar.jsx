@@ -8,10 +8,10 @@ function Navbar({ vistaActual, setVista }) {
         {/* Brand */}
         <div className="navbar__brand">
           <svg className="navbar__logo" viewBox="0 0 40 40" fill="none" aria-label="Logo">
-            <rect x="4"  y="4"  width="14" height="14" rx="3" fill="currentColor" opacity="0.9"/>
-            <rect x="22" y="4"  width="14" height="14" rx="3" fill="currentColor" opacity="0.6"/>
-            <rect x="4"  y="22" width="14" height="14" rx="3" fill="currentColor" opacity="0.6"/>
-            <rect x="22" y="22" width="14" height="14" rx="3" fill="currentColor" opacity="0.3"/>
+            <rect x="4" y="4" width="14" height="14" rx="3" fill="currentColor" opacity="0.9" />
+            <rect x="22" y="4" width="14" height="14" rx="3" fill="currentColor" opacity="0.6" />
+            <rect x="4" y="22" width="14" height="14" rx="3" fill="currentColor" opacity="0.6" />
+            <rect x="22" y="22" width="14" height="14" rx="3" fill="currentColor" opacity="0.3" />
           </svg>
           <div>
             <p className="navbar__title">Dashboard de Horarios</p>
@@ -27,8 +27,8 @@ function Navbar({ vistaActual, setVista }) {
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2"/>
-              <path d="M3 9h18M3 15h18M9 3v18"/>
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M3 9h18M3 15h18M9 3v18" />
             </svg>
             Por grupo
           </button>
@@ -38,10 +38,22 @@ function Navbar({ vistaActual, setVista }) {
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+              <polyline points="9 22 9 12 15 12 15 22" />
             </svg>
             Por salón
+          </button>
+          <button
+            className={`navbar__btn ${vistaActual === 'profesores' ? 'navbar__btn--active' : ''}`}
+            onClick={() => setVista('profesores')}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M17 11l1 1 3-3" />
+            </svg>
+            Por profesor
           </button>
         </nav>
 
