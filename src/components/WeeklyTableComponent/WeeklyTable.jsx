@@ -116,15 +116,19 @@ function TurnoTable({ turno, bloques, mapa }) {
                       {clases.length === 0 ? (
                         <span className="td-vacio">—</span>
                       ) : (
-                        clases.map((c, i) => (
-                          <div key={i} className={`clase-chip ${getColor(c.carrera)}`}>
+                        clases.map((c, i) => {
+                          const esVirtual = c.diaVirtual === dia
+                          return (
+                          <div key={i} className={`clase-chip ${getColor(c.carrera)}${esVirtual ? ' clase-chip--virtual' : ''}`}>
+                            {esVirtual && <span className="clase-chip__virtual-badge">Virtual</span>}
                             <span className="clase-chip__materia">{c.materia}</span>
                             <span className="clase-chip__meta">
                               {c.carrera} {c.grupo} · {c.salon}
                             </span>
                             <span className="clase-chip__prof">{c.profesor}</span>
                           </div>
-                        ))
+                          )
+                        })
                       )}
                     </td>
                   )

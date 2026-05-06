@@ -131,6 +131,27 @@
 
 .clase-chip:last-child { margin-bottom: 0; }
 
+.clase-chip--virtual {
+  position: relative;
+  outline: 2px dashed #7a39bb;
+  outline-offset: 1px;
+}
+
+.clase-chip__virtual-badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #7a39bb;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 0 var(--radius-sm) 0 var(--radius-sm);
+  line-height: 1.4;
+}
+
 .clase-chip__materia {
   font-size: var(--text-xs);
   font-weight: 700;
