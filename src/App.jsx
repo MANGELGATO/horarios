@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { horarios, getClasesActuales } from './data/horarios'
-import Navbar from './components/Navbar'
-import CurrentClassPanel from './components/CurrentClassPanel'
-import FiltersBar from './components/FiltersBar'
-import WeeklyTable from './components/WeeklyTable'
-import RoomCard from './components/RoomCard'
+import Navbar from './components/NavbarComponent/Navbar'
+import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
+import FiltersBar from './components/FiltersBarComponent/FiltersBar'
+import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
+import RoomCard from './components/RoomCardComponent/RoomCard'
 import './App.css'
 
 function App() {
