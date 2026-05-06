@@ -1,6 +1,6 @@
 import './Navbar.css'
 
-function Navbar({ vistaActual, setVista, onLogoClick, usuario }) {
+function Navbar({ vistaActual, setVista, onLogoClick, usuario, onInfoClick }) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -45,10 +45,27 @@ function Navbar({ vistaActual, setVista, onLogoClick, usuario }) {
           </button>
         </nav>
 
-        {/* Badges turno */}
-        <div className="navbar__badges">
-          <span className="badge badge--matutino">☀️ 7:00–14:10</span>
-          <span className="badge badge--vespertino">🌙 15:30–21:20</span>
+        {/* Derecha: badges + botón info */}
+        <div className="navbar__right">
+          <div className="navbar__badges">
+            <span className="badge badge--matutino">☀️ 7:00–14:10</span>
+            <span className="badge badge--vespertino">🌙 15:30–21:20</span>
+          </div>
+
+          {/* ── Botón Info ── NUEVO */}
+          <button
+            className="navbar__info-btn"
+            onClick={onInfoClick}
+            aria-label="Información del proyecto"
+            title="Acerca de este proyecto"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </button>
         </div>
 
       </div>

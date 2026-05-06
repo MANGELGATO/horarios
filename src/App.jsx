@@ -7,6 +7,7 @@ import FiltersBar from './components/FiltersBarComponent/FiltersBar'
 import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
 import RoomCard from './components/RoomCardComponent/RoomCard'
 import LoginModal from './components/LoginModalComponent/LoginModal'
+import InfoPage from './components/InfoPage/InfoPage'
 import './App.css'
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
   const [turnoActual, setTurnoActual]     = useState(getTurnoActual())
   const [loginAbierto, setLoginAbierto]   = useState(false)
   const [usuario, setUsuario]             = useState(null)
+  const [mostrarInfo, setMostrarInfo]     = useState(false)
 
   useEffect(() => {
     const actualizar = () => {
@@ -82,69 +84,81 @@ function App() {
                      pisoFiltro !== 'Todos'
 
   return (
-    <div className="app">
-      <Navbar vistaActual={vista} setVista={setVista} onLogoClick={() => setLoginAbierto(true)} usuario={usuario} />
+  <div className="app">
 
-      <main className="app-main">
-        <CurrentClassPanel clases={clasesAhora} />
+    <Navbar
+      vistaActual={vista}
+      setVista={setVista}
+      onLogoClick={() => setLoginAbierto(true)}
+      usuario={usuario}
+      onInfoClick={() => setMostrarInfo(true)}
+    />
 
-        {usuario && <ProjectorPanel clases={clasesAhora} />}
+    <main className="app-main">
+      <CurrentClassPanel clases={clasesAhora} />
 
-        <FiltersBar
-          carreras={carreras}   carreraFiltro={carreraFiltro}   setCarreraFiltro={setCarreraFiltro}
-          turnos={turnos}       turnoFiltro={turnoFiltro}       setTurnoFiltro={setTurnoFiltro}
-          grupos={grupos}       grupoFiltro={grupoFiltro}       setGrupoFiltro={setGrupoFiltro}
-          dias={dias}           diaFiltro={diaFiltro}           setDiaFiltro={setDiaFiltro}
-          salones={salones}     salonFiltro={salonFiltro}       setSalonFiltro={setSalonFiltro}
-          profesores={profesores} profesorFiltro={profesorFiltro} setProfesorFiltro={setProfesorFiltro}
-          pisos={pisos}         pisoFiltro={pisoFiltro}         setPisoFiltro={setPisoFiltro}
-        />
+      {usuario && <ProjectorPanel clases={clasesAhora} />}
 
-        <div className="resultados-meta">
-          <span>
-            {horariosFiltrados.length === 0
-              ? 'Sin resultados'
-              : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
-          </span>
-          {hayFiltros && (
-            <button className="btn-limpiar" onClick={limpiarFiltros}>
-              Limpiar filtros
-            </button>
-          )}
-        </div>
+      <FiltersBar
+        carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}
+        turnos={turnos}         turnoFiltro={turnoFiltro}         setTurnoFiltro={setTurnoFiltro}
+        grupos={grupos}         grupoFiltro={grupoFiltro}         setGrupoFiltro={setGrupoFiltro}
+        dias={dias}             diaFiltro={diaFiltro}             setDiaFiltro={setDiaFiltro}
+        salones={salones}       salonFiltro={salonFiltro}         setSalonFiltro={setSalonFiltro}
+        profesores={profesores} profesorFiltro={profesorFiltro}   setProfesorFiltro={setProfesorFiltro}
+        pisos={pisos}           pisoFiltro={pisoFiltro}           setPisoFiltro={setPisoFiltro}
+      />
 
-        {/* ── Vista por grupo (tabla semanal) ── */}
-        {vista === 'tabla' && (
-          <WeeklyTable horarios={horariosFiltrados} />
+      <div className="resultados-meta">
+        <span>
+          {horariosFiltrados.length === 0
+            ? 'Sin resultados'
+            : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
+        </span>
+        {hayFiltros && (
+          <button className="btn-limpiar" onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
         )}
+      </div>
 
-        {/* ── Vista por salón (room cards) ── */}
-        {vista === 'salones' && (
-          horariosFiltrados.length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — intenta cambiar los filtros</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(salonesAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([salon, clases]) => (
-                  <RoomCard key={salon} salon={salon} clases={clases} />
-                ))
-              }
-            </div>
-          )
-        )}
-      </main>
+      {/* Vista por grupo */}
+      {vista === 'tabla' && (
+        <WeeklyTable horarios={horariosFiltrados} />
+      )}
 
-        <LoginModal
-          abierto={loginAbierto}
-          onCerrar={() => setLoginAbierto(false)}
-          onLogin={(u) => { setUsuario(u); setLoginAbierto(false) }}
-        />
-    </div>
-  )
+      {/* Vista por salón */}
+      {vista === 'salones' && (
+        horariosFiltrados.length === 0 ? (
+          <div className="weekly-empty">
+            <span>🔍</span>
+            <p>Sin resultados — intenta cambiar los filtros</p>
+          </div>
+        ) : (
+          <div className="rooms-grid">
+            {Object.entries(salonesAgrupados)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([salon, clases]) => (
+                <RoomCard key={salon} salon={salon} clases={clases} />
+              ))}
+          </div>
+        )
+      )}
+    </main>
+
+    {/* ── Modales — FUERA del main, DENTRO del div.app ── */}
+    <LoginModal
+      abierto={loginAbierto}
+      onCerrar={() => setLoginAbierto(false)}
+      onLogin={(u) => { setUsuario(u); setLoginAbierto(false) }}
+    />
+
+    {mostrarInfo && (
+      <InfoPage onClose={() => setMostrarInfo(false)} />
+    )}
+
+  </div>
+)
 }
 
 export default App
