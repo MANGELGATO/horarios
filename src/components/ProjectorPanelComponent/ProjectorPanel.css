@@ -1,17 +1,17 @@
 /* ════════════════════════════════════════
-   CURRENT CLASS PANEL
-════════════════════════════════════════ */
-.current-panel {
+   PROJECTOR PANEL
+   ════════════════════════════════════════ */
+.proyector-panel {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
 
-.current-panel--open { padding-bottom: var(--space-2); }
+.proyector-panel--open { padding-bottom: var(--space-2); }
 
-/* ── Header (clickeable) ── */
-.current-panel__header {
+/* ── Header ── */
+.proyector-panel__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,111 +29,110 @@
   border-radius: var(--radius-lg);
 }
 
-.current-panel__header:hover {
+.proyector-panel__header:hover {
   background: var(--color-bg);
 }
 
-.current-panel--open .current-panel__header {
+.proyector-panel--open .proyector-panel__header {
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-border);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
-.current-panel__title-group {
+.proyector-panel__title-group {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   flex-wrap: wrap;
 }
 
-/* Dot animado verde = hay clases activas */
-.current-panel__dot {
+.proyector-panel__dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--color-primary);
-  animation: pulse 2s ease-in-out infinite;
+  background: #e67e22;
+  animation: proyector-pulse 2s ease-in-out infinite;
   flex-shrink: 0;
 }
 
-@keyframes pulse {
+@keyframes proyector-pulse {
   0%, 100% { opacity: 1;   transform: scale(1); }
   50%       { opacity: 0.4; transform: scale(0.8); }
 }
 
-.current-panel__title {
+.proyector-panel__title {
   font-size: var(--text-base);
   font-weight: 700;
   color: var(--color-text);
 }
 
-.current-panel__tiempo {
+.proyector-panel__tiempo {
   display: flex;
   align-items: center;
   gap: var(--space-3);
 }
 
-.current-panel__dia {
+.proyector-panel__dia {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
   font-weight: 500;
 }
 
-.current-panel__hora {
+.proyector-panel__hora {
   font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
+  color: #e67e22;
+  background: #fef3e2;
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   font-variant-numeric: tabular-nums;
 }
 
-.current-panel__hint {
+.proyector-panel__hint {
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-primary-soft);
+  color: #e67e22;
+  background: #fef3e2;
   padding: 1px var(--space-2);
   border-radius: 999px;
 }
 
-.current-panel__chevron-wrapper {
+.proyector-panel__chevron-wrapper {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+  background: #fef3e2;
+  color: #e67e22;
   flex-shrink: 0;
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
-.current-panel__chevron-wrapper--open {
-  background: var(--color-primary);
+.proyector-panel__chevron-wrapper--open {
+  background: #e67e22;
   color: #fff;
   transform: rotate(180deg);
 }
 
-.current-panel__header:hover .current-panel__chevron-wrapper {
-  background: var(--color-primary);
+.proyector-panel__header:hover .proyector-panel__chevron-wrapper {
+  background: #e67e22;
   color: #fff;
 }
 
-.current-panel__header:hover .current-panel__chevron-wrapper--open {
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
+.proyector-panel__header:hover .proyector-panel__chevron-wrapper--open {
+  background: #fef3e2;
+  color: #e67e22;
 }
 
-/* ── Cuerpo colapsable ── */
-.current-panel__body {
+/* ── Body ── */
+.proyector-panel__body {
   padding: var(--space-4) var(--space-6) var(--space-6);
 }
 
 /* ── Empty state ── */
-.current-panel__empty {
+.proyector-panel__empty {
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -142,37 +141,35 @@
   font-size: var(--text-sm);
 }
 
-.current-panel__empty-icon {
+.proyector-panel__empty-icon {
   font-size: 1.5rem;
   line-height: 1;
 }
 
-/* ── Grid de tarjetas ── */
-.current-panel__grid {
+/* ── Grid ── */
+.proyector-panel__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
   gap: var(--space-3);
 }
 
-/* ── Tarjeta individual ── */
-.current-card {
+/* ── Card ── */
+.proyector-card {
   border-radius: var(--radius-md);
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   border: 1px solid var(--color-border);
+  background: #fefcf5;
   transition: box-shadow var(--transition);
 }
 
-.current-card:hover {
+.proyector-card:hover {
   box-shadow: var(--shadow-md);
 }
 
-.current-card--mat { background: #f0f9ff; }
-.current-card--ves { background: #f8f4ff; }
-
-.current-card__top {
+.proyector-card__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -180,33 +177,52 @@
   flex-wrap: wrap;
 }
 
-.current-card__badge {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  padding: 2px var(--space-2);
+.proyector-card__proyector {
+  font-size: var(--text-sm);
+  font-weight: 800;
+  color: #e67e22;
+  background: #fef3e2;
+  padding: 2px var(--space-3);
   border-radius: 999px;
+  letter-spacing: 0.5px;
 }
 
-.current-card__salon {
+.proyector-card__salon {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
   font-weight: 500;
 }
 
-.current-card__materia {
+.proyector-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.proyector-card__badge {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.proyector-card__materia {
   font-size: var(--text-sm);
   font-weight: 700;
   color: var(--color-text);
   line-height: 1.3;
+  margin: 0;
 }
 
-.current-card__profesor {
+.proyector-card__profesor {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
+  margin: 0;
 }
 
 /* ── Responsive ── */
 @media (max-width: 600px) {
-  .current-panel { padding: var(--space-4); }
-  .current-panel__grid { grid-template-columns: 1fr; }
+  .proyector-panel { padding: var(--space-4); }
+  .proyector-panel__grid { grid-template-columns: 1fr; }
 }

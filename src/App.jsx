@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
-import { horarios, getClasesActuales } from './data/horarios'
+import { horarios, getClasesActuales, getPiso, getTurnoActual } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
+import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
 import FiltersBar from './components/FiltersBarComponent/FiltersBar'
 import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
 import RoomCard from './components/RoomCardComponent/RoomCard'
+import LoginModal from './components/LoginModalComponent/LoginModal'
 import './App.css'
 
 function App() {
@@ -14,10 +16,18 @@ function App() {
   const [grupoFiltro, setGrupoFiltro]     = useState('Todos')
   const [diaFiltro, setDiaFiltro]         = useState('Todos')
   const [salonFiltro, setSalonFiltro]     = useState('Todos')
+  const [profesorFiltro, setProfesorFiltro] = useState('Todos')
+  const [pisoFiltro, setPisoFiltro]       = useState('Todos')
   const [clasesAhora, setClasesAhora]     = useState([])
+  const [turnoActual, setTurnoActual]     = useState(getTurnoActual())
+  const [loginAbierto, setLoginAbierto]   = useState(false)
+  const [usuario, setUsuario]             = useState(null)
 
   useEffect(() => {
-    const actualizar = () => setClasesAhora(getClasesActuales())
+    const actualizar = () => {
+      setClasesAhora(getClasesActuales())
+      setTurnoActual(getTurnoActual())
+    }
     actualizar()
     const intervalo = setInterval(actualizar, 60000)
     return () => clearInterval(intervalo)
@@ -26,6 +36,9 @@ function App() {
   const carreras = ['Todas', ...new Set(horarios.map(h => h.carrera))]
   const turnos   = ['Todos', ...new Set(horarios.map(h => h.turno))]
   const salones  = ['Todos', ...new Set(horarios.map(h => h.salon))].sort()
+  const horariosTurno = turnoActual ? horarios.filter(h => h.turno === turnoActual) : horarios
+  const profesores = ['Todos', ...new Set(horariosTurno.map(h => h.profesor))].sort()
+  const pisos    = ['Todos', 'Planta Baja', 'Piso 1', 'Piso 5', 'Mezzanine']
   const dias     = ['Todos', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
   const grupos = ['Todos', ...new Set(
@@ -39,8 +52,10 @@ function App() {
     if (carreraFiltro !== 'Todas' && h.carrera !== carreraFiltro) return false
     if (turnoFiltro   !== 'Todos' && h.turno   !== turnoFiltro)   return false
     if (grupoFiltro   !== 'Todos' && `${h.carrera} ${h.turno} ${h.grupo}` !== grupoFiltro) return false
-    if (diaFiltro     !== 'Todos' && h.dia     !== diaFiltro)     return false
-    if (salonFiltro   !== 'Todos' && h.salon   !== salonFiltro)   return false
+    if (diaFiltro      !== 'Todos' && h.dia       !== diaFiltro)      return false
+    if (salonFiltro    !== 'Todos' && h.salon     !== salonFiltro)    return false
+    if (profesorFiltro !== 'Todos' && h.profesor  !== profesorFiltro) return false
+    if (pisoFiltro     !== 'Todos' && getPiso(h.salon) !== pisoFiltro) return false
     return true
   })
 
@@ -57,17 +72,23 @@ function App() {
     setGrupoFiltro('Todos')
     setDiaFiltro('Todos')
     setSalonFiltro('Todos')
+    setProfesorFiltro('Todos')
+    setPisoFiltro('Todos')
   }
 
   const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
-                     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' || salonFiltro !== 'Todos'
+                     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' ||
+                     salonFiltro !== 'Todos' || profesorFiltro !== 'Todos' ||
+                     pisoFiltro !== 'Todos'
 
   return (
     <div className="app">
-      <Navbar vistaActual={vista} setVista={setVista} />
+      <Navbar vistaActual={vista} setVista={setVista} onLogoClick={() => setLoginAbierto(true)} usuario={usuario} />
 
       <main className="app-main">
         <CurrentClassPanel clases={clasesAhora} />
+
+        {usuario && <ProjectorPanel clases={clasesAhora} />}
 
         <FiltersBar
           carreras={carreras}   carreraFiltro={carreraFiltro}   setCarreraFiltro={setCarreraFiltro}
@@ -75,6 +96,8 @@ function App() {
           grupos={grupos}       grupoFiltro={grupoFiltro}       setGrupoFiltro={setGrupoFiltro}
           dias={dias}           diaFiltro={diaFiltro}           setDiaFiltro={setDiaFiltro}
           salones={salones}     salonFiltro={salonFiltro}       setSalonFiltro={setSalonFiltro}
+          profesores={profesores} profesorFiltro={profesorFiltro} setProfesorFiltro={setProfesorFiltro}
+          pisos={pisos}         pisoFiltro={pisoFiltro}         setPisoFiltro={setPisoFiltro}
         />
 
         <div className="resultados-meta">
@@ -114,6 +137,12 @@ function App() {
           )
         )}
       </main>
+
+        <LoginModal
+          abierto={loginAbierto}
+          onCerrar={() => setLoginAbierto(false)}
+          onLogin={(u) => { setUsuario(u); setLoginAbierto(false) }}
+        />
     </div>
   )
 }

@@ -6,13 +6,17 @@ function FiltersBar({
   grupos,   grupoFiltro,   setGrupoFiltro,
   dias,     diaFiltro,     setDiaFiltro,
   salones,  salonFiltro,   setSalonFiltro,
+  profesores, profesorFiltro, setProfesorFiltro,
+  pisos,    pisoFiltro,    setPisoFiltro,
 }) {
   const hayFiltrosActivos =
     carreraFiltro !== 'Todas' ||
     turnoFiltro   !== 'Todos' ||
     grupoFiltro   !== 'Todos' ||
     diaFiltro     !== 'Todos' ||
-    salonFiltro   !== 'Todos'
+    salonFiltro   !== 'Todos' ||
+    profesorFiltro !== 'Todos' ||
+    pisoFiltro    !== 'Todos'
 
   return (
     <section className="filters-bar">
@@ -32,6 +36,8 @@ function FiltersBar({
               grupoFiltro   !== 'Todos' && grupoFiltro.split(' ').pop(),
               diaFiltro     !== 'Todos' && diaFiltro,
               salonFiltro   !== 'Todos' && salonFiltro,
+              profesorFiltro !== 'Todos' && profesorFiltro.split(' ').pop(),
+              pisoFiltro    !== 'Todos' && pisoFiltro,
             ].filter(Boolean).join(' · ')}
           </span>
         )}
@@ -111,6 +117,32 @@ function FiltersBar({
             onChange={e => setSalonFiltro(e.target.value)}
           >
             {salones.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        {/* Profesor */}
+        <div className="filter-group">
+          <label className="filter-group__label" htmlFor="f-profesor">Profesor</label>
+          <select
+            id="f-profesor"
+            className="filter-group__select"
+            value={profesorFiltro}
+            onChange={e => setProfesorFiltro(e.target.value)}
+          >
+            {profesores.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+
+        {/* Piso */}
+        <div className="filter-group">
+          <label className="filter-group__label" htmlFor="f-piso">Piso</label>
+          <select
+            id="f-piso"
+            className="filter-group__select"
+            value={pisoFiltro}
+            onChange={e => setPisoFiltro(e.target.value)}
+          >
+            {pisos.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
         </div>
 
