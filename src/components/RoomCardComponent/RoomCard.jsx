@@ -54,7 +54,6 @@ function RoomCard({ salon, clases }) {
         </div>
         <span className="room-card__count">{totalClases} clase{totalClases !== 1 ? 's' : ''}</span>
       </div>
-
       <div className="room-card__carreras">
         {carreras.map(c => (
           <span key={c} className={`room-chip room-chip--${getColor(c)}`}>{c}</span>
