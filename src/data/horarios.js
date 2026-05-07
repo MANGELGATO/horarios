@@ -27,6 +27,11 @@ export const BLOQUES_VESPERTINO = [
 
 export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
+export const aMinutos = (hora) => {
+  const [hh, mm] = hora.split(':').map(Number);
+  return hh * 60 + mm;
+};
+
 export const getBloqueById = (id, turno = "Matutino") => {
   const lista = turno === "Vespertino" ? BLOQUES_VESPERTINO : BLOQUES;
   return lista.find(b => b.id === id);
@@ -42,6 +47,25 @@ export const getClasesActuales = () => {
     if (!bloque) return false;
     return h.dia === diaActual && horaActual >= bloque.inicio && horaActual < bloque.fin;
   });
+};
+
+export const getClasesProximas = (minutos = 5) => {
+  const ahora = new Date();
+  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  const diaActual = diasSemana[ahora.getDay()];
+  const minActual = aMinutos(ahora.toTimeString().slice(0, 5));
+  return horarios
+    .filter(h => {
+      if (!h.proyector) return false;
+      const bloque = getBloqueById(h.bloque, h.turno);
+      if (!bloque || h.dia !== diaActual) return false;
+      const minBloque = aMinutos(bloque.inicio);
+      return minActual >= minBloque - minutos && minActual < minBloque;
+    })
+    .map(h => {
+      const bloque = getBloqueById(h.bloque, h.turno);
+      return { ...h, _inicio: bloque.inicio };
+    });
 };
 
 export const getTurnoActual = () => {

@@ -4,7 +4,8 @@ import { auth, provider }  from '../../firebase'
 import './LoginPage.css'
 
 // ← Dominio permitido de la universidad
-const DOMINIO_PERMITIDO = 'utj.edu.mx'  // ajusta al dominio real
+const DOMINIO_ESTUDIANTE = 'soy.utj.edu.mx'
+const DOMINIO_ADMIN = 'utj.edu.mx'
 
 function LoginPage({ onLogin }) {
   const [cargando, setCargando] = useState(false)
@@ -19,19 +20,22 @@ function LoginPage({ onLogin }) {
       const email  = result.user.email
 
       // Valida que el correo sea del dominio universitario
-      if (!email.endsWith(`@${DOMINIO_PERMITIDO}`)) {
+      if (!email.endsWith(`@${DOMINIO_ESTUDIANTE}`) && !email.endsWith(`@${DOMINIO_ADMIN}`)) {
         await auth.signOut()
-        setError(`Solo se permite acceso con cuentas @${DOMINIO_PERMITIDO}`)
+        setError(`Solo se permite acceso con cuentas @${DOMINIO_ESTUDIANTE} o @${DOMINIO_ADMIN}`)
         setCargando(false)
         return
       }
 
-      // Login exitoso
+      // Determinar rol según dominio
+      const rol = email.endsWith(`@${DOMINIO_ADMIN}`) ? 'admin' : 'estudiante'
+
       onLogin({
         nombre: result.user.displayName,
         email:  result.user.email,
         foto:   result.user.photoURL,
         uid:    result.user.uid,
+        rol,
       })
 
     } catch (err) {
@@ -64,7 +68,7 @@ function LoginPage({ onLogin }) {
         <p className="login-card__instruccion">
           Inicia sesión con tu cuenta institucional
         </p>
-        <p className="login-card__dominio">@{DOMINIO_PERMITIDO}</p>
+        <p className="login-card__dominio">@soy.utj.edu.mx / @utj.edu.mx</p>
 
         {/* Botón Google */}
         <button

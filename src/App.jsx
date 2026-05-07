@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
-import { horarios, getClasesActuales, getPiso, getTurnoActual } from './data/horarios'
+import { signOut } from 'firebase/auth'
+import { auth } from './firebase'
+import { horarios, getClasesActuales, getClasesProximas, getPiso, getTurnoActual } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
 import FiltersBar from './components/FiltersBarComponent/FiltersBar'
 import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
 import RoomCard from './components/RoomCardComponent/RoomCard'
-import LoginModal from './components/LoginModalComponent/LoginModal'
-import InfoPage from './components/InfoPage/InfoPage'
 import LoginPage from './components/LoginPage/LoginPage'
+import InfoPage from './components/InfoPage/InfoPage'
 import './App.css'
 
 function App() {
@@ -21,15 +22,15 @@ function App() {
   const [profesorFiltro, setProfesorFiltro] = useState('Todos')
   const [pisoFiltro, setPisoFiltro]         = useState('Todos')
   const [clasesAhora, setClasesAhora]       = useState([])
+  const [clasesProximas, setClasesProximas] = useState([])
   const [turnoActual, setTurnoActual]       = useState(getTurnoActual())
-  const [loginAbierto, setLoginAbierto]     = useState(false)
   const [usuario, setUsuario]               = useState(null)
   const [mostrarInfo, setMostrarInfo]       = useState(false)
 
-  // ✅ useEffect SIEMPRE antes de cualquier return condicional
   useEffect(() => {
     const actualizar = () => {
       setClasesAhora(getClasesActuales())
+      setClasesProximas(getClasesProximas())
       setTurnoActual(getTurnoActual())
     }
     actualizar()
@@ -37,7 +38,11 @@ function App() {
     return () => clearInterval(intervalo)
   }, [])
 
-  // ✅ Cálculos derivados también antes del return condicional
+  const handleLogout = async () => {
+    await signOut(auth)
+    setUsuario(null)
+  }
+
   const carreras   = ['Todas', ...new Set(horarios.map(h => h.carrera))]
   const turnos     = ['Todos', ...new Set(horarios.map(h => h.turno))]
   const salones    = ['Todos', ...new Set(horarios.map(h => h.salon))].sort()
@@ -85,7 +90,6 @@ function App() {
                      salonFiltro   !== 'Todos' || profesorFiltro !== 'Todos' ||
                      pisoFiltro    !== 'Todos'
 
-  // ✅ Return condicional AL FINAL, después de todos los hooks y cálculos
   if (!usuario) {
     return <LoginPage onLogin={(u) => setUsuario(u)} />
   }
@@ -96,8 +100,8 @@ function App() {
       <Navbar
         vistaActual={vista}
         setVista={setVista}
-        onLogoClick={() => setLoginAbierto(true)}
         usuario={usuario}
+        onLogout={handleLogout}
         onInfoClick={() => setMostrarInfo(true)}
       />
 
@@ -105,7 +109,7 @@ function App() {
 
         <CurrentClassPanel clases={clasesAhora} />
 
-        {usuario && <ProjectorPanel clases={clasesAhora} />}
+        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} />}
 
         <FiltersBar
           carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}
@@ -152,12 +156,6 @@ function App() {
         )}
 
       </main>
-
-      <LoginModal
-        abierto={loginAbierto}
-        onCerrar={() => setLoginAbierto(false)}
-        onLogin={(u) => { setUsuario(u); setLoginAbierto(false) }}
-      />
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />

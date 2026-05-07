@@ -1,12 +1,12 @@
 import './Navbar.css'
 
-function Navbar({ vistaActual, setVista, onLogoClick, usuario, onInfoClick }) {
+function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
 
         {/* Brand */}
-        <button className="navbar__brand" onClick={onLogoClick}>
+        <div className="navbar__brand">
           <svg className="navbar__logo" viewBox="0 0 40 40" fill="none" aria-label="Logo">
             <rect x="4"  y="4"  width="14" height="14" rx="3" fill="currentColor" opacity="0.9"/>
             <rect x="22" y="4"  width="14" height="14" rx="3" fill="currentColor" opacity="0.6"/>
@@ -17,7 +17,7 @@ function Navbar({ vistaActual, setVista, onLogoClick, usuario, onInfoClick }) {
             <p className="navbar__title">Dashboard de Horarios</p>
             <p className="navbar__subtitle">{usuario ? `Bienvenido, ${usuario.nombre}` : 'CCD · Ciclo 2026B'}</p>
           </div>
-        </button>
+        </div>
 
         {/* Navegación de vistas */}
         <nav className="navbar__nav" aria-label="Vistas">
@@ -52,7 +52,23 @@ function Navbar({ vistaActual, setVista, onLogoClick, usuario, onInfoClick }) {
             <span className="badge badge--vespertino">🌙 15:30–21:20</span>
           </div>
 
-          {/* ── Botón Info ── NUEVO */}
+          <div className="navbar__user">
+            {usuario.foto && (
+              <img className="navbar__user-avatar" src={usuario.foto} alt="" />
+            )}
+            <span className="navbar__user-name">{usuario.nombre}</span>
+            <span className="navbar__user-rol">{usuario.rol === 'admin' ? 'Admin' : 'Estudiante'}</span>
+            <button className="navbar__logout-btn" onClick={onLogout} title="Cerrar sesión">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                <polyline points="16 17 21 12 16 7"/>
+                <line x1="21" y1="12" x2="9" y2="12"/>
+              </svg>
+            </button>
+          </div>
+
+          {/* ── Botón Info ── */}
           <button
             className="navbar__info-btn"
             onClick={onInfoClick}
