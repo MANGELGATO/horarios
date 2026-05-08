@@ -68,7 +68,7 @@ function LoginPage({ onLogin }) {
         <p className="login-card__instruccion">
           Inicia sesión con tu cuenta institucional
         </p>
-        <p className="login-card__dominio">@soy.utj.edu.mx / @utj.edu.mx</p>
+        <p className="login-card__dominio">@soy.utj.edu.mx</p>
 
         {/* Botón Google */}
         <button

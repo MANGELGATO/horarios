@@ -15,7 +15,7 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
           </svg>
           <div>
             <p className="navbar__title">Dashboard de Horarios</p>
-            <p className="navbar__subtitle">{usuario ? `Bienvenido, ${usuario.nombre}` : 'CCD · Ciclo 2026B'}</p>
+            <p className="navbar__subtitle">Bienvenido, CCD · Ciclo 2026B</p>
           </div>
         </div>
 

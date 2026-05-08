@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { signOut } from 'firebase/auth'
+import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from './firebase'
 import { horarios, getClasesActuales, getClasesProximas, getPiso, getTurnoActual } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
@@ -25,7 +25,28 @@ function App() {
   const [clasesProximas, setClasesProximas] = useState([])
   const [turnoActual, setTurnoActual]       = useState(getTurnoActual())
   const [usuario, setUsuario]               = useState(null)
+  const [authCargando, setAuthCargando]     = useState(true)
   const [mostrarInfo, setMostrarInfo]       = useState(false)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        const email = firebaseUser.email
+        const dominio = email.split('@')[1]
+        if (dominio === 'utj.edu.mx' || dominio === 'soy.utj.edu.mx') {
+          setUsuario({
+            nombre: firebaseUser.displayName,
+            email: firebaseUser.email,
+            foto: firebaseUser.photoURL,
+            uid: firebaseUser.uid,
+            rol: dominio === 'utj.edu.mx' ? 'admin' : 'estudiante',
+          })
+        }
+      }
+      setAuthCargando(false)
+    })
+    return unsubscribe
+  }, [])
 
   useEffect(() => {
     const actualizar = () => {
@@ -89,6 +110,15 @@ function App() {
                      grupoFiltro   !== 'Todos' || diaFiltro   !== 'Todos' ||
                      salonFiltro   !== 'Todos' || profesorFiltro !== 'Todos' ||
                      pisoFiltro    !== 'Todos'
+
+  if (authCargando) {
+    return (
+      <div className="app-loading">
+        <div className="app-loading__spinner" />
+        <p>Cargando...</p>
+      </div>
+    )
+  }
 
   if (!usuario) {
     return <LoginPage onLogin={(u) => setUsuario(u)} />

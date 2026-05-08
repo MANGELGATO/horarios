@@ -155,6 +155,23 @@
   padding: var(--space-4) var(--space-6) var(--space-6);
 }
 
+.proyector-panel__test-btn {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  margin-bottom: var(--space-3);
+  transition: background var(--transition);
+}
+
+.proyector-panel__test-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 /* ── Empty state ── */
 .proyector-panel__empty {
   display: flex;
