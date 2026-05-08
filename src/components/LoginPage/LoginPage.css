@@ -82,10 +82,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  width: calc(100% - var(--space-6));    /* ← no toca las orillas */
-  padding: var(--space-3) var(--space-5);
+  width: calc(75% - var(--space-6));
+  padding: var(--space-3) var(--space-8);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);       /* ← más redondeado */
+  border-radius: var(--space-4);
   background: var(--color-surface-2, #fff);
   color: var(--color-text);
   font-size: var(--text-sm);
