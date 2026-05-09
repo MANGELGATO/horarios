@@ -59,30 +59,63 @@ function App() {
     return () => clearInterval(intervalo)
   }, [])
 
+  useEffect(() => {
+    if (carreraFiltro === 'Todas') return
+    const validos = ['Todas', ...new Set(
+      horarios.filter(h => turnoFiltro === 'Todos' || h.turno === turnoFiltro).map(h => h.carrera)
+    )]
+    if (!validos.includes(carreraFiltro)) setCarreraFiltro('Todas')
+  }, [turnoFiltro])
+
+  useEffect(() => {
+    if (turnoFiltro === 'Todos') return
+    const validos = ['Todos', ...new Set(
+      horarios.filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro).map(h => h.turno)
+    )]
+    if (!validos.includes(turnoFiltro)) setTurnoFiltro('Todos')
+  }, [carreraFiltro])
+
+  useEffect(() => {
+    if (grupoFiltro === 'Todos') return
+    const validos = ['Todos', ...new Set(
+      horarios
+        .filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro)
+        .filter(h => turnoFiltro   === 'Todos'  || h.turno   === turnoFiltro)
+        .map(h => h.grupo)
+    )]
+    if (!validos.includes(grupoFiltro)) setGrupoFiltro('Todos')
+  }, [carreraFiltro, turnoFiltro])
+
   const handleLogout = async () => {
     await signOut(auth)
     setUsuario(null)
   }
 
-  const carreras   = ['Todas', ...new Set(horarios.map(h => h.carrera))]
-  const turnos     = ['Todos', ...new Set(horarios.map(h => h.turno))]
-  const salones    = ['Todos', ...new Set(horarios.map(h => h.salon))].sort()
-  const horariosTurno = turnoActual ? horarios.filter(h => h.turno === turnoActual) : horarios
-  const profesores = ['Todos', ...new Set(horariosTurno.map(h => h.profesor))].sort()
+  function filtrar(omitir) {
+    return horarios.filter(h => {
+      if (omitir !== 'carrera'  && carreraFiltro  !== 'Todas' && h.carrera  !== carreraFiltro)  return false
+      if (omitir !== 'turno'    && turnoFiltro    !== 'Todos' && h.turno    !== turnoFiltro)    return false
+      if (omitir !== 'grupo'    && grupoFiltro    !== 'Todos' && h.grupo    !== grupoFiltro)    return false
+      if (omitir !== 'dia'      && diaFiltro      !== 'Todos' && h.dia      !== diaFiltro)      return false
+      if (omitir !== 'salon'    && salonFiltro    !== 'Todos' && h.salon    !== salonFiltro)    return false
+      if (omitir !== 'profesor' && profesorFiltro !== 'Todos' && h.profesor !== profesorFiltro) return false
+      if (omitir !== 'piso'     && pisoFiltro     !== 'Todos' && getPiso(h.salon) !== pisoFiltro) return false
+      return true
+    })
+  }
+
+  const carreras   = ['Todas', ...new Set(filtrar('carrera').map(h => h.carrera))]
+  const turnos     = ['Todos', ...new Set(filtrar('turno').map(h => h.turno))]
+  const grupos     = ['Todos', ...new Set(filtrar('grupo').map(h => h.grupo))]
+  const salones    = ['Todos', ...new Set(filtrar('salon').map(h => h.salon))].sort()
+  const profesores = ['Todos', ...new Set(filtrar('profesor').map(h => h.profesor))].sort()
   const pisos      = ['Todos', 'Planta Baja', 'Piso 1', 'Piso 5', 'Mezzanine']
   const dias       = ['Todos', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
-
-  const grupos = ['Todos', ...new Set(
-    horarios
-      .filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro)
-      .filter(h => turnoFiltro   === 'Todos'  || h.turno   === turnoFiltro)
-      .map(h => `${h.carrera} ${h.turno} ${h.grupo}`)
-  )]
 
   const horariosFiltrados = horarios.filter(h => {
     if (carreraFiltro  !== 'Todas' && h.carrera  !== carreraFiltro)  return false
     if (turnoFiltro    !== 'Todos' && h.turno    !== turnoFiltro)    return false
-    if (grupoFiltro    !== 'Todos' && `${h.carrera} ${h.turno} ${h.grupo}` !== grupoFiltro) return false
+    if (grupoFiltro    !== 'Todos' && h.grupo !== grupoFiltro) return false
     if (diaFiltro      !== 'Todos' && h.dia      !== diaFiltro)      return false
     if (salonFiltro    !== 'Todos' && h.salon    !== salonFiltro)    return false
     if (profesorFiltro !== 'Todos' && h.profesor !== profesorFiltro) return false

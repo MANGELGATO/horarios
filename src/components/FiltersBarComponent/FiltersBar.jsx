@@ -33,7 +33,7 @@ function FiltersBar({
             {[
               carreraFiltro !== 'Todas' && carreraFiltro,
               turnoFiltro   !== 'Todos' && turnoFiltro,
-              grupoFiltro   !== 'Todos' && grupoFiltro.split(' ').pop(),
+              grupoFiltro   !== 'Todos' && grupoFiltro,
               diaFiltro     !== 'Todos' && diaFiltro,
               salonFiltro   !== 'Todos' && salonFiltro,
               profesorFiltro !== 'Todos' && profesorFiltro.split(' ').pop(),
@@ -52,10 +52,7 @@ function FiltersBar({
             id="f-carrera"
             className="filter-group__select"
             value={carreraFiltro}
-            onChange={e => {
-              setCarreraFiltro(e.target.value)
-              setGrupoFiltro('Todos') // reset grupo al cambiar carrera
-            }}
+            onChange={e => setCarreraFiltro(e.target.value)}
           >
             {carreras.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -68,10 +65,7 @@ function FiltersBar({
             id="f-turno"
             className="filter-group__select"
             value={turnoFiltro}
-            onChange={e => {
-              setTurnoFiltro(e.target.value)
-              setGrupoFiltro('Todos')
-            }}
+            onChange={e => setTurnoFiltro(e.target.value)}
           >
             {turnos.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -88,7 +82,7 @@ function FiltersBar({
           >
             {grupos.map(g => (
               <option key={g} value={g}>
-                {g === 'Todos' ? 'Todos' : g.split(' ').pop()}
+                {g === 'Todos' ? 'Todos' : g}
               </option>
             ))}
           </select>
