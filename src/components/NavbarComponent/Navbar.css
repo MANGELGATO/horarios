@@ -193,3 +193,31 @@
   color: #dc2626;
   border-color: #dc2626;
 }
+/* ── Botón Imprimir ── */
+.navbar__print-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px; /* Mismo tamaño que el de logout */
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.navbar__print-btn:hover {
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Estilo cuando está activo (seleccionado) */
+.navbar__print-btn--active {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}

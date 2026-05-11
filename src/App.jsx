@@ -10,6 +10,7 @@ import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
 import RoomCard from './components/RoomCardComponent/RoomCard'
 import LoginPage from './components/LoginPage/LoginPage'
 import InfoPage from './components/InfoPage/InfoPage'
+import PrintPage from './components/PrintPageComponent/PrintPage'
 import './App.css'
 
 function App() {
@@ -185,11 +186,21 @@ function App() {
           )
         )}
 
+        {vista === 'print' && (
+      <PrintPage
+      horarios={horarios}
+      salones={salones}
+      onVolver={() => setVista('tabla')}
+      />
+      )}
+
       </main>
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />
       )}
+
+      
 
     </div>
   )
