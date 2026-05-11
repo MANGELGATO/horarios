@@ -5,6 +5,7 @@ import { horarios, getClasesActuales, getClasesProximas, getPiso, getTurnoActual
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
+import ProjectorCard from './components/ProjectorCardComponent/ProjectorCard'
 import FiltersBar from './components/FiltersBarComponent/FiltersBar'
 import WeeklyTable from './components/WeeklyTableComponent/WeeklyTable'
 import RoomCard from './components/RoomCardComponent/RoomCard'
@@ -23,6 +24,7 @@ function App() {
   const [pisoFiltro, setPisoFiltro]         = useState('Todos')
   const [clasesAhora, setClasesAhora]       = useState([])
   const [clasesProximas, setClasesProximas] = useState([])
+  const [clasesProximas10, setClasesProximas10] = useState([])
   const [turnoActual, setTurnoActual]       = useState(getTurnoActual())
   const [usuario, setUsuario]               = useState(null)
   const [authCargando, setAuthCargando]     = useState(true)
@@ -52,6 +54,7 @@ function App() {
     const actualizar = () => {
       setClasesAhora(getClasesActuales())
       setClasesProximas(getClasesProximas())
+      setClasesProximas10(getClasesProximas(10))
       setTurnoActual(getTurnoActual())
     }
     actualizar()
@@ -129,6 +132,14 @@ function App() {
     return acc
   }, {})
 
+  const proyectoresAgrupados = horariosFiltrados
+    .filter(h => h.proyector)
+    .reduce((acc, h) => {
+      if (!acc[h.proyector]) acc[h.proyector] = []
+      acc[h.proyector].push(h)
+      return acc
+    }, {})
+
   const limpiarFiltros = () => {
     setCarreraFiltro('Todas')
     setTurnoFiltro('Todos')
@@ -172,7 +183,7 @@ function App() {
 
         <CurrentClassPanel clases={clasesAhora} />
 
-        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} />}
+        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} proximas10={clasesProximas10} />}
 
         <FiltersBar
           carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}
@@ -213,6 +224,23 @@ function App() {
                 .sort(([a], [b]) => a.localeCompare(b))
                 .map(([salon, clases]) => (
                   <RoomCard key={salon} salon={salon} clases={clases} />
+                ))}
+            </div>
+          )
+        )}
+
+        {vista === 'proyectores' && (
+          Object.keys(proyectoresAgrupados).length === 0 ? (
+            <div className="weekly-empty">
+              <span>🔍</span>
+              <p>Sin resultados — no hay clases con proyector</p>
+            </div>
+          ) : (
+            <div className="rooms-grid">
+              {Object.entries(proyectoresAgrupados)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([proyector, clases]) => (
+                  <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
                 ))}
             </div>
           )

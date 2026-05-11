@@ -64,7 +64,18 @@ export const getClasesProximas = (minutos = 5) => {
     })
     .map(h => {
       const bloque = getBloqueById(h.bloque, h.turno);
-      return { ...h, _inicio: bloque.inicio };
+      const esContinuacion = horarios.some(other =>
+        other.carrera === h.carrera &&
+        other.grupo === h.grupo &&
+        other.turno === h.turno &&
+        other.dia === h.dia &&
+        other.materia === h.materia &&
+        other.profesor === h.profesor &&
+        other.salon === h.salon &&
+        other.proyector === h.proyector &&
+        other.bloque === h.bloque - 1
+      );
+      return { ...h, _inicio: bloque.inicio, _firstBlock: !esContinuacion };
     });
 };
 

@@ -22,9 +22,10 @@ const playAlarma = () => {
   } catch {}
 }
 
-function ProjectorPanel({ clases, proximas }) {
+function ProjectorPanel({ clases, proximas, proximas10 }) {
   const [expandido, setExpandido] = useState(false)
   const alertadas = useRef(new Set())
+  const alertadas10 = useRef(new Set())
   const ahora = new Date()
   const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
   const diaActual  = dias[ahora.getDay()]
@@ -36,12 +37,22 @@ function ProjectorPanel({ clases, proximas }) {
   useEffect(() => {
     proximas.forEach(c => {
       const key = `${c.carrera}-${c.grupo}-${c.bloque}-${c.turno}`
-      if (!alertadas.current.has(key)) {
+      if (!alertadas.current.has(key) && c._firstBlock !== false) {
         alertadas.current.add(key)
         playAlarma()
       }
     })
   }, [proximas])
+
+  useEffect(() => {
+    (proximas10 || []).forEach(c => {
+      const key = `10-${c.carrera}-${c.grupo}-${c.bloque}-${c.turno}`
+      if (!alertadas10.current.has(key) && c._firstBlock !== false) {
+        alertadas10.current.add(key)
+        playAlarma()
+      }
+    })
+  }, [proximas10])
 
   return (
     <section className={`proyector-panel${expandido ? ' proyector-panel--open' : ''}`}>
@@ -51,9 +62,9 @@ function ProjectorPanel({ clases, proximas }) {
           <h2 className="proyector-panel__title">Proyectores / pantallas</h2>
           {!expandido && (
             <>
-              {proximas.length > 0 && (
+              {proximas10 && proximas10.length > 0 && (
                 <span className="proyector-panel__hint proyector-panel__hint--alerta">
-                  {proximas.length} por comenzar
+                  {proximas10.length} por comenzar
                 </span>
               )}
               {clasesConProyector.length > 0 && (
@@ -80,20 +91,20 @@ function ProjectorPanel({ clases, proximas }) {
               <span className="proyector-panel__empty-icon">📅</span>
               <p>Es fin de semana — no hay proyecciones programadas</p>
             </div>
-          ) : clasesConProyector.length === 0 && proximas.length === 0 ? (
+          ) : clasesConProyector.length === 0 && (!proximas10 || proximas10.length === 0) ? (
             <div className="proyector-panel__empty">
               <span className="proyector-panel__empty-icon">🖥️</span>
               <p>No hay proyecciones activas ni próximas</p>
             </div>
           ) : (
             <>
-              {proximas.length > 0 && (
+              {proximas10 && proximas10.length > 0 && (
                 <div className="proyector-panel__seccion">
                   <h3 className="proyector-panel__seccion-titulo proyector-panel__seccion-titulo--alerta">
                     ⏰ Por comenzar
                   </h3>
                   <div className="proyector-panel__grid">
-                    {proximas.map((clase, i) => (
+                    {proximas10.map((clase, i) => (
                       <div key={i} className="proyector-card proyector-card--upcoming">
                         <div className="proyector-card__top">
                           <span className="proyector-card__proyector">{clase.proyector}</span>
