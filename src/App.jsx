@@ -180,6 +180,7 @@ function App() {
         usuario={usuario}
         onLogout={handleLogout}
         onInfoClick={() => setMostrarInfo(true)}
+        turnoActual={turnoActual}
       />
 
       <main className="app-main">

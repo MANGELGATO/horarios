@@ -1,6 +1,6 @@
 import './Navbar.css'
 
-function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
+function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoActual }) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -62,8 +62,12 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
         {/* Derecha: badges + botón info */}
         <div className="navbar__right">
           <div className="navbar__badges">
-            <span className="badge badge--matutino">7:00–14:10</span>
-            <span className="badge badge--vespertino">15:30–21:20</span>
+            {turnoActual === 'Matutino' && (
+              <span className="badge badge--matutino">7:00–14:10</span>
+            )}
+            {turnoActual === 'Vespertino' && (
+              <span className="badge badge--vespertino">15:30–21:20</span>
+            )}
           </div>
 
           <div className="navbar__user">
