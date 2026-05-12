@@ -1,0 +1,152 @@
+/* Tabloide en formato Portrait (Vertical) */
+.tabloide-page {
+  width: 279.4mm;   /* 11 pulgadas */
+  min-height: 431.8mm; /* 17 pulgadas */
+  background: white;
+  padding: 15mm 20mm;
+  font-family: 'Arial', 'Inter', sans-serif;
+  color: #000;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Logos Superiores (Placeholders) */
+.tabloide-header-logos {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.logo-placeholder {
+  background: #f0f0f0;
+  border: 1px dashed #ccc;
+  color: #999;
+  padding: 15px 30px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.logo-placeholder--round {
+  border-radius: 50%;
+  padding: 25px 15px;
+}
+
+/* Título (Laboratorio | M02) */
+.tabloide-title {
+  text-align: right;
+  font-size: 34px;
+  margin-bottom: 15px;
+}
+.tabloide-title__tipo {
+  color: #a0a0a0;
+  font-weight: 700;
+}
+.tabloide-title__nombre {
+  color: #707070;
+  font-weight: 800;
+}
+
+/* Tabla */
+.tabloide-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  flex-grow: 1;
+  border: 2px solid #333;
+}
+
+/* Cabeceras */
+.tabloide-th {
+  background: #a6a6a6;
+  color: black;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 8px 4px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.tabloide-th--horario {
+  width: 90px;
+}
+
+/* Celdas comunes (Bordes laterales sólidos, inferiores punteados) */
+.tabloide-td {
+  border-left: 1px solid #333;
+  border-right: 1px solid #333;
+  border-bottom: 1px dashed #888; /* Borde punteado como en la imagen */
+  padding: 4px;
+  vertical-align: middle;
+  height: 55px; /* Altura uniforme */
+}
+
+/* Última fila sin punteado abajo */
+tbody tr:last-child .tabloide-td {
+  border-bottom: 1px solid #333;
+}
+
+/* Columna de Horario */
+.tabloide-td--horario {
+  background: #d9d9d9;
+  font-size: 10px;
+  font-weight: 800;
+  color: #000;
+  text-align: center;
+  border-bottom: 1px solid #333; /* El horario suele tener línea sólida */
+}
+
+.tabloide-td--vacia { background: transparent; }
+.tabloide-td--ocupada { background: transparent; text-align: center; }
+
+/* Textos de las clases */
+.tabloide-materia { display: block; font-size: 9px; font-weight: 800; line-height: 1.2; margin-bottom: 3px;}
+.tabloide-grupo   { display: block; font-size: 8px; font-weight: 600; color: #555; }
+.tabloide-profesor{ display: block; font-size: 8px; color: #555; }
+
+/* Fila de Receso */
+.tabloide-receso-row td {
+  background: #a6a6a6;
+  text-align: center;
+  border: 1px solid #333;
+  font-size: 11px;
+  font-weight: 800;
+  color: #000;
+  padding: 6px;
+  letter-spacing: 0.2em;
+}
+
+/* Footer / Ciclo */
+.tabloide-ciclo {
+  text-align: right;
+  font-size: 16px;
+  color: #707070;
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+/* Logos de Footer */
+.tabloide-footer-logos {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+.footer-logo { padding: 10px 20px; font-size: 10px; }
+
+/* IMPRESIÓN */
+@media print {
+  @page { size: 11in 17in portrait; margin: 0; } /* Cambiado a Portrait */
+  body * { visibility: hidden; }
+  .tabloide-page, .tabloide-page * { visibility: visible; }
+  .tabloide-page {
+    position: absolute;
+    top: 0; left: 0;
+    width: 11in;
+    height: 17in; /* Fija la altura exacta */
+    padding: 15mm 20mm;
+    margin: 0;
+  }
+}
