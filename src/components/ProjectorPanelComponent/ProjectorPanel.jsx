@@ -22,10 +22,11 @@ const playAlarma = () => {
   } catch {}
 }
 
-function ProjectorPanel({ clases, proximas, proximas10 }) {
+function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
   const [expandido, setExpandido] = useState(false)
   const alertadas = useRef(new Set())
   const alertadas10 = useRef(new Set())
+  const alertadasTerminando = useRef(new Set())
   const ahora = new Date()
   const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
   const diaActual  = dias[ahora.getDay()]
@@ -54,6 +55,16 @@ function ProjectorPanel({ clases, proximas, proximas10 }) {
     })
   }, [proximas10])
 
+  useEffect(() => {
+    (terminando || []).forEach(c => {
+      const key = `fin-${c.carrera}-${c.grupo}-${c.bloque}-${c.turno}`
+      if (!alertadasTerminando.current.has(key) && c._lastBlock !== false) {
+        alertadasTerminando.current.add(key)
+        playAlarma()
+      }
+    })
+  }, [terminando])
+
   return (
     <section className={`proyector-panel${expandido ? ' proyector-panel--open' : ''}`}>
       <button className="proyector-panel__header" onClick={() => setExpandido(e => !e)}>
@@ -62,6 +73,11 @@ function ProjectorPanel({ clases, proximas, proximas10 }) {
           <h2 className="proyector-panel__title">Proyectores / pantallas</h2>
           {!expandido && (
             <>
+              {terminando && terminando.length > 0 && (
+                <span className="proyector-panel__hint proyector-panel__hint--terminando">
+                  {terminando.length} por retirar
+                </span>
+              )}
               {proximas10 && proximas10.length > 0 && (
                 <span className="proyector-panel__hint proyector-panel__hint--alerta">
                   {proximas10.length} por comenzar
@@ -91,7 +107,7 @@ function ProjectorPanel({ clases, proximas, proximas10 }) {
               <span className="proyector-panel__empty-icon">📅</span>
               <p>Es fin de semana — no hay proyecciones programadas</p>
             </div>
-          ) : clasesConProyector.length === 0 && (!proximas10 || proximas10.length === 0) ? (
+          ) : clasesConProyector.length === 0 && (!proximas10 || proximas10.length === 0) && (!terminando || terminando.length === 0) ? (
             <div className="proyector-panel__empty">
               <span className="proyector-panel__empty-icon">🖥️</span>
               <p>No hay proyecciones activas ni próximas</p>
@@ -105,13 +121,44 @@ function ProjectorPanel({ clases, proximas, proximas10 }) {
                   </h3>
                   <div className="proyector-panel__grid">
                     {proximas10.map((clase, i) => (
-                      <div key={i} className="proyector-card proyector-card--upcoming">
+                      <div key={i} className={`proyector-card proyector-card--upcoming${clase.webcam ? ' proyector-card--webcam' : clase.abrir ? ' proyector-card--abrir' : ''}`}>
                         <div className="proyector-card__top">
-                          <span className="proyector-card__proyector">{clase.proyector}</span>
+                          <span className={`proyector-card__proyector${clase.webcam ? ' proyector-card__proyector--webcam' : clase.abrir ? ' proyector-card__proyector--abrir' : ''}`}>
+                            {clase.webcam ? 'Webcam' : clase.abrir ? 'Abrir' : clase.proyector}
+                          </span>
                           <span className="proyector-card__salon">{clase.salon}</span>
                         </div>
                         <div className="proyector-card__countdown">
                           Inicia a las {clase._inicio}
+                        </div>
+                        <div className="proyector-card__info">
+                          <span className={`proyector-card__badge ${clase.turno === 'Matutino' ? 'badge--matutino' : 'badge--vespertino'}`}>
+                            {clase.carrera} · {clase.grupo}
+                          </span>
+                          <p className="proyector-card__materia">{clase.materia}</p>
+                          <p className="proyector-card__profesor">{clase.profesor}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {terminando && terminando.length > 0 && (
+                <div className="proyector-panel__seccion">
+                  <h3 className="proyector-panel__seccion-titulo proyector-panel__seccion-titulo--terminando">
+                    ⏳ Por retirar
+                  </h3>
+                  <div className="proyector-panel__grid">
+                    {terminando.map((clase, i) => (
+                      <div key={i} className={`proyector-card proyector-card--ending${clase.webcam ? ' proyector-card--webcam' : clase.abrir ? ' proyector-card--abrir' : ''}`}>
+                        <div className="proyector-card__top">
+                          <span className={`proyector-card__proyector${clase.webcam ? ' proyector-card__proyector--webcam' : clase.abrir ? ' proyector-card__proyector--abrir' : ''}`}>
+                            {clase.webcam ? 'Webcam' : clase.abrir ? 'Abrir' : clase.proyector}
+                          </span>
+                          <span className="proyector-card__salon">{clase.salon}</span>
+                        </div>
+                        <div className="proyector-card__countdown">
+                          Termina a las {clase._fin}
                         </div>
                         <div className="proyector-card__info">
                           <span className={`proyector-card__badge ${clase.turno === 'Matutino' ? 'badge--matutino' : 'badge--vespertino'}`}>
@@ -130,9 +177,11 @@ function ProjectorPanel({ clases, proximas, proximas10 }) {
                   <h3 className="proyector-panel__seccion-titulo">En vivo</h3>
                   <div className="proyector-panel__grid">
                     {clasesConProyector.map((clase, i) => (
-                      <div key={i} className="proyector-card">
+                      <div key={i} className={`proyector-card${clase.webcam ? ' proyector-card--webcam' : clase.abrir ? ' proyector-card--abrir' : ''}`}>
                         <div className="proyector-card__top">
-                          <span className="proyector-card__proyector">{clase.proyector}</span>
+                          <span className={`proyector-card__proyector${clase.webcam ? ' proyector-card__proyector--webcam' : clase.abrir ? ' proyector-card__proyector--abrir' : ''}`}>
+                            {clase.webcam ? 'Webcam' : clase.abrir ? 'Abrir' : clase.proyector}
+                          </span>
                           <span className="proyector-card__salon">{clase.salon}</span>
                         </div>
                         <div className="proyector-card__info">

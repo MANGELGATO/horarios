@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth } from './firebase'
-import { horarios, getClasesActuales, getClasesProximas, getPiso, getTurnoActual } from './data/horarios'
+import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -25,6 +25,7 @@ function App() {
   const [clasesAhora, setClasesAhora]       = useState([])
   const [clasesProximas, setClasesProximas] = useState([])
   const [clasesProximas10, setClasesProximas10] = useState([])
+  const [clasesTerminando, setClasesTerminando] = useState([])
   const [turnoActual, setTurnoActual]       = useState(getTurnoActual())
   const [usuario, setUsuario]               = useState(null)
   const [authCargando, setAuthCargando]     = useState(true)
@@ -55,6 +56,7 @@ function App() {
       setClasesAhora(getClasesActuales())
       setClasesProximas(getClasesProximas())
       setClasesProximas10(getClasesProximas(10))
+      setClasesTerminando(getClasesTerminando())
       setTurnoActual(getTurnoActual())
     }
     actualizar()
@@ -183,7 +185,7 @@ function App() {
 
         <CurrentClassPanel clases={clasesAhora} />
 
-        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} proximas10={clasesProximas10} />}
+        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} proximas10={clasesProximas10} terminando={clasesTerminando} />}
 
         <FiltersBar
           carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}

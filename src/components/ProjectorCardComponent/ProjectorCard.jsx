@@ -40,9 +40,11 @@ function ProjectorCard({ proyector, clases }) {
   const totalClases = clases.length
   const carreras = [...new Set(clases.map(c => c.carrera))]
   const salones = [...new Set(clases.map(c => c.salon))]
+  const esWebcam = clases.some(c => c.webcam)
+  const esAbrir = clases.some(c => c.abrir)
 
   return (
-    <article className="proyector-card">
+    <article className={`proyector-card${esWebcam ? ' proyector-card--webcam' : esAbrir ? ' proyector-card--abrir' : ''}`}>
       <div className="proyector-card__header">
         <div className="proyector-card__proyector-info">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
@@ -51,7 +53,7 @@ function ProjectorCard({ proyector, clases }) {
             <line x1="8" y1="21" x2="16" y2="21"/>
             <line x1="12" y1="17" x2="12" y2="21"/>
           </svg>
-          <h3 className="proyector-card__name">Proyector {proyector}</h3>
+          <h3 className="proyector-card__name">{esWebcam ? 'Webcam' : esAbrir ? 'Abrir taller' : `Proyector ${proyector}`}</h3>
         </div>
         <span className="proyector-card__count">{totalClases} clase{totalClases !== 1 ? 's' : ''}</span>
       </div>

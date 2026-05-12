@@ -103,6 +103,12 @@
   animation: proyector-pulse 1s ease-in-out infinite;
 }
 
+.proyector-panel__hint--terminando {
+  color: #2563eb;
+  background: #eff6ff;
+  animation: proyector-pulse 1s ease-in-out infinite;
+}
+
 /* ── Sections ── */
 .proyector-panel__seccion + .proyector-panel__seccion {
   margin-top: var(--space-6);
@@ -119,6 +125,10 @@
 
 .proyector-panel__seccion-titulo--alerta {
   color: #dc2626;
+}
+
+.proyector-panel__seccion-titulo--terminando {
+  color: #2563eb;
 }
 
 .proyector-panel__chevron-wrapper {
@@ -242,6 +252,46 @@
 .proyector-card--upcoming .proyector-card__proyector {
   background: #dc2626;
   color: #fff;
+}
+
+.proyector-card--ending {
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+.proyector-card--ending .proyector-card__proyector {
+  background: #2563eb;
+  color: #fff;
+}
+
+.proyector-card--webcam {
+  border-color: #6ee7b7;
+  background: #f0fdf4;
+}
+
+.proyector-card--webcam .proyector-card__proyector,
+.proyector-card__proyector--webcam {
+  background: #059669;
+  color: #fff;
+}
+
+.proyector-card--webcam .proyector-card__countdown {
+  color: #059669;
+}
+
+.proyector-card--abrir {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.proyector-card--abrir .proyector-card__proyector,
+.proyector-card__proyector--abrir {
+  background: #d97706;
+  color: #fff;
+}
+
+.proyector-card--abrir .proyector-card__countdown {
+  color: #d97706;
 }
 
 .proyector-card__countdown {

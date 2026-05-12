@@ -12,6 +12,24 @@
 
 .proyector-card:hover { box-shadow: var(--shadow-md); }
 
+.proyector-card--webcam {
+  border-color: #6ee7b7;
+  background: #f0fdf4;
+}
+
+.proyector-card--webcam .proyector-card__proyector-info {
+  color: #059669;
+}
+
+.proyector-card--abrir {
+  border-color: #fbbf24;
+  background: #fffbeb;
+}
+
+.proyector-card--abrir .proyector-card__proyector-info {
+  color: #d97706;
+}
+
 .proyector-card__header {
   display: flex;
   align-items: center;
