@@ -1,9 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import './ProjectorPanel.css'
 
+let audioCtx = null
+
+const getAudioCtx = () => {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume()
+  }
+  return audioCtx
+}
+
 const playAlarma = () => {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const ctx = getAudioCtx()
     const tono = (freq, start, dur) => {
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
@@ -34,6 +46,16 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
   const esFindeSemana = ahora.getDay() === 0 || ahora.getDay() === 6
 
   const clasesConProyector = clases.filter(c => c.proyector)
+
+  useEffect(() => {
+    const handler = () => { getAudioCtx() }
+    document.addEventListener('click', handler, { once: true })
+    document.addEventListener('touchstart', handler, { once: true })
+    return () => {
+      document.removeEventListener('click', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [])
 
   useEffect(() => {
     proximas.forEach(c => {
