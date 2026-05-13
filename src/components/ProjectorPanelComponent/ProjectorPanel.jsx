@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './ProjectorPanel.css'
+import { enviarNotificacion, solicitarPermiso, NOTIFICATION_TAG } from '../../utils/notifications'
 
 let audioCtx = null
 
@@ -31,7 +32,7 @@ const playAlarma = () => {
     tono(880, ctx.currentTime, 0.15)
     tono(660, ctx.currentTime + 0.2, 0.15)
     tono(880, ctx.currentTime + 0.4, 0.3)
-  } catch {}
+  } catch { /* audio not supported */ }
 }
 
 function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
@@ -48,7 +49,10 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
   const clasesConProyector = clases.filter(c => c.proyector)
 
   useEffect(() => {
-    const handler = () => { getAudioCtx() }
+    const handler = () => {
+      getAudioCtx()
+      solicitarPermiso()
+    }
     document.addEventListener('click', handler, { once: true })
     document.addEventListener('touchstart', handler, { once: true })
     return () => {
@@ -63,6 +67,11 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
       if (!alertadas.current.has(key) && c._firstBlock !== false) {
         alertadas.current.add(key)
         playAlarma()
+        enviarNotificacion(
+          'Proyector por comenzar',
+          `${c.materia} · ${c.salon} · ${c.proyector}`,
+          NOTIFICATION_TAG.PROXIMA,
+        )
       }
     })
   }, [proximas])
@@ -73,6 +82,11 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
       if (!alertadas10.current.has(key) && c._firstBlock !== false) {
         alertadas10.current.add(key)
         playAlarma()
+        enviarNotificacion(
+          'Proyector en 10 min',
+          `${c.materia} · ${c.salon} · ${c.proyector}`,
+          NOTIFICATION_TAG.PROXIMA_10,
+        )
       }
     })
   }, [proximas10])
@@ -83,6 +97,11 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
       if (!alertadasTerminando.current.has(key) && c._lastBlock !== false) {
         alertadasTerminando.current.add(key)
         playAlarma()
+        enviarNotificacion(
+          'Retirar proyector',
+          `${c.materia} · ${c.salon} · ${c.proyector}`,
+          NOTIFICATION_TAG.TERMINANDO,
+        )
       }
     })
   }, [terminando])
