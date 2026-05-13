@@ -1075,8 +1075,8 @@ export const horarios = [
   // VIERNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Laboratorio 503" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Aula M07" },
 
   // ──────────────────────────────────────────────────────────────────────────
   // Grupo: 8B (IDGS)
@@ -1457,6 +1457,6 @@ export const horarios = [
   // VIERNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 2, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 3, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
 ];
