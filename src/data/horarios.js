@@ -1164,8 +1164,8 @@ export const horarios = [
   // MARTES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
 
   // MIÉRCOLES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 2, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },

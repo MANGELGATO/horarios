@@ -88,6 +88,7 @@ function ProjectorCard({ proyector, clases }) {
                       </span>
                       <div className="proyector-item__info">
                         <span className="proyector-item__materia">{c.materia}</span>
+                        <span className="proyector-item__profesor">{c.profesor}</span>
                         <span className="proyector-item__grupo">{c.carrera} {c.grupo} · {c.turno}</span>
                       </div>
                     </div>

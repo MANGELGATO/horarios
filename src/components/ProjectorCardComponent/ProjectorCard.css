@@ -166,3 +166,10 @@
   font-size: 0.68rem;
   color: var(--color-text-muted);
 }
+
+.proyector-item__profesor {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text);
+  opacity: 0.85;
+}
