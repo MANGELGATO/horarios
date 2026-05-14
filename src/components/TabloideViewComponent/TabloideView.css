@@ -1,152 +1,215 @@
-/* Tabloide en formato Portrait (Vertical) */
+/* ════════════════════════════════════
+   TABLOIDE — 11×17 Portrait (Vertical)
+════════════════════════════════════ */
 .tabloide-page {
-  width: 279.4mm;   /* 11 pulgadas */
-  min-height: 431.8mm; /* 17 pulgadas */
+  width: 279.4mm;
+  min-height: 431.8mm;
   background: white;
-  padding: 15mm 20mm;
-  font-family: 'Arial', 'Inter', sans-serif;
+  padding: 12mm 15mm;
+  font-family: 'Arial', sans-serif;
   color: #000;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  position: relative;
+  gap: 6px;
 }
 
-/* Logos Superiores (Placeholders) */
+/* ── Logos superiores ── */
 .tabloide-header-logos {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
 }
 
 .logo-placeholder {
   background: #f0f0f0;
   border: 1px dashed #ccc;
   color: #999;
-  padding: 15px 30px;
-  font-size: 12px;
+  padding: 10px 20px;
+  font-size: 11px;
   font-weight: bold;
 }
+
 .logo-placeholder--round {
   border-radius: 50%;
-  padding: 25px 15px;
+  padding: 18px 12px;
 }
 
-/* Título (Laboratorio | M02) */
+/* ── Título (Laboratorio | M02) ── */
 .tabloide-title {
   text-align: right;
-  font-size: 34px;
-  margin-bottom: 15px;
-}
-.tabloide-title__tipo {
-  color: #a0a0a0;
-  font-weight: 700;
-}
-.tabloide-title__nombre {
-  color: #707070;
-  font-weight: 800;
+  font-size: 28px;
+  margin-bottom: 8px;
+  line-height: 1.1;
 }
 
-/* Tabla */
+.tabloide-title__tipo  { color: #a0a0a0; font-weight: 700; }
+.tabloide-title__nombre{ color: #707070; font-weight: 800; }
+
+/* ── Tabla ── */
 .tabloide-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  flex-grow: 1;
   border: 2px solid #333;
 }
 
 /* Cabeceras */
 .tabloide-th {
   background: #a6a6a6;
-  color: black;
-  font-size: 11px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color: #000;
+  font-size: 10px;
   font-weight: 800;
-  padding: 8px 4px;
+  padding: 6px 4px;
   text-align: center;
   border: 1px solid #333;
 }
 
-.tabloide-th--horario {
-  width: 90px;
-}
+.tabloide-th--horario { width: 80px; }
 
-/* Celdas comunes (Bordes laterales sólidos, inferiores punteados) */
+/* Celdas */
 .tabloide-td {
-  border-left: 1px solid #333;
+  border-left:  1px solid #333;
   border-right: 1px solid #333;
-  border-bottom: 1px dashed #888; /* Borde punteado como en la imagen */
-  padding: 4px;
+  border-bottom: 1px dashed #999;
+  padding: 3px 4px;
   vertical-align: middle;
-  height: 55px; /* Altura uniforme */
+  height: 42px;          /* ← reducido de 55px a 42px */
 }
 
-/* Última fila sin punteado abajo */
 tbody tr:last-child .tabloide-td {
   border-bottom: 1px solid #333;
 }
 
-/* Columna de Horario */
 .tabloide-td--horario {
   background: #d9d9d9;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #000;
+  text-align: center;
+  border-bottom: 1px solid #bbb;
+  white-space: nowrap;
+}
+
+.tabloide-td--vacia   { background: transparent; }
+.tabloide-td--ocupada { background: transparent; text-align: center; }
+
+/* Textos de clases */
+.tabloide-materia {
+  display: block;
+  font-size: 8.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 2px;
+}
+.tabloide-grupo   { display: block; font-size: 7.5px; font-weight: 600; color: #444; }
+.tabloide-profesor{ display: block; font-size: 7.5px; color: #666; line-height: 1.2; }
+
+/* ── Fila de Receso ── */
+.tabloide-receso-row td {
+  background: #a6a6a6;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  text-align: center;
+  border: 1px solid #333;
   font-size: 10px;
   font-weight: 800;
   color: #000;
-  text-align: center;
-  border-bottom: 1px solid #333; /* El horario suele tener línea sólida */
-}
-
-.tabloide-td--vacia { background: transparent; }
-.tabloide-td--ocupada { background: transparent; text-align: center; }
-
-/* Textos de las clases */
-.tabloide-materia { display: block; font-size: 9px; font-weight: 800; line-height: 1.2; margin-bottom: 3px;}
-.tabloide-grupo   { display: block; font-size: 8px; font-weight: 600; color: #555; }
-.tabloide-profesor{ display: block; font-size: 8px; color: #555; }
-
-/* Fila de Receso */
-.tabloide-receso-row td {
-  background: #a6a6a6;
-  text-align: center;
-  border: 1px solid #333;
-  font-size: 11px;
-  font-weight: 800;
-  color: #000;
-  padding: 6px;
+  padding: 5px;
   letter-spacing: 0.2em;
 }
 
-/* Footer / Ciclo */
+/* ── Ciclo ── */
 .tabloide-ciclo {
   text-align: right;
-  font-size: 16px;
+  font-size: 14px;
   color: #707070;
-  margin-top: 15px;
-  margin-bottom: 10px;
+  margin-top: 8px;
+  margin-bottom: 6px;
 }
 
-/* Logos de Footer */
+/* ── Logos footer ── */
 .tabloide-footer-logos {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-top: 1px solid #eee;
-  padding-top: 10px;
+  padding-top: 8px;
+  margin-top: auto;
 }
-.footer-logo { padding: 10px 20px; font-size: 10px; }
 
-/* IMPRESIÓN */
+.footer-logo {
+  padding: 8px 16px;
+  font-size: 9px;
+}
+
+/* ════════════════════════════════════
+   IMPRESIÓN
+════════════════════════════════════ */
 @media print {
-  @page { size: 11in 17in portrait; margin: 0; } /* Cambiado a Portrait */
-  body * { visibility: hidden; }
-  .tabloide-page, .tabloide-page * { visibility: visible; }
-  .tabloide-page {
-    position: absolute;
-    top: 0; left: 0;
-    width: 11in;
-    height: 17in; /* Fija la altura exacta */
-    padding: 15mm 20mm;
+  @page {
+    size: 11in 17in portrait;
     margin: 0;
+  }
+
+  /* Oculta absolutamente todo */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Muestra solo el tabloide y sus hijos */
+  .tabloide-page,
+  .tabloide-page * {
+    visibility: visible !important;
+  }
+
+  /* Lo fija en la esquina exacta de la hoja */
+  .tabloide-page {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 11in !important;
+    height: 17in !important;
+    padding: 12mm 15mm !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    z-index: 99999 !important;
+  }
+
+  /* Fuerza colores de fondo */
+  .tabloide-th,
+  .tabloide-td--horario,
+  .tabloide-receso-row td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Evita cortes dentro de filas */
+  .tabloide-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Solo 1 página */
+  .tabloide-page {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Oculta el panel lateral y controles */
+  .no-print,
+  .print-page__actions,
+  .print-page__preview-label,
+  .print-page__tabloide-wrap > *:not(.tabloide-page) {
+    display: none !important;
+    visibility: hidden !important;
   }
 }

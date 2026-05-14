@@ -185,72 +185,94 @@ function App() {
 
       <main className="app-main">
 
-        <CurrentClassPanel clases={clasesAhora} />
+  {/* Paneles que NO se muestran en vista print */}
+  {vista !== 'print' && (
+    <>
+      <CurrentClassPanel clases={clasesAhora} />
 
-        {usuario.rol === 'admin' && <ProjectorPanel clases={clasesAhora} proximas={clasesProximas} proximas10={clasesProximas10} terminando={clasesTerminando} />}
-
-        <FiltersBar
-          carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}
-          turnos={turnos}         turnoFiltro={turnoFiltro}         setTurnoFiltro={setTurnoFiltro}
-          grupos={grupos}         grupoFiltro={grupoFiltro}         setGrupoFiltro={setGrupoFiltro}
-          dias={dias}             diaFiltro={diaFiltro}             setDiaFiltro={setDiaFiltro}
-          salones={salones}       salonFiltro={salonFiltro}         setSalonFiltro={setSalonFiltro}
-          profesores={profesores} profesorFiltro={profesorFiltro}   setProfesorFiltro={setProfesorFiltro}
-          pisos={pisos}           pisoFiltro={pisoFiltro}           setPisoFiltro={setPisoFiltro}
+      {usuario.rol === 'admin' && (
+        <ProjectorPanel
+          clases={clasesAhora}
+          proximas={clasesProximas}
+          proximas10={clasesProximas10}
+          terminando={clasesTerminando}
         />
+      )}
 
-        <div className="resultados-meta">
-          <span>
-            {horariosFiltrados.length === 0
-              ? 'Sin resultados'
-              : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
-          </span>
-          {hayFiltros && (
-            <button className="btn-limpiar" onClick={limpiarFiltros}>
-              Limpiar filtros
-            </button>
-          )}
-        </div>
+      <FiltersBar
+        carreras={carreras}     carreraFiltro={carreraFiltro}     setCarreraFiltro={setCarreraFiltro}
+        turnos={turnos}         turnoFiltro={turnoFiltro}         setTurnoFiltro={setTurnoFiltro}
+        grupos={grupos}         grupoFiltro={grupoFiltro}         setGrupoFiltro={setGrupoFiltro}
+        dias={dias}             diaFiltro={diaFiltro}             setDiaFiltro={setDiaFiltro}
+        salones={salones}       salonFiltro={salonFiltro}         setSalonFiltro={setSalonFiltro}
+        profesores={profesores} profesorFiltro={profesorFiltro}   setProfesorFiltro={setProfesorFiltro}
+        pisos={pisos}           pisoFiltro={pisoFiltro}           setPisoFiltro={setPisoFiltro}
+      />
 
-        {vista === 'tabla' && (
-          <WeeklyTable horarios={horariosFiltrados} />
+      <div className="resultados-meta">
+        <span>
+          {horariosFiltrados.length === 0
+            ? 'Sin resultados'
+            : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
+        </span>
+        {hayFiltros && (
+          <button className="btn-limpiar" onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
         )}
+      </div>
+    </>
+  )}
 
-        {vista === 'salones' && (
-          horariosFiltrados.length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — intenta cambiar los filtros</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(salonesAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([salon, clases]) => (
-                  <RoomCard key={salon} salon={salon} clases={clases} />
-                ))}
-            </div>
-          )
-        )}
+  {/* ── Vistas ── */}
+  {vista === 'tabla' && (
+    <WeeklyTable horarios={horariosFiltrados} />
+  )}
 
-        {vista === 'proyectores' && (
-          Object.keys(proyectoresAgrupados).length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — no hay clases con proyector</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(proyectoresAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([proyector, clases]) => (
-                  <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
-                ))}
-            </div>
-          )
-        )}
+  {vista === 'salones' && (
+    horariosFiltrados.length === 0 ? (
+      <div className="weekly-empty">
+        <span>🔍</span>
+        <p>Sin resultados — intenta cambiar los filtros</p>
+      </div>
+    ) : (
+      <div className="rooms-grid">
+        {Object.entries(salonesAgrupados)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([salon, clases]) => (
+            <RoomCard key={salon} salon={salon} clases={clases} />
+          ))}
+      </div>
+    )
+  )}
 
-      </main>
+  {vista === 'proyectores' && (
+    Object.keys(proyectoresAgrupados).length === 0 ? (
+      <div className="weekly-empty">
+        <span>🔍</span>
+        <p>Sin resultados — no hay clases con proyector</p>
+      </div>
+    ) : (
+      <div className="rooms-grid">
+        {Object.entries(proyectoresAgrupados)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([proyector, clases]) => (
+            <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
+          ))}
+      </div>
+    )
+  )}
+
+  {/* ✅ ESTE FALTABA — Vista de impresión */}
+  {vista === 'print' && (
+    <PrintPage
+      horarios={horarios}
+      salones={salones}
+      onVolver={() => setVista('tabla')}
+    />
+  )}
+
+</main>
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />
