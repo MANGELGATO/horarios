@@ -1,6 +1,6 @@
 import './Navbar.css'
 
-function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
+function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoActual }) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -43,13 +43,31 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
             </svg>
             Por salón
           </button>
+          {usuario.rol === 'admin' && (
+            <button
+              className={`navbar__btn ${vistaActual === 'proyectores' ? 'navbar__btn--active' : ''}`}
+              onClick={() => setVista('proyectores')}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              Proyectores
+            </button>
+          )}
         </nav>
 
         {/* Derecha: badges + botón info */}
         <div className="navbar__right">
           <div className="navbar__badges">
-            <span className="badge badge--matutino">☀️ 7:00–14:10</span>
-            <span className="badge badge--vespertino">🌙 15:30–21:20</span>
+            {turnoActual === 'Matutino' && (
+              <span className="badge badge--matutino">7:00–14:10</span>
+            )}
+            {turnoActual === 'Vespertino' && (
+              <span className="badge badge--vespertino">15:30–21:20</span>
+            )}
           </div>
 
           <div className="navbar__user">
@@ -83,19 +101,21 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick }) {
 </button>
 
           {/* ── Botón Info ── */}
-          <button
-            className="navbar__info-btn"
-            onClick={onInfoClick}
-            aria-label="Información del proyecto"
-            title="Acerca de este proyecto"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="16" x2="12" y2="12"/>
-              <line x1="12" y1="8" x2="12.01" y2="8"/>
-            </svg>
-          </button>
+          {usuario.rol !== 'admin' && (
+            <button
+              className="navbar__info-btn"
+              onClick={onInfoClick}
+              aria-label="Información del proyecto"
+              title="Acerca de este proyecto"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="16" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12.01" y2="8"/>
+              </svg>
+            </button>
+          )}
         </div>
 
       </div>
