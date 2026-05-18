@@ -14,6 +14,7 @@ import InfoPage from './components/InfoPage/InfoPage'
 import PrintPage from './components/PrintPageComponent/PrintPage'
 import AdminPanel from './components/AdminPanelComponent/AdminPanel'
 import SetupProfile from './components/SetupProfileComponent/SetupProfile'
+import ViewSelector from './components/ViewSelectorComponent/ViewSelector'
 import './App.css'
 
 function App() {
@@ -224,7 +225,7 @@ function App() {
   }
 
   if (!usuario) {
-    return <LoginPage onLogin={(u) => setUsuario(u)} />
+    return <LoginPage />
   }
 
   if (necesitaSetup) {
@@ -243,8 +244,6 @@ function App() {
       )}
 
       <Navbar
-        vistaActual={vista}
-        setVista={setVista}
         usuario={usuario}
         onLogout={handleLogout}
         onInfoClick={() => setMostrarInfo(true)}
@@ -255,6 +254,8 @@ function App() {
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
+            <ViewSelector vista={vista} setVista={setVista} usuario={usuario} />
+
             {clasesAhora.length > 0 && <CurrentClassPanel clases={clasesAhora} />}
 
             {esAdmin && (

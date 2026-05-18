@@ -23,18 +23,12 @@ function AvatarUser({ foto, nombre }) {
       src={foto}
       alt={nombre || ''}
       referrerPolicy="no-referrer"
-      onError={() => {
-        console.warn('[AvatarUser] Error al cargar foto:', foto)
-        setFallback(true)
-      }}
+      onError={() => setFallback(true)}
     />
   )
 }
 
-function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoActual }) {
-  const esAdmin = usuario.rol === 'admin' || usuario.rol === 'superadmin'
-
-
+function Navbar({ usuario, onLogout, onInfoClick, turnoActual }) {
   return (
     <header className="navbar">
       <div className="navbar__inner">
@@ -51,60 +45,6 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoAc
             <p className="navbar__subtitle">CCD · Ciclo 2026B</p>
           </div>
         </div>
-
-        <nav className="navbar__nav" aria-label="Vistas">
-          <button
-            className={`navbar__btn ${vistaActual === 'tabla' ? 'navbar__btn--active' : ''}`}
-            onClick={() => setVista('tabla')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="2" />
-              <path d="M3 9h18M3 15h18M9 3v18" />
-            </svg>
-            Por grupo
-          </button>
-          {usuario.rol !== 'estudiante' && (
-            <button
-              className={`navbar__btn ${vistaActual === 'salones' ? 'navbar__btn--active' : ''}`}
-              onClick={() => setVista('salones')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-              </svg>
-              Por salón
-            </button>
-          )}
-          {esAdmin && (
-            <button
-              className={`navbar__btn ${vistaActual === 'proyectores' ? 'navbar__btn--active' : ''}`}
-              onClick={() => setVista('proyectores')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                <line x1="8" y1="21" x2="16" y2="21" />
-                <line x1="12" y1="17" x2="12" y2="21" />
-              </svg>
-              Proyectores
-            </button>
-          )}
-          {esAdmin && (
-            <button
-              className={`navbar__btn ${vistaActual === 'admin' ? 'navbar__btn--active' : ''}`}
-              onClick={() => setVista('admin')}
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-              Admin
-            </button>
-          )}
-        </nav>
 
         <div className="navbar__right">
           <div className="navbar__badges">
@@ -131,19 +71,6 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoAc
               </svg>
             </button>
           </div>
-
-          <button
-            className={`navbar__print-btn ${vistaActual === 'print' ? 'navbar__print-btn--active' : ''}`}
-            onClick={() => setVista('print')}
-            title="Imprimir tabloide"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <polyline points="6 9 6 2 18 2 18 9" />
-              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-              <rect x="6" y="14" width="12" height="8" />
-            </svg>
-          </button>
 
           <button
             className="navbar__info-btn"
