@@ -252,10 +252,10 @@ function App() {
 
       <main className="app-main">
 
+        <ViewSelector vista={vista} setVista={setVista} usuario={usuario} />
+
         {vista !== 'print' && vista !== 'admin' && (
           <>
-            <ViewSelector vista={vista} setVista={setVista} usuario={usuario} />
-
             {clasesAhora.length > 0 && <CurrentClassPanel clases={clasesAhora} />}
 
             {esAdmin && (
