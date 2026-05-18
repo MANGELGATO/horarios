@@ -103,11 +103,11 @@ Materias.
 | `id` | `string` (doc id) | Generado automáticamente |
 | `nombre` | `string` | `"Fundamentos de programación"` |
 | `carreraId` | `reference` → `carreras` | Carrera a la que pertenece |
-| `semestre` | `number` | 1–12 |
+| `cuatrimestre` | `number` | 1–12 |
 | `horasSemana` | `number` | Opcional |
 | `activa` | `boolean` | |
 
-**Índice compuesto**: `carreraId ASC, semestre ASC`
+**Índice compuesto**: `carreraId ASC, cuatrimestre ASC`
 
 ### 8. `grupos`
 
@@ -119,7 +119,7 @@ Grupos por carrera, turno y período.
 | `carreraId` | `reference` → `carreras` | |
 | `turnoId` | `reference` → `turnos` | |
 | `nombre` | `string` | `"1A"`, `"2B"`, `"3A"` |
-| `semestre` | `number` | `1`, `2`, `3` |
+| `cuatrimestre` | `number` | `1`, `2`, `3` |
 | `ciclo` | `string` | `"2026B"` |
 | `label` | `string` | Denormalizado: `"DSM 1A Matutino"` |
 | `activo` | `boolean` | |

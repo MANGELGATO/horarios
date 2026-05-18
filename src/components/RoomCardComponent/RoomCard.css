@@ -8,6 +8,8 @@
   gap: var(--space-3);
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--transition);
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
 }
 
 .room-card:hover { box-shadow: var(--shadow-md); }

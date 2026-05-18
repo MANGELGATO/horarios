@@ -64,17 +64,19 @@ function Navbar({ vistaActual, setVista, usuario, onLogout, onInfoClick, turnoAc
             </svg>
             Por grupo
           </button>
-          <button
-            className={`navbar__btn ${vistaActual === 'salones' ? 'navbar__btn--active' : ''}`}
-            onClick={() => setVista('salones')}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" aria-hidden="true">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            Por salón
-          </button>
+          {usuario.rol !== 'estudiante' && (
+            <button
+              className={`navbar__btn ${vistaActual === 'salones' ? 'navbar__btn--active' : ''}`}
+              onClick={() => setVista('salones')}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                <polyline points="9 22 9 12 15 12 15 22" />
+              </svg>
+              Por salón
+            </button>
+          )}
           {esAdmin && (
             <button
               className={`navbar__btn ${vistaActual === 'proyectores' ? 'navbar__btn--active' : ''}`}

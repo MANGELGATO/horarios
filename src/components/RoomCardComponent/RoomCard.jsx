@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import './RoomCard.css'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
@@ -92,4 +93,4 @@ function RoomCard({ salon, clases }) {
   )
 }
 
-export default RoomCard
+export default memo(RoomCard)

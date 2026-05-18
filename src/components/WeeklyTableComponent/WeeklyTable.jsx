@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import './WeeklyTable.css'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
@@ -142,4 +143,4 @@ function TurnoTable({ turno, bloques, mapa }) {
   )
 }
 
-export default WeeklyTable
+export default memo(WeeklyTable)

@@ -200,14 +200,14 @@ async function seed() {
   await runBatch(
     grupoKeys.map(key => {
       const [carrera, turno, nombre] = key.split("|");
-      const semestre = parseInt(nombre.replace(/\D/g, "")) || 0;
+      const cuatrimestre = parseInt(nombre.replace(/\D/g, "")) || 0;
       return [
         `grupos/${carrera}_${nombre}_${turno}`,
         {
           carreraId: ref(`carreras/${carrera}`),
           turnoId: ref(`turnos/${turno}`),
           nombre,
-          semestre,
+          cuatrimestre,
           ciclo: CICLO,
           label: `${carrera} ${nombre} ${turno}`,
           carreraLabel: carrera,

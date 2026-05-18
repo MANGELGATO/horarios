@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import './ProjectorCard.css'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
@@ -103,4 +104,4 @@ function ProjectorCard({ proyector, clases }) {
   )
 }
 
-export default ProjectorCard
+export default memo(ProjectorCard)

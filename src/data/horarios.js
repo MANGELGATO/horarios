@@ -27,6 +27,14 @@ export const BLOQUES_VESPERTINO = [
 
 export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
+export const slugify = (text) => text
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/['´`]/g, "")
+  .replace(/[^a-zA-Z0-9\s]/g, "")
+  .replace(/\s+/g, "_")
+  .toLowerCase();
+
 export const aMinutos = (hora) => {
   const [hh, mm] = hora.split(':').map(Number);
   return hh * 60 + mm;

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { auth, obtenerCrearPerfilUsuario } from './firebase'
-import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual } from './data/horarios'
+import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -13,6 +13,7 @@ import LoginPage from './components/LoginPage/LoginPage'
 import InfoPage from './components/InfoPage/InfoPage'
 import PrintPage from './components/PrintPageComponent/PrintPage'
 import AdminPanel from './components/AdminPanelComponent/AdminPanel'
+import SetupProfile from './components/SetupProfileComponent/SetupProfile'
 import './App.css'
 
 function App() {
@@ -33,10 +34,13 @@ function App() {
   const [authCargando, setAuthCargando] = useState(true)
   const [mostrarInfo, setMostrarInfo] = useState(false)
 
+  const necesitaSetup = usuario && usuario.rol === 'estudiante' && !usuario.preferencias
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
+  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante'
+
   const vistasPermitidas = {
     tabla: true,
-    salones: true,
+    salones: !esEstudianteFiltrado,
     proyectores: esAdmin,
     print: true,
     admin: esAdmin,
@@ -54,6 +58,7 @@ function App() {
             uid: perfil.uid,
             rol: perfil.rol,
             activo: perfil.activo,
+            preferencias: perfil.preferencias || null,
           })
         } catch (err) {
           console.error('Error al cargar perfil:', err)
@@ -67,49 +72,71 @@ function App() {
     return unsubscribe
   }, [])
 
+  const prefsFilter = useMemo(() => {
+    if (!usuario?.preferencias) return null
+    const p = usuario.preferencias
+    if (p.tipo === 'estudiante') {
+      return (h) => h.carrera === p.carrera && h.grupo === p.grupo && h.turno === p.turno
+    }
+    if (p.tipo === 'docente') {
+      return (h) => slugify(h.profesor) === p.profesorId
+    }
+    return null
+  }, [usuario?.preferencias])
+
+  const baseHorarios = useMemo(() => {
+    if (prefsFilter) return horarios.filter(prefsFilter)
+    return horarios
+  }, [prefsFilter])
+
+  const filtrarPorPrefs = useMemo(() => {
+    if (!prefsFilter) return (c) => c
+    return (clases) => clases.filter(prefsFilter)
+  }, [prefsFilter])
+
   useEffect(() => {
     const actualizar = () => {
-      setClasesAhora(getClasesActuales())
-      setClasesProximas(getClasesProximas())
-      setClasesProximas10(getClasesProximas(10))
-      setClasesTerminando(getClasesTerminando())
+      setClasesAhora(filtrarPorPrefs(getClasesActuales()))
+      setClasesProximas(filtrarPorPrefs(getClasesProximas()))
+      setClasesProximas10(filtrarPorPrefs(getClasesProximas(10)))
+      setClasesTerminando(filtrarPorPrefs(getClasesTerminando()))
       setTurnoActual(getTurnoActual())
     }
     actualizar()
     const intervalo = setInterval(actualizar, 60000)
     return () => clearInterval(intervalo)
-  }, [])
+  }, [filtrarPorPrefs])
+
+  useEffect(() => {
+    if (!vistasPermitidas[vista]) setVista('tabla')
+  }, [usuario, vista])
 
   useEffect(() => {
     if (carreraFiltro === 'Todas') return
     const validos = ['Todas', ...new Set(
-      horarios.filter(h => turnoFiltro === 'Todos' || h.turno === turnoFiltro).map(h => h.carrera)
+      baseHorarios.filter(h => turnoFiltro === 'Todos' || h.turno === turnoFiltro).map(h => h.carrera)
     )]
     if (!validos.includes(carreraFiltro)) setCarreraFiltro('Todas')
-  }, [turnoFiltro])
+  }, [turnoFiltro, baseHorarios])
 
   useEffect(() => {
     if (turnoFiltro === 'Todos') return
     const validos = ['Todos', ...new Set(
-      horarios.filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro).map(h => h.turno)
+      baseHorarios.filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro).map(h => h.turno)
     )]
     if (!validos.includes(turnoFiltro)) setTurnoFiltro('Todos')
-  }, [carreraFiltro])
+  }, [carreraFiltro, baseHorarios])
 
   useEffect(() => {
     if (grupoFiltro === 'Todos') return
     const validos = ['Todos', ...new Set(
-      horarios
+      baseHorarios
         .filter(h => carreraFiltro === 'Todas' || h.carrera === carreraFiltro)
         .filter(h => turnoFiltro === 'Todos' || h.turno === turnoFiltro)
         .map(h => h.grupo)
     )]
     if (!validos.includes(grupoFiltro)) setGrupoFiltro('Todos')
-  }, [carreraFiltro, turnoFiltro])
-
-  useEffect(() => {
-    if (!vistasPermitidas[vista]) setVista('tabla')
-  }, [usuario, vista])
+  }, [carreraFiltro, turnoFiltro, baseHorarios])
 
   const handleLogout = async () => {
     await signOut(auth)
@@ -117,7 +144,7 @@ function App() {
   }
 
   function filtrar(omitir) {
-    return horarios.filter(h => {
+    return baseHorarios.filter(h => {
       if (omitir !== 'carrera' && carreraFiltro !== 'Todas' && h.carrera !== carreraFiltro) return false
       if (omitir !== 'turno' && turnoFiltro !== 'Todos' && h.turno !== turnoFiltro) return false
       if (omitir !== 'grupo' && grupoFiltro !== 'Todos' && h.grupo !== grupoFiltro) return false
@@ -129,38 +156,48 @@ function App() {
     })
   }
 
-  const carreras = ['Todas', ...new Set(filtrar('carrera').map(h => h.carrera))]
-  const turnos = ['Todos', ...new Set(filtrar('turno').map(h => h.turno))]
-  const grupos = ['Todos', ...new Set(filtrar('grupo').map(h => h.grupo))]
-  const salones = ['Todos', ...new Set(filtrar('salon').map(h => h.salon))].sort()
-  const profesores = ['Todos', ...new Set(filtrar('profesor').map(h => h.profesor))].sort()
-  const pisos = ['Todos', 'Planta Baja', 'Piso 1', 'Piso 5', 'Mezzanine']
-  const dias = ['Todos', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+  const opcionesFiltros = useMemo(() => ({
+    carreras: ['Todas', ...new Set(baseHorarios.map(h => h.carrera))],
+    turnos: ['Todos', ...new Set(baseHorarios.map(h => h.turno))],
+    grupos: ['Todos', ...new Set(baseHorarios.map(h => h.grupo))],
+    salones: ['Todos', ...new Set(baseHorarios.map(h => h.salon))].sort(),
+    profesores: ['Todos', ...new Set(baseHorarios.map(h => h.profesor))].sort(),
+    pisos: ['Todos', 'Planta Baja', 'Piso 1', 'Piso 5', 'Mezzanine'],
+    dias: ['Todos', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+  }), [baseHorarios])
 
-  const horariosFiltrados = horarios.filter(h => {
-    if (carreraFiltro !== 'Todas' && h.carrera !== carreraFiltro) return false
-    if (turnoFiltro !== 'Todos' && h.turno !== turnoFiltro) return false
-    if (grupoFiltro !== 'Todos' && h.grupo !== grupoFiltro) return false
-    if (diaFiltro !== 'Todos' && h.dia !== diaFiltro) return false
-    if (salonFiltro !== 'Todos' && h.salon !== salonFiltro) return false
-    if (profesorFiltro !== 'Todos' && h.profesor !== profesorFiltro) return false
-    if (pisoFiltro !== 'Todos' && getPiso(h.salon) !== pisoFiltro) return false
-    return true
-  })
+  const horariosFiltrados = useMemo(() => {
+    const f = { carrera: carreraFiltro, turno: turnoFiltro, grupo: grupoFiltro, dia: diaFiltro, salon: salonFiltro, profesor: profesorFiltro, piso: pisoFiltro }
+    if (Object.values(f).every(v => v === 'Todas' || v === 'Todos')) return baseHorarios
+    return baseHorarios.filter(h => {
+      if (f.carrera !== 'Todas' && h.carrera !== f.carrera) return false
+      if (f.turno !== 'Todos' && h.turno !== f.turno) return false
+      if (f.grupo !== 'Todos' && h.grupo !== f.grupo) return false
+      if (f.dia !== 'Todos' && h.dia !== f.dia) return false
+      if (f.salon !== 'Todos' && h.salon !== f.salon) return false
+      if (f.profesor !== 'Todos' && h.profesor !== f.profesor) return false
+      if (f.piso !== 'Todos' && getPiso(h.salon) !== f.piso) return false
+      return true
+    })
+  }, [baseHorarios, carreraFiltro, turnoFiltro, grupoFiltro, diaFiltro, salonFiltro, profesorFiltro, pisoFiltro])
 
-  const salonesAgrupados = horariosFiltrados.reduce((acc, h) => {
-    if (!acc[h.salon]) acc[h.salon] = []
-    acc[h.salon].push(h)
-    return acc
-  }, {})
-
-  const proyectoresAgrupados = horariosFiltrados
-    .filter(h => h.proyector)
-    .reduce((acc, h) => {
-      if (!acc[h.proyector]) acc[h.proyector] = []
-      acc[h.proyector].push(h)
+  const salonesAgrupados = useMemo(() =>
+    horariosFiltrados.reduce((acc, h) => {
+      if (!acc[h.salon]) acc[h.salon] = []
+      acc[h.salon].push(h)
       return acc
-    }, {})
+    }, {}),
+  [horariosFiltrados])
+
+  const proyectoresAgrupados = useMemo(() =>
+    horariosFiltrados
+      .filter(h => h.proyector)
+      .reduce((acc, h) => {
+        if (!acc[h.proyector]) acc[h.proyector] = []
+        acc[h.proyector].push(h)
+        return acc
+      }, {}),
+  [horariosFiltrados])
 
   const limpiarFiltros = () => {
     setCarreraFiltro('Todas')
@@ -190,8 +227,20 @@ function App() {
     return <LoginPage onLogin={(u) => setUsuario(u)} />
   }
 
+  if (necesitaSetup) {
+    return (
+      <div className="app">
+        <SetupProfile usuario={usuario} onCompletado={(u) => setUsuario(u)} />
+      </div>
+    )
+  }
+
   return (
     <div className="app">
+
+      {necesitaSetup && (
+        <SetupProfile usuario={usuario} onCompletado={(u) => setUsuario(u)} />
+      )}
 
       <Navbar
         vistaActual={vista}
@@ -217,28 +266,32 @@ function App() {
               />
             )}
 
-            <FiltersBar
-              carreras={carreras} carreraFiltro={carreraFiltro} setCarreraFiltro={setCarreraFiltro}
-              turnos={turnos} turnoFiltro={turnoFiltro} setTurnoFiltro={setTurnoFiltro}
-              grupos={grupos} grupoFiltro={grupoFiltro} setGrupoFiltro={setGrupoFiltro}
-              dias={dias} diaFiltro={diaFiltro} setDiaFiltro={setDiaFiltro}
-              salones={salones} salonFiltro={salonFiltro} setSalonFiltro={setSalonFiltro}
-              profesores={profesores} profesorFiltro={profesorFiltro} setProfesorFiltro={setProfesorFiltro}
-              pisos={pisos} pisoFiltro={pisoFiltro} setPisoFiltro={setPisoFiltro}
-            />
+            {!esEstudianteFiltrado && (
+              <>
+                <FiltersBar
+                  carreras={opcionesFiltros.carreras} carreraFiltro={carreraFiltro} setCarreraFiltro={setCarreraFiltro}
+                  turnos={opcionesFiltros.turnos} turnoFiltro={turnoFiltro} setTurnoFiltro={setTurnoFiltro}
+                  grupos={opcionesFiltros.grupos} grupoFiltro={grupoFiltro} setGrupoFiltro={setGrupoFiltro}
+                  dias={opcionesFiltros.dias} diaFiltro={diaFiltro} setDiaFiltro={setDiaFiltro}
+                  salones={opcionesFiltros.salones} salonFiltro={salonFiltro} setSalonFiltro={setSalonFiltro}
+                  profesores={opcionesFiltros.profesores} profesorFiltro={profesorFiltro} setProfesorFiltro={setProfesorFiltro}
+                  pisos={opcionesFiltros.pisos} pisoFiltro={pisoFiltro} setPisoFiltro={setPisoFiltro}
+                />
 
-            <div className="resultados-meta">
-              <span>
-                {horariosFiltrados.length === 0
-                  ? 'Sin resultados'
-                  : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
-              </span>
-              {hayFiltros && (
-                <button className="btn-limpiar" onClick={limpiarFiltros}>
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
+                <div className="resultados-meta">
+                  <span>
+                    {horariosFiltrados.length === 0
+                      ? 'Sin resultados'
+                      : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
+                  </span>
+                  {hayFiltros && (
+                    <button className="btn-limpiar" onClick={limpiarFiltros}>
+                      Limpiar filtros
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
 
