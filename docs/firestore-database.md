@@ -172,21 +172,35 @@ Cada documento = una clase en un día, bloque y salón.
 
 ### 10. `usuarios`
 
-Perfiles vinculados a Firebase Auth.
+Perfiles vinculados a Firebase Auth. El documento se crea **automáticamente** al primer inicio de sesión con Google (`src/firebase.js:obtenerCrearPerfilUsuario`).
 
 | Campo | Tipo | Descripción |
 |-------|------|-------------|
 | `id` | `string` (doc id) | UID de Firebase Auth |
-| `email` | `string` | |
+| `email` | `string` | Correo institucional |
 | `nombre` | `string` | `"Máximo Murillo"` |
 | `foto` | `string` | URL de avatar |
-| `rol` | `string` | `"estudiante"` \| `"admin"` \| `"superadmin"` |
-| `domino` | `string` | `"soy.utj.edu.mx"` \| `"utj.edu.mx"` |
-| `activo` | `boolean` | |
-| `ultimoAcceso` | `timestamp` | |
-| `createdAt` | `timestamp` | |
+| `rol` | `string` | `"estudiante"` \| `"docente"` \| `"admin"` \| `"superadmin"` |
+| `dominio` | `string` | `"soy.utj.edu.mx"` \| `"utj.edu.mx"` |
+| `activo` | `boolean` | Si `false`, el usuario no puede acceder |
+| `ultimoAcceso` | `timestamp` | Se actualiza en cada login |
+| `createdAt` | `timestamp` | Fecha de registro |
 
-**Regla de seguridad**: solo el propio usuario o un `superadmin` puede leer/escribir su documento.
+**Sistema de roles (3 niveles):**
+
+| Rol | Dominio | Acceso |
+|-----|---------|--------|
+| `estudiante` | `@soy.utj.edu.mx` | Ver horarios, filtrar, vista de tabla y salones |
+| `docente` | `@utj.edu.mx` | Todo lo de estudiante + panel de proyectores, vista de proyectores, notificaciones |
+| `admin` | `@utj.edu.mx` (asignado manualmente) | Todo lo de docente + administración de usuarios, edición de datos |
+
+**Flujo de creación:**
+1. Usuario inicia sesión con Google
+2. `onAuthStateChanged` en `App.jsx` detecta el usuario
+3. Llama a `obtenerCrearPerfilUsuario()` en `firebase.js`
+4. Si no existe documento: lo crea con `rol` basado en el dominio
+5. Si existe: actualiza `ultimoAcceso`, `nombre`, `foto`
+6. Si `activo === false`: cierra sesión y muestra error
 
 ### 11. `proyectores`
 
@@ -216,53 +230,31 @@ Registro de quién y cuándo tomó un proyector.
 
 ---
 
-## Firestore Security Rules (resumen)
+## Firestore Security Rules
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
+Ver archivo `firestore.rules` en la raíz del proyecto. Resumen de reglas:
 
-    // Usuarios: solo lectura/escritura del propio usuario o admin
-    match /usuarios/{userId} {
-      allow read, write: if request.auth != null
-        && (request.auth.uid == userId
-          || get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol in ['admin', 'superadmin']);
-    }
-
-    // Horarios y colecciones de lectura: cualquier usuario autenticado
-    match /{collection}/{doc} {
-      allow read: if request.auth != null;
-    }
-
-    // Escritura: solo admin/superadmin
-    match /{collection}/{doc} {
-      allow create, update, delete: if request.auth != null
-        && get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol in ['admin', 'superadmin'];
-    }
-
-    // Prestamos: cualquier usuario autenticado puede crear (registrar préstamo)
-    match /prestamos_proyectores/{doc} {
-      allow create: if request.auth != null
-        && request.resource.data.usuarioId == request.auth.uid;
-      allow read, update, delete: if request.auth != null
-        && (request.auth.uid == resource.data.usuarioId
-          || get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol in ['admin', 'superadmin']);
-    }
-  }
-}
-```
+- **`usuarios`**: cada usuario lee/escribe su propio perfil; `admin`/`superadmin` pueden leer/escribir cualquiera
+- **Colecciones de datos** (`carreras`, `turnos`, `bloques`, `edificios`, `salones`, `profesores`, `materias`, `grupos`, `horarios`):
+  - Lectura: cualquier usuario autenticado
+  - Escritura: solo `admin`/`superadmin`
+- **`proyectores`**: lectura pública autenticada; escritura solo `admin`/`superadmin`
+- **`prestamos_proyectores`**: cualquier autenticado puede crear (solo para sí mismo); modificar solo el propio o `admin`
 
 ---
 
 ## Estrategia de migración desde datos actuales
 
-Los datos actuales están en `src/data/horarios.js`. El script `scripts/cargarHorarios.js` ya existe y puede adaptarse para:
+Usar el script `scripts/seed-firestore.mjs` que:
 
-1. Subir primero las colecciones base: `carreras`, `turnos`, `bloques`, `edificios`, `salones`, `profesores`, `materias`, `grupos`
-2. Subir `horarios` con referencias a los IDs creados en el paso anterior
-3. Crear documento en `usuarios` para cada Firebase Auth UID que haga login (on first sign-in via Cloud Function o desde la app)
+1. Sube colecciones base: `carreras`, `turnos`, `bloques`, `edificios`, `salones`, `profesores`, `materias`, `grupos`, `usuarios`
+2. Sube `horarios` con referencias a los IDs creados + denormalización de labels
+3. Crea usuarios base para administradores
+
+### Flujo de usuarios reales
+
+Los usuarios NO se seedean masivamente. Se crean **bajo demanda** al iniciar sesión con Google (Firebase Auth). La app (`src/firebase.js:obtenerCrearPerfilUsuario`) detecta si el documento existe en Firestore y lo crea si es necesario.
 
 ### Recomendación
 
-Usar **Firestore emulator** en desarrollo y un script Node.js (el existente `cargarHorarios.js`) que lea `horarios.js` y escriba en Firestore con `batch` writes (máximo 500 docs por batch).
+Usar **Firestore emulator** en desarrollo y `node scripts/seed-firestore.mjs` para poblar la base de datos inicial.

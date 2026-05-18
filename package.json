@@ -8,10 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "seed": "node scripts/seed-firestore.mjs",
     "cargar": "node scripts/cargarHorarios.js"
   },
   "dependencies": {
     "firebase": "^12.12.1",
+    "firebase-admin": "^13.10.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "sharp": "^0.34.5"
