@@ -26,3 +26,10 @@ dist-ssr
 # Firebase service account (NO SUBIR A GIT)
 serviceAccountKey.json
 *.private.key
+
+# Archivos temporales y de trabajo
+extracted_new/
+scratch_extract/
+*.bak
+*.zip
+*.docx
