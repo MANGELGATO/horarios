@@ -90,7 +90,8 @@
 }
 
 /* Marca el select cuando tiene filtro activo */
-.filter-group__select:not([value="Todos"]):not([value="Todas"]) {
+.filter-group__select:not([value="Todos"]):not([value="Todas"]),
+.filter-group__select--active {
   border-color: var(--color-primary);
   background-color: var(--color-primary-soft);
   font-weight: 600;
@@ -116,4 +117,23 @@
   .filters-bar__grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── Dark Mode Overrides for Filters ── */
+.dark-mode .filter-group__select {
+  background-color: var(--color-surface-2) !important;
+  border-color: var(--color-border);
+  color: var(--color-text);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+}
+
+.dark-mode .filter-group__select:hover {
+  border-color: var(--color-primary);
+}
+
+.dark-mode .filter-group__select--active {
+  border-color: var(--color-primary) !important;
+  background-color: rgba(1, 105, 111, 0.25) !important;
+  color: #5eead4 !important; /* Texto cian brillante de alto contraste y legibilidad */
+  font-weight: 600;
 }

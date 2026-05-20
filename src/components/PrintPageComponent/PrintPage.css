@@ -118,8 +118,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  min-height: 640px;
   overflow: hidden;
+  position: relative;
 }
 
 .print-page__preview-label {
@@ -128,17 +134,48 @@
   text-transform: uppercase;
   letter-spacing: 0.07em;
   color: var(--color-text-muted);
+  align-self: flex-start;
 }
 
 .print-page__tabloide-wrap {
-  transform: scale(0.52);
-  transform-origin: top left;
-  width: calc(100% / 0.52);
-  margin-bottom: -48%;
+  align-self: center;
+  width: 380px;
+  height: 588px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.print-page__tabloide-wrap:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Forzar el escalado exacto del tabloide dentro del wrapper en pantalla */
+.print-page__tabloide-wrap .tabloide-page {
+  transform: scale(0.36) !important;
+  transform-origin: top left !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Efectos y brillo premium en modo oscuro */
+.dark-mode .print-page__tabloide-wrap {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.dark-mode .print-page__tabloide-wrap:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.65), 0 0 2px rgba(255, 255, 255, 0.25);
 }
 
 /* Empty state */
@@ -159,113 +196,55 @@
 
 /* IMPRESIÓN */
 @media print {
-  /* Fuerza tabloide horizontal */
+  /* Fuerza tabloide VERTICAL (Portrait) y restringe altura para evitar páginas extra */
   @page {
-    size: 17in 11in;   /* ancho x alto = landscape */
-    margin: 8mm 12mm;
+    size: 11in 17in portrait;
+    margin: 0;
   }
 
-  /* Oculta TODO menos el tabloide */
-  body > * { display: none !important; }
-
-  /* Muestra solo el tabloide */
-  .tabloide-page {
-    display: flex !important;
-    position: static !important;
-    width: 100% !important;
-    min-height: auto !important;
-    padding: 0 !important;
+  /* Forzar al árbol completo de nodos de pantalla a ocupar exactamente 1 página sin overflow */
+  html, body, #root, .app, .print-page, .print-page__preview, .print-page__tabloide-wrap {
+    height: 100vh !important;
+    max-height: 17in !important;
+    overflow: hidden !important;
     margin: 0 !important;
-    box-shadow: none !important;
+    padding: 0 !important;
+    background: transparent !important;
     border: none !important;
-    overflow: visible !important;
-    page-break-after: avoid;
-    break-after: avoid;
+    box-shadow: none !important;
   }
 
-  /* Evita cortes dentro de filas */
-  .tabloide-table tr {
-    page-break-inside: avoid;
-    break-inside: avoid;
+  /* Solo muestra el tabloide */
+  .tabloide-page,
+  .tabloide-page * {
+    visibility: visible !important;
   }
 
-  .tabloide-receso {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Oculta el panel lateral y etiquetas de pantalla */
+  .navbar,
   .no-print,
   .print-page__actions,
-  .print-page__preview-label { display: none !important; }
+  .print-page__preview-label {
+    display: none !important;
+    visibility: hidden !important;
+  }
 
-  /* El wrap del tabloide sin escala */
   .print-page__tabloide-wrap {
     transform: none !important;
     width: 100% !important;
+    height: 100% !important;
     margin: 0 !important;
     border: none !important;
     box-shadow: none !important;
     border-radius: 0 !important;
     overflow: visible !important;
   }
-}
-/* ... código anterior intacto ... */
 
-/* Wrap para escalar el tabloide en pantalla */
-.print-page__tabloide-wrap {
-  transform: scale(0.40); /* Ajustamos escala porque ahora es vertical y más alto */
-  transform-origin: top left;
-  width: calc(100% / 0.40);
-  margin-bottom: -80%; /* Ajuste para el espacio en blanco abajo */
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-
-/* ... código del empty state intacto ... */
-
-/* IMPRESIÓN */
-@media print {
-  /* Fuerza tabloide VERTICAL (Portrait) */
-  @page {
-    size: 11in 17in portrait;   /* ancho x alto = portrait */
-    margin: 8mm 12mm;
-  }
-
-  body > * { display: none !important; }
-
-  .tabloide-page {
-    display: flex !important;
-    position: static !important;
-    width: 100% !important;
-    min-height: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    box-shadow: none !important;
-    border: none !important;
-    overflow: visible !important;
-    page-break-after: avoid;
-    break-after: avoid;
-  }
-
-  .tabloide-table tr {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  .no-print,
-  .print-page__actions,
-  .print-page__preview-label { display: none !important; }
-
-  .print-page__tabloide-wrap {
+  .print-page__tabloide-wrap .tabloide-page {
     transform: none !important;
-    width: 100% !important;
-    margin: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
+    width: 11in !important;
+    height: 17in !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
   }
 }

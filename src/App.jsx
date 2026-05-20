@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
-import { auth, obtenerCrearPerfilUsuario } from './firebase'
+import { collection, query, onSnapshot } from 'firebase/firestore'
+import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
 import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
@@ -15,6 +16,8 @@ import PrintPage from './components/PrintPageComponent/PrintPage'
 import AdminPanel from './components/AdminPanelComponent/AdminPanel'
 import SetupProfile from './components/SetupProfileComponent/SetupProfile'
 import ViewSelector from './components/ViewSelectorComponent/ViewSelector'
+import SolicitudEquipoModal from './components/SolicitudEquipoModalComponent/SolicitudEquipoModal'
+import MisClases from './components/MisClasesComponent/MisClases'
 import './App.css'
 
 function App() {
@@ -34,10 +37,62 @@ function App() {
   const [usuario, setUsuario] = useState(null)
   const [authCargando, setAuthCargando] = useState(true)
   const [mostrarInfo, setMostrarInfo] = useState(false)
+  const [tema, setTema] = useState(() => {
+    return localStorage.getItem('tema-horarios') || 'claro'
+  })
+  const [simulacion, setSimulacion] = useState({
+    activo: false,
+    dia: 'Lunes',
+    hora: '07:00'
+  })
+  const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
+  const [solicitudesEquipo, setSolicitudesEquipo] = useState([])
 
-  const necesitaSetup = usuario && usuario.rol === 'estudiante' && !usuario.preferencias
+  useEffect(() => {
+    const q = query(collection(db, 'solicitudes_equipo'))
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+      setSolicitudesEquipo(data)
+    })
+    return unsubscribe
+  }, [])
+
+  const horariosDinamicos = useMemo(() => {
+    const arr = horarios.map(h => ({ ...h }))
+    const hoyDate = new Date()
+    const hoyStr = hoyDate.getFullYear() + '-' + String(hoyDate.getMonth()+1).padStart(2, '0') + '-' + String(hoyDate.getDate()).padStart(2, '0')
+
+    solicitudesEquipo.forEach(req => {
+      const isMatch = (h) => 
+        h.materia === req.claseInfo.materia &&
+        h.grupo === req.claseInfo.grupo &&
+        h.dia === req.claseInfo.dia &&
+        h.turno === req.claseInfo.turno &&
+        h.salon === req.claseInfo.salon &&
+        h.bloque === req.claseInfo.bloque;
+
+      const applies = req.tipo === 'recurrente' || req.fechaFocal === hoyStr;
+
+      if (applies) {
+        arr.forEach(h => {
+          if (isMatch(h)) {
+            const eqStr = req.equipo.join(' + ')
+            h.proyector = h.proyector ? `${h.proyector} | Req: ${eqStr}` : `Req: ${eqStr}`
+          }
+        })
+      }
+    })
+    return arr
+  }, [solicitudesEquipo])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark-mode', tema === 'oscuro')
+    localStorage.setItem('tema-horarios', tema)
+  }, [tema])
+
+  const necesitaSetup = usuario && !usuario.preferencias && (usuario.rol === 'estudiante' || usuario.rol === 'docente')
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
-  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante'
+  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin
 
   const vistasPermitidas = {
     tabla: true,
@@ -45,7 +100,15 @@ function App() {
     proyectores: esAdmin,
     print: true,
     admin: esAdmin,
+    'mis-clases': usuario?.rol === 'docente'
   }
+
+  useEffect(() => {
+    // Si es docente y está en la tabla general, enviarlo a su vista por defecto
+    if (usuario?.rol === 'docente' && vista === 'tabla') {
+      setVista('mis-clases')
+    }
+  }, [usuario, vista])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -73,7 +136,11 @@ function App() {
     return unsubscribe
   }, [])
 
+  // Sincronización en tiempo real desactivada temporalmente a petición del usuario.
+  // Se utilizan los horarios locales estáticos precargados de manera 100% estable.
+
   const prefsFilter = useMemo(() => {
+    if (esAdmin) return null
     if (!usuario?.preferencias) return null
     const p = usuario.preferencias
     if (p.tipo === 'estudiante') {
@@ -83,12 +150,12 @@ function App() {
       return (h) => slugify(h.profesor) === p.profesorId
     }
     return null
-  }, [usuario?.preferencias])
+  }, [usuario?.preferencias, esAdmin])
 
   const baseHorarios = useMemo(() => {
-    if (prefsFilter) return horarios.filter(prefsFilter)
-    return horarios
-  }, [prefsFilter])
+    if (prefsFilter) return horariosDinamicos.filter(prefsFilter)
+    return horariosDinamicos
+  }, [prefsFilter, horariosDinamicos])
 
   const filtrarPorPrefs = useMemo(() => {
     if (!prefsFilter) return (c) => c
@@ -97,16 +164,16 @@ function App() {
 
   useEffect(() => {
     const actualizar = () => {
-      setClasesAhora(filtrarPorPrefs(getClasesActuales()))
-      setClasesProximas(filtrarPorPrefs(getClasesProximas()))
-      setClasesProximas10(filtrarPorPrefs(getClasesProximas(10)))
-      setClasesTerminando(filtrarPorPrefs(getClasesTerminando()))
-      setTurnoActual(getTurnoActual())
+      setClasesAhora(filtrarPorPrefs(getClasesActuales(simulacion, horariosDinamicos)))
+      setClasesProximas(filtrarPorPrefs(getClasesProximas(5, simulacion, horariosDinamicos)))
+      setClasesProximas10(filtrarPorPrefs(getClasesProximas(10, simulacion, horariosDinamicos)))
+      setClasesTerminando(filtrarPorPrefs(getClasesTerminando(5, simulacion, horariosDinamicos)))
+      setTurnoActual(getTurnoActual(simulacion))
     }
     actualizar()
     const intervalo = setInterval(actualizar, 60000)
     return () => clearInterval(intervalo)
-  }, [filtrarPorPrefs])
+  }, [filtrarPorPrefs, simulacion, horariosDinamicos])
 
   useEffect(() => {
     if (!vistasPermitidas[vista]) setVista('tabla')
@@ -248,6 +315,8 @@ function App() {
         onLogout={handleLogout}
         onInfoClick={() => setMostrarInfo(true)}
         turnoActual={turnoActual}
+        tema={tema}
+        onToggleTema={() => setTema(t => t === 'claro' ? 'oscuro' : 'claro')}
       />
 
       <main className="app-main">
@@ -256,7 +325,14 @@ function App() {
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
-            {clasesAhora.length > 0 && <CurrentClassPanel clases={clasesAhora} />}
+            {(clasesAhora.length > 0 || esAdmin) && (
+              <CurrentClassPanel
+                clases={clasesAhora}
+                esAdmin={esAdmin}
+                simulacion={simulacion}
+                setSimulacion={setSimulacion}
+              />
+            )}
 
             {esAdmin && (
               <ProjectorPanel
@@ -300,6 +376,13 @@ function App() {
           <WeeklyTable horarios={horariosFiltrados} />
         )}
 
+        {vista === 'mis-clases' && usuario?.rol === 'docente' && (
+          <MisClases 
+            horarios={horariosFiltrados} 
+            profesorNombre={usuario?.preferencias?.profesorLabel}
+          />
+        )}
+
         {vista === 'salones' && (
           horariosFiltrados.length === 0 ? (
             <div className="weekly-empty">
@@ -336,17 +419,36 @@ function App() {
 
         {vista === 'print' && (
           <PrintPage
-            horarios={horarios}
-            salones={salones}
+            horarios={horariosDinamicos}
+            salones={opcionesFiltros.salones}
             onVolver={() => setVista('tabla')}
           />
         )}
 
         {vista === 'admin' && esAdmin && (
-          <AdminPanel usuario={usuario} />
+          <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} />
         )}
 
       </main>
+
+      {usuario?.rol === 'docente' && vista !== 'print' && vista !== 'admin' && (
+        <button 
+          className="fab-solicitar-equipo" 
+          onClick={() => setMostrarSolicitud(true)}
+          title="Solicitar Equipo"
+        >
+          <span className="fab-icon">🖥️</span>
+          <span className="fab-text">Pedir Equipo</span>
+        </button>
+      )}
+
+      {mostrarSolicitud && (
+        <SolicitudEquipoModal
+          usuario={usuario}
+          horariosProfesor={horarios.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
+          onClose={() => setMostrarSolicitud(false)}
+        />
+      )}
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />

@@ -45,26 +45,46 @@ export const getBloqueById = (id, turno = "Matutino") => {
   return lista.find(b => b.id === id);
 };
 
-export const getClasesActuales = () => {
-  const ahora = new Date();
-  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const diaActual = diasSemana[ahora.getDay()];
-  const horaActual = ahora.toTimeString().slice(0, 5);
-  return horarios.filter(h => {
+export const getClasesActuales = (simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let horaActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    horaActual = simulacion.hora;
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    horaActual = ahora.toTimeString().slice(0, 5);
+  }
+
+  return lista.filter(h => {
     const bloque = getBloqueById(h.bloque, h.turno);
     if (!bloque) return false;
     return h.dia === diaActual && horaActual >= bloque.inicio && horaActual < bloque.fin;
   });
 };
 
-export const getClasesProximas = (minutos = 5) => {
-  const ahora = new Date();
-  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const diaActual = diasSemana[ahora.getDay()];
-  const minActual = aMinutos(ahora.toTimeString().slice(0, 5));
-  return horarios
+export const getClasesProximas = (minutos = 5, simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let minActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    minActual = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    minActual = aMinutos(ahora.toTimeString().slice(0, 5));
+  }
+
+  return lista
     .filter(h => {
-      if (!h.proyector) return false;
+      if (!h.proyector && !h.requiereProyector) return false;
       const bloque = getBloqueById(h.bloque, h.turno);
       if (!bloque || h.dia !== diaActual) return false;
       const minBloque = aMinutos(bloque.inicio);
@@ -72,7 +92,7 @@ export const getClasesProximas = (minutos = 5) => {
     })
     .map(h => {
       const bloque = getBloqueById(h.bloque, h.turno);
-      const esContinuacion = horarios.some(other =>
+      const esContinuacion = lista.some(other =>
         other.carrera === h.carrera &&
         other.grupo === h.grupo &&
         other.turno === h.turno &&
@@ -80,21 +100,31 @@ export const getClasesProximas = (minutos = 5) => {
         other.materia === h.materia &&
         other.profesor === h.profesor &&
         other.salon === h.salon &&
-        other.proyector === h.proyector &&
-        other.bloque === h.bloque - 1
+        other.bloque === h.bloque - 1 &&
+        (other.proyector || other.requiereProyector)
       );
       return { ...h, _inicio: bloque.inicio, _firstBlock: !esContinuacion };
     });
 };
 
-export const getClasesTerminando = (minutos = 5) => {
-  const ahora = new Date();
-  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const diaActual = diasSemana[ahora.getDay()];
-  const minActual = aMinutos(ahora.toTimeString().slice(0, 5));
-  return horarios
+export const getClasesTerminando = (minutos = 5, simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let minActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    minActual = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    minActual = aMinutos(ahora.toTimeString().slice(0, 5));
+  }
+
+  return lista
     .filter(h => {
-      if (!h.proyector) return false;
+      if (!h.proyector && !h.requiereProyector) return false;
       const bloque = getBloqueById(h.bloque, h.turno);
       if (!bloque || h.dia !== diaActual) return false;
       const minFin = aMinutos(bloque.fin);
@@ -102,7 +132,7 @@ export const getClasesTerminando = (minutos = 5) => {
     })
     .map(h => {
       const bloque = getBloqueById(h.bloque, h.turno);
-      const esUltimoBloque = !horarios.some(other =>
+      const esUltimoBloque = !lista.some(other =>
         other.carrera === h.carrera &&
         other.grupo === h.grupo &&
         other.turno === h.turno &&
@@ -110,17 +140,23 @@ export const getClasesTerminando = (minutos = 5) => {
         other.materia === h.materia &&
         other.profesor === h.profesor &&
         other.salon === h.salon &&
-        other.proyector === h.proyector &&
-        other.bloque === h.bloque + 1
+        other.bloque === h.bloque + 1 &&
+        (other.proyector || other.requiereProyector)
       );
       return { ...h, _fin: bloque.fin, _lastBlock: esUltimoBloque };
     });
 };
 
-export const getTurnoActual = () => {
-  const ahora = new Date();
-  const h = ahora.getHours(), m = ahora.getMinutes();
-  const minutos = h * 60 + m;
+export const getTurnoActual = (simulacion) => {
+  let minutos;
+  if (simulacion?.activo) {
+    minutos = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const h = ahora.getHours(), m = ahora.getMinutes();
+    minutos = h * 60 + m;
+  }
+
   if (minutos >= 7 * 60 && minutos < 14 * 60 + 10) return 'Matutino';
   if (minutos >= 15 * 60 + 30 && minutos < 21 * 60 + 20) return 'Vespertino';
   return null;
@@ -151,7 +187,7 @@ export const USUARIOS = [
 // ESTRUCTURA DE CADA ENTRADA:
 // { carrera, turno, grupo, dia, bloque, materia, profesor, salon }
 // ─────────────────────────────────────────────
-export const horarios = [
+const rawHorarios = [
   // ═══════════════════════════════════════════════════════════════════════════
   // TSU DSM - TURNO MATUTINO (Basado en PDF: 2026B TSU DSM M Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -897,9 +933,9 @@ export const horarios = [
 
   // VIERNES
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 7, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
@@ -1028,9 +1064,9 @@ export const horarios = [
   // MIÉRCOLES
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 3, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 4, materia: "Tutoría", profesor: "Marcia Josefina Barajas Solorzano", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 5, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 6, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 4, materia: "Tutoría", profesor: "Marcia Josefina Barajas Solorzano", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 5, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 6, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 7, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
 
   // JUEVES
@@ -1150,8 +1186,8 @@ export const horarios = [
   // JUEVES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 7, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 7, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
 
   // VIERNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Viernes", bloque: 2, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
@@ -1170,8 +1206,8 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Lunes", bloque: 7, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
 
   // MARTES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
 
@@ -1260,8 +1296,8 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Miércoles", bloque: 7, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
 
   // JUEVES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 4, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 4, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 6, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 7, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
 
@@ -1409,8 +1445,8 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Martes", bloque: 7, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 505" },
 
   // MIÉRCOLES
-  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 3, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 3, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 4, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 5, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
 
@@ -1436,8 +1472,8 @@ export const horarios = [
   // LUNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 3, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 4, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 5, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 4, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 5, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Taller PB07", proyector: "PB07", abrir: true },
 
   // MARTES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Martes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio M13" },
@@ -1468,3 +1504,12 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
 ];
+
+export const horarios = rawHorarios.map(h => {
+  if (h.carrera && (h.carrera.toUpperCase() === 'ENVD' || h.carrera.toUpperCase() === 'IEVND')) {
+    if (!h.grupo.endsWith('-E')) {
+      return { ...h, grupo: h.grupo + '-E' };
+    }
+  }
+  return h;
+});

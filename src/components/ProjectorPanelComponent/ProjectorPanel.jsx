@@ -61,20 +61,8 @@ function ProjectorPanel({ clases, proximas, proximas10, terminando }) {
     }
   }, [])
 
-  useEffect(() => {
-    proximas.forEach(c => {
-      const key = `${c.carrera}-${c.grupo}-${c.bloque}-${c.turno}`
-      if (!alertadas.current.has(key) && c._firstBlock !== false) {
-        alertadas.current.add(key)
-        playAlarma()
-        enviarNotificacion(
-          'Proyector por comenzar',
-          `${c.materia} · ${c.salon} · ${c.proyector}`,
-          NOTIFICATION_TAG.PROXIMA,
-        )
-      }
-    })
-  }, [proximas])
+  // Alerta de 5 minutos redundante desactivada para evitar doble pitido molesto.
+  // La alerta de 10 minutos (proximas10) se encarga de notificar y pitar de manera única y oportuna.
 
   useEffect(() => {
     (proximas10 || []).forEach(c => {

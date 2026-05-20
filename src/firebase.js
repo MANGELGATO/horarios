@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
@@ -84,7 +84,6 @@ const PROFESOR_EMAILS = {
 export function getRolPorDominio(email) {
   if (ADMIN_EMAILS.includes(email)) return 'admin';
   if (email.endsWith(`@${DOMINIO_ESTUDIANTE}`)) return 'estudiante';
-  if (email.endsWith(`@${DOMINIO_DOCENTE}`)) return 'docente';
   return null;
 }
 
@@ -130,13 +129,25 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
     const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
-      const preferencias = crearPreferenciasIniciales(rolBase, email);
+      // Verificar lista blanca (correos_autorizados) si no es admin
+      let rolDefinitivo = rolBase;
+      if (rolBase !== 'admin') {
+        const authRef = doc(db, 'correos_autorizados', email);
+        const authSnap = await getDoc(authRef);
+        if (authSnap.exists()) {
+          rolDefinitivo = authSnap.data().rol;
+        } else if (!rolBase) {
+          throw new Error('ACCESO DENEGADO: Tu correo no está registrado en la lista blanca de la institución.');
+        }
+      }
+
+      const preferencias = crearPreferenciasIniciales(rolDefinitivo, email);
       const nuevoUsuario = {
         email,
         nombre: usuarioFirebase.displayName || '',
         foto: usuarioFirebase.photoURL || '',
         uid: usuarioFirebase.uid,
-        rol: rolBase,
+        rol: rolDefinitivo,
         dominio,
         preferencias,
         activo: true,
@@ -198,5 +209,45 @@ export async function guardarPreferencias(uid, preferencias) {
     await updateDoc(doc(db, 'usuarios', uid), { preferencias });
   } catch (err) {
     console.warn('[firebase] No se pudieron guardar preferencias:', err.message);
+  }
+}
+
+export async function guardarSolicitudEquipo(solicitud) {
+  try {
+    const docRef = await addDoc(collection(db, 'solicitudes_equipo'), {
+      ...solicitud,
+      timestamp: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (err) {
+    console.error('[firebase] Error al guardar solicitud de equipo:', err);
+    throw err;
+  }
+}
+
+export async function eliminarSolicitudEquipo(id) {
+  try {
+    await deleteDoc(doc(db, 'solicitudes_equipo', id));
+  } catch (err) {
+    console.error('[firebase] Error al eliminar solicitud de equipo:', err);
+    throw err;
+  }
+}
+
+export async function autorizarCorreo(email, rol) {
+  try {
+    await setDoc(doc(db, 'correos_autorizados', email), { rol, timestamp: serverTimestamp() });
+  } catch (err) {
+    console.error('[firebase] Error al autorizar correo:', err);
+    throw err;
+  }
+}
+
+export async function eliminarCorreoAutorizado(email) {
+  try {
+    await deleteDoc(doc(db, 'correos_autorizados', email));
+  } catch (err) {
+    console.error('[firebase] Error al eliminar correo autorizado:', err);
+    throw err;
   }
 }

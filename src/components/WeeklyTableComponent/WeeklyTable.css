@@ -108,6 +108,11 @@
   padding: var(--space-2);
   vertical-align: top;
   border-bottom: 1px solid var(--color-border);
+  height: 100%;
+}
+
+.td-clase[rowspan] {
+  vertical-align: middle;
 }
 
 .td-vacio {
@@ -127,6 +132,15 @@
   gap: 2px;
   border-left: 3px solid currentColor;
   margin-bottom: var(--space-1);
+}
+
+.clase-chip--merged {
+  height: calc(100% - 2px);
+  min-height: 80px;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: 0;
+  padding: var(--space-3) var(--space-4);
 }
 
 .clase-chip:last-child { margin-bottom: 0; }
@@ -165,6 +179,15 @@
   opacity: 0.75;
 }
 
+.clase-chip__time {
+  font-size: 0.65rem;
+  font-weight: 700;
+  opacity: 0.8;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .clase-chip__prof {
   font-size: 0.68rem;
   color: var(--color-text-muted);
@@ -185,6 +208,48 @@
 .color-ievnd .clase-chip__meta  { color: #7a39bb; }
 
 .color-default { background: var(--color-bg); border-color: var(--color-border); }
+
+/* ── Dark Mode Overrides for Careers ── */
+.dark-mode .color-dsm {
+  background: rgba(0, 100, 148, 0.18);
+  border-color: #38bdf8;
+}
+.dark-mode .color-dsm .clase-chip__meta,
+.dark-mode .color-dsm .clase-chip__time {
+  color: #38bdf8;
+}
+
+.dark-mode .color-evnd {
+  background: rgba(218, 113, 1, 0.18);
+  border-color: #fb923c;
+}
+.dark-mode .color-evnd .clase-chip__meta,
+.dark-mode .color-evnd .clase-chip__time {
+  color: #fb923c;
+}
+
+.dark-mode .color-idgs {
+  background: rgba(67, 122, 34, 0.18);
+  border-color: #4ade80;
+}
+.dark-mode .color-idgs .clase-chip__meta,
+.dark-mode .color-idgs .clase-chip__time {
+  color: #4ade80;
+}
+
+.dark-mode .color-ievnd {
+  background: rgba(122, 57, 187, 0.18);
+  border-color: #c084fc;
+}
+.dark-mode .color-ievnd .clase-chip__meta,
+.dark-mode .color-ievnd .clase-chip__time {
+  color: #c084fc;
+}
+
+.dark-mode .color-default {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
 /* ── Responsive ── */
 @media (max-width: 600px) {

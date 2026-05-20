@@ -87,6 +87,64 @@ function WeeklyTable({ horarios, getBloqueById }) {
 }
 
 function TurnoTable({ turno, bloques, mapa }) {
+  // Función auxiliar para comparar dos clases
+  const sonClasesIdenticas = (a, b) => {
+    return a.materia === b.materia &&
+           a.profesor === b.profesor &&
+           a.carrera === b.carrera &&
+           a.grupo === b.grupo &&
+           a.salon === b.salon &&
+           a.turno === b.turno
+  }
+
+  // Función auxiliar para comparar dos listas de clases
+  const sonListasClasesIdenticas = (listA, listB) => {
+    if (!listA || !listB) return false
+    if (listA.length !== listB.length) return false
+    if (listA.length === 0) return true
+    return listA.every(a => listB.some(b => sonClasesIdenticas(a, b)))
+  }
+
+  // Pre-calcular matriz de celdas combinadas (rowspan) para cada día de la semana
+  // celdaGrid[dia][bloqueId] = { shouldRender: boolean, rowSpan: number }
+  const celdaGrid = {}
+  DIAS.forEach(dia => {
+    celdaGrid[dia] = {}
+    bloques.forEach(b => {
+      celdaGrid[dia][b.id] = { shouldRender: true, rowSpan: 1 }
+    })
+
+    let i = 0
+    while (i < bloques.length) {
+      const b = bloques[i]
+      const listA = mapa[dia][b.id]
+
+      if (listA && listA.length > 0) {
+        let span = 1
+        let j = i + 1
+        while (j < bloques.length) {
+          const nextB = bloques[j]
+          const listB = mapa[dia][nextB.id]
+          if (sonListasClasesIdenticas(listA, listB)) {
+            span++
+            j++
+          } else {
+            break
+          }
+        }
+        if (span > 1) {
+          celdaGrid[dia][b.id].rowSpan = span
+          for (let k = i + 1; k < i + span; k++) {
+            celdaGrid[dia][bloques[k].id].shouldRender = false
+          }
+          i += span
+          continue
+        }
+      }
+      i++
+    }
+  })
+
   return (
     <div className="turno-block">
       {/* Etiqueta de turno */}
@@ -111,23 +169,33 @@ function TurnoTable({ turno, bloques, mapa }) {
               <tr key={bloque.id} className={bi % 2 === 0 ? 'tr-even' : 'tr-odd'}>
                 <td className="td-hora">{bloque.label}</td>
                 {DIAS.map(dia => {
+                  const cellInfo = celdaGrid[dia][bloque.id]
+                  if (!cellInfo.shouldRender) return null
+
                   const clases = mapa[dia][bloque.id]
                   return (
-                    <td key={dia} className="td-clase">
+                    <td key={dia} className="td-clase" rowSpan={cellInfo.rowSpan}>
                       {clases.length === 0 ? (
                         <span className="td-vacio">—</span>
                       ) : (
                         clases.map((c, i) => {
                           const esVirtual = c.diaVirtual === dia
+                          const startPart = bloque.label.split(/[–-]/)[0]
+                          const endPart = bloques[bi + cellInfo.rowSpan - 1].label.split(/[–-]/)[1]
+                          const horarioTexto = `${startPart}–${endPart}`
                           return (
-                          <div key={i} className={`clase-chip ${getColor(c.carrera)}${esVirtual ? ' clase-chip--virtual' : ''}`}>
-                            {esVirtual && <span className="clase-chip__virtual-badge">Virtual</span>}
-                            <span className="clase-chip__materia">{c.materia}</span>
-                            <span className="clase-chip__meta">
-                              {c.carrera} {c.grupo} · {c.salon}
-                            </span>
-                            <span className="clase-chip__prof">{c.profesor}</span>
-                          </div>
+                            <div
+                              key={i}
+                              className={`clase-chip ${getColor(c.carrera)}${esVirtual ? ' clase-chip--virtual' : ''}${cellInfo.rowSpan > 1 ? ' clase-chip--merged' : ''}`}
+                            >
+                              {esVirtual && <span className="clase-chip__virtual-badge">Virtual</span>}
+                              <span className="clase-chip__materia">{c.materia}</span>
+                              <span className="clase-chip__time">🕒 {horarioTexto}</span>
+                              <span className="clase-chip__meta">
+                                {c.carrera} {c.grupo} · {c.salon}
+                              </span>
+                              <span className="clase-chip__prof">{c.profesor}</span>
+                            </div>
                           )
                         })
                       )}

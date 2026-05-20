@@ -1,13 +1,18 @@
 import { useState, useMemo } from 'react'
 import { horarios } from '../../data/horarios'
-import { guardarPreferencias } from '../../firebase'
+import { guardarPreferencias, slugify } from '../../firebase'
 import './SetupProfile.css'
 
 function SetupProfile({ usuario, onCompletado }) {
   const [turno, setTurno] = useState('')
   const [carrera, setCarrera] = useState('')
   const [grupo, setGrupo] = useState('')
+  const [profesorId, setProfesorId] = useState('')
   const [guardando, setGuardando] = useState(false)
+
+  const profesoresDisponibles = useMemo(() => {
+    return [...new Set(horarios.map(h => h.profesor))].sort()
+  }, [])
 
   const turnosDisponibles = [...new Set(horarios.map(h => h.turno))].sort()
 
@@ -35,11 +40,19 @@ function SetupProfile({ usuario, onCompletado }) {
   })
 
   const handleGuardar = async () => {
-    if (!turno || !carrera || !grupo) return
-    setGuardando(true)
-    const prefs = { tipo: 'estudiante', carrera, turno, grupo }
-    await guardarPreferencias(usuario.uid, prefs)
-    onCompletado({ ...usuario, preferencias: prefs })
+    if (usuario.rol === 'docente') {
+      if (!profesorId) return
+      setGuardando(true)
+      const prefs = { tipo: 'docente', profesorId: slugify(profesorId), profesorLabel: profesorId }
+      await guardarPreferencias(usuario.uid, prefs)
+      onCompletado({ ...usuario, preferencias: prefs })
+    } else {
+      if (!turno || !carrera || !grupo) return
+      setGuardando(true)
+      const prefs = { tipo: 'estudiante', carrera, turno, grupo }
+      await guardarPreferencias(usuario.uid, prefs)
+      onCompletado({ ...usuario, preferencias: prefs })
+    }
   }
 
   return (
@@ -57,44 +70,58 @@ function SetupProfile({ usuario, onCompletado }) {
         </div>
 
         <div className="setup-form">
-          <div className="setup-field">
-            <label>Turno</label>
-            <select value={turno} onChange={e => { setTurno(e.target.value); setCarrera(''); setGrupo('') }}>
-              <option value="">Selecciona tu turno</option>
-              {turnosDisponibles.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="setup-field">
-            <label>Carrera</label>
-            <select value={carrera} onChange={e => { setCarrera(e.target.value); setGrupo('') }} disabled={!turno}>
-              <option value="">Selecciona tu carrera</option>
-              {carrerasDisponibles.map(c => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="setup-field">
-            <label>Grupo</label>
-            <select value={grupo} onChange={e => setGrupo(e.target.value)} disabled={!carrera}>
-              <option value="">Selecciona tu grupo</option>
-              {Object.entries(gruposAgrupados).map(([letra, grps]) => (
-                <optgroup key={letra} label={`Cuatrimestre ${letra}`}>
-                  {grps.map(g => (
-                    <option key={g} value={g}>{g}</option>
+          {usuario.rol === 'docente' ? (
+            <div className="setup-field">
+              <label>Tu Nombre / Profesor</label>
+              <select value={profesorId} onChange={e => setProfesorId(e.target.value)}>
+                <option value="">Selecciona tu nombre</option>
+                {profesoresDisponibles.map(p => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <>
+              <div className="setup-field">
+                <label>Turno</label>
+                <select value={turno} onChange={e => { setTurno(e.target.value); setCarrera(''); setGrupo('') }}>
+                  <option value="">Selecciona tu turno</option>
+                  {turnosDisponibles.map(t => (
+                    <option key={t} value={t}>{t}</option>
                   ))}
-                </optgroup>
-              ))}
-            </select>
-          </div>
+                </select>
+              </div>
+
+              <div className="setup-field">
+                <label>Carrera</label>
+                <select value={carrera} onChange={e => { setCarrera(e.target.value); setGrupo('') }} disabled={!turno}>
+                  <option value="">Selecciona tu carrera</option>
+                  {carrerasDisponibles.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="setup-field">
+                <label>Grupo</label>
+                <select value={grupo} onChange={e => setGrupo(e.target.value)} disabled={!carrera}>
+                  <option value="">Selecciona tu grupo</option>
+                  {Object.entries(gruposAgrupados).map(([letra, grps]) => (
+                    <optgroup key={letra} label={`Cuatrimestre ${letra}`}>
+                      {grps.map(g => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
 
           <button
             className="setup-btn"
             onClick={handleGuardar}
-            disabled={!turno || !carrera || !grupo || guardando}
+            disabled={(usuario.rol === 'docente' ? !profesorId : (!turno || !carrera || !grupo)) || guardando}
           >
             {guardando ? 'Guardando...' : 'Ver mi horario'}
           </button>

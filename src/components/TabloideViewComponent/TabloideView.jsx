@@ -14,79 +14,116 @@ const BLOQUES_VES = [
   '20:30-21:20'
 ]
 
-function getClase(horarios, salon, dia, horaInicio, horaFin) {
-  return horarios.find(h =>
-    h.salon === salon &&
-    h.dia === dia &&
-    h.horaInicio === horaInicio &&
-    h.horaFin === horaFin
-  )
+function getClase(horarios, salon, dia, turno, bloqueId) {
+  if (!horarios || !salon) return undefined;
+  const normalizedSalon = salon.toLowerCase().trim();
+  const normalizedDia = dia.toLowerCase().trim();
+  const normalizedTurno = turno.toLowerCase().trim();
+  
+  return horarios.find(h => {
+    if (!h.salon || !h.dia || !h.turno) return false;
+    return h.salon.toLowerCase().trim() === normalizedSalon &&
+      h.dia.toLowerCase().trim() === normalizedDia &&
+      h.turno.toLowerCase().trim() === normalizedTurno &&
+      Number(h.bloque) === Number(bloqueId);
+  });
 }
 
-function parseBloque(bloque) {
-  const [inicio, fin] = bloque.split('-')
-  return { horaInicio: inicio, horaFin: fin }
-}
-
-function CeldaClase({ clase }) {
-  if (!clase) return <td className="tabloide-td tabloide-td--vacia"></td>
+function CeldaClase({ clase, dia }) {
+  if (!clase) {
+    return (
+      <td className="tabloide-td tabloide-td--vacia">
+        <div className="tabloide-cell-wrapper"></div>
+      </td>
+    )
+  }
+  const esVirtual = clase.diaVirtual === dia
   return (
-    <td className="tabloide-td tabloide-td--ocupada">
-      <span className="tabloide-materia">{clase.materia}</span>
-      <span className="tabloide-grupo">{clase.carrera} {clase.grupo}</span>
-      <span className="tabloide-profesor">{clase.profesor}</span>
+    <td className={`tabloide-td tabloide-td--ocupada${esVirtual ? ' tabloide-td--virtual' : ''}`}>
+      <div className="tabloide-cell-wrapper">
+        <span className="tabloide-materia">{clase.materia}</span>
+        <span className="tabloide-profesor">{clase.profesor}</span>
+        <span className="tabloide-grupo">{clase.grupo}</span>
+      </div>
     </td>
   )
 }
 
-function TabloideView({ salon, horarios, ciclo = 'Mayo -Agosto 2026' }) {
-  const clasesSalon = horarios.filter(h => h.salon === salon)
+function TabloideView({ salon, horarios, ciclo = 'Mayo - Agosto 2026' }) {
+  const clasesSalon = horarios.filter(h => 
+    h.salon && h.salon.toLowerCase().trim() === salon.toLowerCase().trim()
+  )
 
-  // Separar prefijo (ej. Laboratorio) del nombre (ej. M02) si aplica
-  const isLaboratorio = salon.toLowerCase().includes('lab');
-  const tipoEspacio = isLaboratorio ? 'Laboratorio' : 'Aula';
-  const nombreEspacio = salon.replace(/Laboratorio|Lab/i, '').trim() || salon;
+  // Separar prefijo (ej. Laboratorio, Taller, Aula) del nombre (ej. M02) si aplica
+  let tipoEspacio = 'Aula';
+  let nombreEspacio = salon;
+  if (salon.toLowerCase().includes('lab') || salon.toLowerCase().includes('laboratorio')) {
+    tipoEspacio = 'Laboratorio';
+    nombreEspacio = salon.replace(/Laboratorio|Lab/i, '').trim();
+  } else if (salon.toLowerCase().includes('taller')) {
+    tipoEspacio = 'Taller';
+    nombreEspacio = salon.replace(/Taller/i, '').trim();
+  } else if (salon.toLowerCase().includes('aula')) {
+    tipoEspacio = 'Aula';
+    nombreEspacio = salon.replace(/Aula/i, '').trim();
+  }
 
   return (
     <div className="tabloide-page">
-      
-      {/* Logos superiores */}
-      <div className="tabloide-header-logos">
-        <div className="tabloide-logo-left">
-          {/* Reemplaza con tu etiqueta img real */}
-          <div className="logo-placeholder">UTJ Logo</div> 
-        </div>
-        <div className="tabloide-logo-right">
-          {/* Reemplaza con tu etiqueta img real */}
-          <div className="logo-placeholder logo-placeholder--round">27 Aniversario</div>
-        </div>
+      {/* Watermark de fondo oficial de la UTJ */}
+      <div className="tabloide-watermark">
+        <img src="/tabloide_watermark.png" alt="UTJ Watermark" />
       </div>
 
-      {/* Título */}
+      {/* Logos superiores oficiales de la UTJ */}
+      <div className="tabloide-header-logos">
+        <img src="/tabloide_header_logos.png?v=2" alt="UTJ Header Logos" className="tabloide-header-logos-img" />
+      </div>
+
+      {/* Título Dinámico */}
       <div className="tabloide-title">
-        <span className="tabloide-title__tipo">{tipoEspacio} | </span>
+        <span className="tabloide-title__tipo">{tipoEspacio.toUpperCase()}</span>
+        <span className="tabloide-title__separator"> | </span>
         <span className="tabloide-title__nombre">{nombreEspacio}</span>
       </div>
 
       {/* Tabla Unificada */}
       <table className="tabloide-table">
+        <colgroup>
+          <col style={{ width: '2.27cm' }} />
+          <col style={{ width: '4.51cm' }} />
+          <col style={{ width: '4.51cm' }} />
+          <col style={{ width: '4.51cm' }} />
+          <col style={{ width: '4.51cm' }} />
+          <col style={{ width: '4.51cm' }} />
+        </colgroup>
         <thead>
           <tr>
-            <th className="tabloide-th tabloide-th--horario">HORARIO</th>
-            {DIAS.map(d => <th key={d} className="tabloide-th">{d.toUpperCase()}</th>)}
+            <th className="tabloide-th tabloide-th--horario">
+              <div className="tabloide-th-wrapper">HORARIO</div>
+            </th>
+            {DIAS.map(d => (
+              <th key={d} className="tabloide-th">
+                <div className="tabloide-th-wrapper">{d.toUpperCase()}</div>
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {/* Turno Matutino */}
-          {BLOQUES_MAT.map(bloque => {
-            const { horaInicio, horaFin } = parseBloque(bloque)
+          {BLOQUES_MAT.map((bloque, index) => {
             return (
               <tr key={bloque}>
-                <td className="tabloide-td tabloide-td--horario">{bloque}</td>
+                <td className="tabloide-td tabloide-td--horario">
+                  <div className="tabloide-cell-wrapper tabloide-cell-wrapper--horario">
+                    {bloque}
+                  </div>
+                </td>
                 {DIAS.map(dia => (
                   <CeldaClase
                     key={dia}
-                    clase={getClase(clasesSalon, salon, dia, horaInicio, horaFin)}
+                    dia={dia}
+                    clase={getClase(clasesSalon, salon, dia, 'Matutino', index + 1)}
                   />
                 ))}
               </tr>
@@ -95,19 +132,27 @@ function TabloideView({ salon, horarios, ciclo = 'Mayo -Agosto 2026' }) {
 
           {/* Receso central */}
           <tr className="tabloide-receso-row">
-            <td colSpan={6}>RECESO</td>
+            <td colSpan={6}>
+              <div className="tabloide-cell-wrapper tabloide-cell-wrapper--receso">
+                RECESO
+              </div>
+            </td>
           </tr>
 
           {/* Turno Vespertino */}
-          {BLOQUES_VES.map(bloque => {
-            const { horaInicio, horaFin } = parseBloque(bloque)
+          {BLOQUES_VES.map((bloque, index) => {
             return (
               <tr key={bloque}>
-                <td className="tabloide-td tabloide-td--horario">{bloque}</td>
+                <td className="tabloide-td tabloide-td--horario">
+                  <div className="tabloide-cell-wrapper tabloide-cell-wrapper--horario">
+                    {bloque}
+                  </div>
+                </td>
                 {DIAS.map(dia => (
                   <CeldaClase
                     key={dia}
-                    clase={getClase(clasesSalon, salon, dia, horaInicio, horaFin)}
+                    dia={dia}
+                    clase={getClase(clasesSalon, salon, dia, 'Vespertino', index + 1)}
                   />
                 ))}
               </tr>
@@ -116,18 +161,18 @@ function TabloideView({ salon, horarios, ciclo = 'Mayo -Agosto 2026' }) {
         </tbody>
       </table>
 
-      {/* Footer / Ciclo */}
-      <div className="tabloide-ciclo">
-        <strong>Horarios | {ciclo}</strong>
+      {/* Fila de Texto del Ciclo (mismo ancho exacto que la tabla) */}
+      <div className="tabloide-footer-text-area">
+        <div className="tabloide-footer-ciclo-text">
+          Horarios | {ciclo}
+        </div>
       </div>
 
-      {/* Logos inferiores */}
-      <div className="tabloide-footer-logos">
-         {/* Reemplaza con tus imágenes reales */}
-         <div className="logo-placeholder footer-logo">Educación</div>
-         <div className="logo-placeholder footer-logo">UTP</div>
-         <div className="logo-placeholder footer-logo">Jalisco</div>
-         <div className="logo-placeholder footer-logo">Educert</div>
+      {/* Footer y Logos de Gobierno Oficiales */}
+      <div className="tabloide-footer-container">
+        <div className="tabloide-footer-relative-wrap">
+          <img src="/tabloide_footer_logos.png?v=2" alt="UTJ Footer Logos" className="tabloide-footer-logos-img" />
+        </div>
       </div>
     </div>
   )

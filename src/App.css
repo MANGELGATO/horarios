@@ -40,6 +40,23 @@
   --transition: 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+:root.dark-mode {
+  --color-bg:           #0a0a0c;
+  --color-surface:      #121215;
+  --color-border:       rgba(255, 255, 255, 0.08);
+  --color-text:         #f4f4f5;
+  --color-text-muted:   #a1a1aa;
+  --color-primary:      #0891b2;
+  --color-primary-soft: rgba(8, 145, 178, 0.15);
+  --color-matutino:     rgba(56, 189, 248, 0.15);
+  --color-matutino-txt: #38bdf8;
+  --color-vespertino:   rgba(192, 132, 252, 0.15);
+  --color-vespertino-txt:#c084fc;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.6);
+}
+
 /* ════════════════════════════════════════
    RESET BASE
 ════════════════════════════════════════ */
@@ -51,6 +68,7 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   min-height: 100dvh;
+  transition: background-color var(--transition), color var(--transition);
 }
 button { cursor: pointer; border: none; background: none; font: inherit; color: inherit; }
 img, svg { display: block; }
@@ -219,4 +237,16 @@ img, svg { display: block; }
   font-size: var(--text-sm);
   justify-content: center;
 }
+
+/* ── Native Select Dropdowns Dark Mode Fix ── */
+select option {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+
+.dark-mode select option {
+  background-color: #121215 !important;
+  color: #f4f4f5 !important;
+}
+
 

@@ -62,10 +62,12 @@ function PrintPage({ horarios, salones, onVolver }) {
           )}
 
           <div className="print-page__tip">
-            💡 En el diálogo de impresión selecciona
-            <strong> Tamaño: Tabloide (11×17)</strong>,
-            <strong> Orientación: Horizontal</strong> y activa
-            <strong> Gráficos de fondo</strong>.
+            💡 En el diálogo de impresión selecciona:
+            <ul style={{ margin: '8px 0 0 16px', padding: 0 }}>
+              <li><strong>Tamaño: Tabloide (11×17)</strong></li>
+              <li><strong>Orientación: Vertical (Retrato)</strong></li>
+              <li><strong>Activar "Gráficos de fondo"</strong> (indispensable para ver los colores y marcas de agua).</li>
+            </ul>
           </div>
         </div>
       </div>

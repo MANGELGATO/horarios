@@ -8,6 +8,19 @@ function ViewSelector({ vista, setVista, usuario }) {
 
   return (
     <div className="view-selector">
+      {usuario?.rol === 'docente' && (
+        <button
+          className={`view-selector__btn ${vista === 'mis-clases' ? 'view-selector__btn--active' : ''}`}
+          onClick={() => setVista('mis-clases')}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+          Mis clases
+        </button>
+      )}
       <button
         className={`view-selector__btn ${vista === 'tabla' ? 'view-selector__btn--active' : ''}`}
         onClick={() => setVista('tabla')}
