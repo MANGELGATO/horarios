@@ -321,7 +321,7 @@ function App() {
 
       <main className="app-main">
 
-        <ViewSelector vista={vista} setVista={setVista} usuario={usuario} />
+        <ViewSelector vista={vista} setVista={setVista} usuario={usuario} onPedirEquipo={() => setMostrarSolicitud(true)} />
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
@@ -431,16 +431,7 @@ function App() {
 
       </main>
 
-      {usuario?.rol === 'docente' && vista !== 'print' && vista !== 'admin' && (
-        <button 
-          className="fab-solicitar-equipo" 
-          onClick={() => setMostrarSolicitud(true)}
-          title="Solicitar Equipo"
-        >
-          <span className="fab-icon">🖥️</span>
-          <span className="fab-text">Pedir Equipo</span>
-        </button>
-      )}
+
 
       {mostrarSolicitud && (
         <SolicitudEquipoModal

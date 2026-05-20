@@ -64,5 +64,23 @@ service cloud.firestore {
       allow read: if isAuth();
       allow write: if hasRol(request.auth.uid, ['admin', 'superadmin']);
     }
+
+    // ─── SOLICITUDES DE EQUIPO ───
+    // Docentes pueden crear solicitudes propias y eliminarlas.
+    // Admin/superadmin pueden leer y eliminar cualquiera.
+    match /solicitudes_equipo/{doc} {
+      allow read: if isAuth();
+      allow create: if isAuth() && hasRol(request.auth.uid, ['docente', 'admin', 'superadmin', 'administrativo']);
+      allow delete: if esPropietario(resource.data.profesorId)
+        || hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── CORREOS AUTORIZADOS ───
+    // Solo admin/superadmin pueden gestionar la lista blanca.
+    // Cualquier usuario autenticado puede leer su propio registro.
+    match /correos_autorizados/{email} {
+      allow read: if isAuth();
+      allow write: if hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
   }
 }

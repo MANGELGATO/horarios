@@ -53,6 +53,19 @@
   color: var(--color-primary);
 }
 
+.view-selector__btn--pedir {
+  background: linear-gradient(135deg, var(--color-primary), #0891b2);
+  color: #fff !important;
+  border-color: transparent !important;
+  font-weight: 700;
+}
+
+.view-selector__btn--pedir:hover {
+  filter: brightness(1.1);
+  color: #fff !important;
+  background: linear-gradient(135deg, var(--color-primary), #0891b2);
+}
+
 @media (max-width: 600px) {
   .view-selector {
     padding: var(--space-2);
