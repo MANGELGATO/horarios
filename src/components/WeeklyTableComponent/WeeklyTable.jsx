@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import './WeeklyTable.css'
+import { consolidarClases } from '../../data/horarios'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
@@ -25,13 +26,15 @@ const BLOQUES_VES = [
 ]
 
 function getColor(carrera) {
+  if (!carrera) return 'color-default';
+  const primeraCarrera = carrera.split(' / ')[0].trim();
   const map = {
     DSM:   'color-dsm',
     EVND:  'color-evnd',
     IDGS:  'color-idgs',
     IEVND: 'color-ievnd',
   }
-  return map[carrera] || 'color-default'
+  return map[primeraCarrera] || 'color-default'
 }
 
 function WeeklyTable({ horarios, getBloqueById }) {
@@ -63,6 +66,14 @@ function WeeklyTable({ horarios, getBloqueById }) {
           map[h.dia][h.bloque].push(h)
         }
       })
+    
+    // Consolidar clases simultáneas del mismo docente
+    DIAS.forEach(dia => {
+      bloques.forEach(b => {
+        map[dia][b.id] = consolidarClases(map[dia][b.id])
+      })
+    })
+    
     return map
   }
 

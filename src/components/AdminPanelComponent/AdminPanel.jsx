@@ -473,7 +473,7 @@ export function parsearHorariosDeTexto(texto, defaultCarrera = 'DSM', defaultTur
   return clases;
 }
 
-function AdminPanel({ usuario, horariosDinamicos = [] }) {
+function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
   const [tabActiva, setTabActiva] = useState('usuarios')
   const [usuarios, setUsuarios] = useState([])
   const [solicitudes, setSolicitudes] = useState([])
@@ -1127,6 +1127,13 @@ function AdminPanel({ usuario, horariosDinamicos = [] }) {
         >
           Solicitudes Equipo
           {solicitudes.length > 0 && <span className="admin-tab-badge">{solicitudes.length}</span>}
+        </button>
+
+        <button
+          className="admin-tab-btn"
+          onClick={() => window.dispatchEvent(new CustomEvent('cambiar-vista', { detail: 'bitacora' }))}
+        >
+          📝 Bitácoras Lab
         </button>
       </div>
 
@@ -1996,6 +2003,18 @@ function AdminPanel({ usuario, horariosDinamicos = [] }) {
                 Agrega manualmente los correos de los docentes y administrativos. 
                 Si no están aquí, se les considerará alumnos al entrar por primera vez.
               </p>
+              <div className="admin-whitelist-dynamic-info" style={{
+                background: 'rgba(21, 101, 192, 0.1)',
+                borderLeft: '4px solid #1565c0',
+                padding: '1rem',
+                borderRadius: '4px',
+                marginTop: '1rem',
+                color: 'var(--color-text)',
+                fontSize: '0.9rem',
+                lineHeight: '1.4'
+              }}>
+                <strong>💡 Acceso Inteligente Activo:</strong> Los docentes que figuran en el horario escolar tienen acceso <strong>automático</strong>. El sistema predice sus correos UTJ (ej. <code>ebarbosa@utj.edu.mx</code> para <em>Eduardo Barbosa Olivares</em>) e inicializa sus preferencias sin requerir registro manual en esta lista.
+              </div>
             </div>
           </div>
 

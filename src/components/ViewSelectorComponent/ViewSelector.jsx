@@ -2,13 +2,14 @@ import './ViewSelector.css'
 
 function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
+  const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
   const esEstudiante = usuario?.rol === 'estudiante'
 
   if (esEstudiante) return null
 
   return (
     <div className="view-selector">
-      {usuario?.rol === 'docente' && (
+      {esDocente && (
         <button
           className={`view-selector__btn ${vista === 'mis-clases' ? 'view-selector__btn--active' : ''}`}
           onClick={() => setVista('mis-clases')}
@@ -21,6 +22,23 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
           Mis clases
         </button>
       )}
+
+      {(esAdmin || esDocente) && (
+        <button
+          className={`view-selector__btn ${vista === 'bitacora' ? 'view-selector__btn--active' : ''}`}
+          onClick={() => setVista('bitacora')}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Bitácora
+        </button>
+      )}
+
       <button
         className={`view-selector__btn ${vista === 'tabla' ? 'view-selector__btn--active' : ''}`}
         onClick={() => setVista('tabla')}
@@ -32,6 +50,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
         </svg>
         Por grupo
       </button>
+
       <button
         className={`view-selector__btn ${vista === 'salones' ? 'view-selector__btn--active' : ''}`}
         onClick={() => setVista('salones')}
@@ -43,6 +62,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
         </svg>
         Por salón
       </button>
+
       {esAdmin && (
         <button
           className={`view-selector__btn ${vista === 'proyectores' ? 'view-selector__btn--active' : ''}`}
@@ -57,6 +77,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
           Proyectores
         </button>
       )}
+
       {esAdmin && (
         <button
           className={`view-selector__btn ${vista === 'admin' ? 'view-selector__btn--active' : ''}`}
@@ -70,20 +91,8 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
           Admin
         </button>
       )}
-      {usuario?.rol === 'docente' ? (
-        <button
-          className="view-selector__btn view-selector__btn--print view-selector__btn--pedir"
-          onClick={onPedirEquipo}
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-          Pedir Equipo
-        </button>
-      ) : (
+
+      {(esAdmin || esDocente) && (
         <button
           className={`view-selector__btn view-selector__btn--print ${vista === 'print' ? 'view-selector__btn--active' : ''}`}
           onClick={() => setVista('print')}
@@ -95,6 +104,21 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
             <rect x="6" y="14" width="12" height="8" />
           </svg>
           Imprimir
+        </button>
+      )}
+
+      {esDocente && (
+        <button
+          className="view-selector__btn view-selector__btn--print view-selector__btn--pedir"
+          onClick={onPedirEquipo}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+          Pedir Equipo
         </button>
       )}
     </div>

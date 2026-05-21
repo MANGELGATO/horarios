@@ -18,10 +18,19 @@ import SetupProfile from './components/SetupProfileComponent/SetupProfile'
 import ViewSelector from './components/ViewSelectorComponent/ViewSelector'
 import SolicitudEquipoModal from './components/SolicitudEquipoModalComponent/SolicitudEquipoModal'
 import MisClases from './components/MisClasesComponent/MisClases'
+import BitacoraLab from './components/BitacoraLabComponent/BitacoraLab'
 import './App.css'
 
 function App() {
   const [vista, setVista] = useState('tabla')
+
+  useEffect(() => {
+    const handleCambiarVista = (e) => {
+      if (e.detail) setVista(e.detail)
+    }
+    window.addEventListener('cambiar-vista', handleCambiarVista)
+    return () => window.removeEventListener('cambiar-vista', handleCambiarVista)
+  }, [])
   const [carreraFiltro, setCarreraFiltro] = useState('Todas')
   const [turnoFiltro, setTurnoFiltro] = useState('Todos')
   const [grupoFiltro, setGrupoFiltro] = useState('Todos')
@@ -47,6 +56,7 @@ function App() {
   })
   const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
   const [solicitudesEquipo, setSolicitudesEquipo] = useState([])
+  const [claseParaBitacora, setClaseParaBitacora] = useState(null)
 
   useEffect(() => {
     const q = query(collection(db, 'solicitudes_equipo'))
@@ -92,22 +102,21 @@ function App() {
 
   const necesitaSetup = usuario && !usuario.preferencias && (usuario.rol === 'estudiante' || usuario.rol === 'docente')
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
+  const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
   const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin
 
   const vistasPermitidas = {
     tabla: true,
     salones: !esEstudianteFiltrado,
     proyectores: esAdmin,
-    print: true,
+    print: esAdmin || esDocente,
     admin: esAdmin,
-    'mis-clases': usuario?.rol === 'docente'
+    'mis-clases': esDocente,
+    'bitacora': esDocente || esAdmin
   }
 
   useEffect(() => {
-    // Si es docente y está en la tabla general, enviarlo a su vista por defecto
-    if (usuario?.rol === 'docente' && vista === 'tabla') {
-      setVista('mis-clases')
-    }
+    // Redirección automática eliminada para permitir a los docentes ver el horario general
   }, [usuario, vista])
 
   useEffect(() => {
@@ -153,9 +162,10 @@ function App() {
   }, [usuario?.preferencias, esAdmin])
 
   const baseHorarios = useMemo(() => {
+    if (esAdmin || esDocente) return horariosDinamicos
     if (prefsFilter) return horariosDinamicos.filter(prefsFilter)
     return horariosDinamicos
-  }, [prefsFilter, horariosDinamicos])
+  }, [prefsFilter, horariosDinamicos, esAdmin, esDocente])
 
   const filtrarPorPrefs = useMemo(() => {
     if (!prefsFilter) return (c) => c
@@ -376,10 +386,22 @@ function App() {
           <WeeklyTable horarios={horariosFiltrados} />
         )}
 
-        {vista === 'mis-clases' && usuario?.rol === 'docente' && (
+        {vista === 'mis-clases' && esDocente && (
           <MisClases 
-            horarios={horariosFiltrados} 
+            horarios={horariosDinamicos.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)} 
             profesorNombre={usuario?.preferencias?.profesorLabel}
+            onClaseClick={(clase) => {
+              setClaseParaBitacora(clase)
+              setVista('bitacora')
+            }}
+          />
+        )}
+
+        {vista === 'bitacora' && (
+          <BitacoraLab 
+            usuario={usuario} 
+            clasePrellenada={claseParaBitacora}
+            onLimpiarPrellenado={() => setClaseParaBitacora(null)}
           />
         )}
 
@@ -426,7 +448,7 @@ function App() {
         )}
 
         {vista === 'admin' && esAdmin && (
-          <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} />
+          <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} setVista={setVista} />
         )}
 
       </main>

@@ -238,15 +238,23 @@ img, svg { display: block; }
   justify-content: center;
 }
 
-/* ── Native Select Dropdowns Dark Mode Fix ── */
-select option {
-  background-color: var(--color-surface);
+/* ── Reactive Iconography ── */
+svg {
+  color: currentColor;
+  transition: color var(--transition);
+}
+
+/* Forzar color de texto base para SVGs que no estén dentro de elementos con color definido */
+.app svg {
   color: var(--color-text);
 }
 
-.dark-mode select option {
-  background-color: #121215 !important;
-  color: #f4f4f5 !important;
+/* Iconos específicos que deben mantener su color primario o heredado */
+.navbar__logo svg,
+.btn-primary svg,
+.vs-btn svg,
+.view-selector__btn svg {
+  color: inherit;
 }
 
 

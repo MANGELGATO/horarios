@@ -35,6 +35,63 @@ export const slugify = (text) => text
   .replace(/\s+/g, "_")
   .toLowerCase();
 
+export const getFormattedGrupo = (carrera, grupo) => {
+  if (!grupo) return "";
+  if (carrera && (carrera.toUpperCase() === 'ENVD' || carrera.toUpperCase() === 'IEVND')) {
+    if (!grupo.endsWith('-E')) {
+      return grupo + '-E';
+    }
+  }
+  return grupo;
+};
+
+export const consolidarClases = (clases, agruparPorProfesor = true) => {
+  if (!clases || clases.length === 0) return [];
+  
+  const consolidadas = [];
+  
+  clases.forEach(clase => {
+    // Buscar si ya existe una clase en el mismo bloque, día, salón y opcionalmente docente
+    const coincidencia = consolidadas.find(c => 
+      c.bloque === clase.bloque &&
+      c.dia === clase.dia &&
+      c.salon === clase.salon &&
+      (!agruparPorProfesor || c.profesor === clase.profesor)
+    );
+    
+    if (coincidencia) {
+      const grupoNuevoFormateadoLimpio = getFormattedGrupo(clase.carrera, clase.grupo);
+      
+      // Combinar carreras si son diferentes
+      const carrerasExistentes = coincidencia.carrera.split(' / ').map(c => c.trim());
+      if (!carrerasExistentes.includes(clase.carrera)) {
+        coincidencia.carrera = `${coincidencia.carrera} / ${clase.carrera}`;
+      }
+      
+      // Combinar grupos si son diferentes
+      const gruposFormateadosExistentes = coincidencia.grupo.split(' / ').map(g => g.trim());
+      if (!gruposFormateadosExistentes.includes(grupoNuevoFormateadoLimpio)) {
+        coincidencia.grupo = `${coincidencia.grupo} / ${grupoNuevoFormateadoLimpio}`;
+      }
+      
+      // Combinar materias si son diferentes
+      const materiasExistentes = coincidencia.materia.split(' / ').map(m => m.trim());
+      if (!materiasExistentes.includes(clase.materia)) {
+        coincidencia.materia = `${coincidencia.materia} / ${clase.materia}`;
+      }
+    } else {
+      // Agregar copia para no mutar el array original
+      consolidadas.push({
+        ...clase,
+        grupo: getFormattedGrupo(clase.carrera, clase.grupo)
+      });
+    }
+  });
+  
+  return consolidadas;
+};
+
+
 export const aMinutos = (hora) => {
   const [hh, mm] = hora.split(':').map(Number);
   return hh * 60 + mm;

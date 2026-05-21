@@ -196,55 +196,45 @@
 
 /* IMPRESIÓN */
 @media print {
-  /* Fuerza tabloide VERTICAL (Portrait) y restringe altura para evitar páginas extra */
-  @page {
+  /* Fuerza tabloide VERTICAL (Portrait) */
+  @page tabloide-page {
     size: 11in 17in portrait;
     margin: 0;
   }
 
-  /* Forzar al árbol completo de nodos de pantalla a ocupar exactamente 1 página sin overflow */
+  /* Reset all parent wrappers to prevent any padding/margin shifting the printed element */
   html, body, #root, .app, .print-page, .print-page__preview, .print-page__tabloide-wrap {
-    height: 100vh !important;
-    max-height: 17in !important;
-    overflow: hidden !important;
+    display: block !important;
     margin: 0 !important;
     padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
     background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-  }
-
-  /* Solo muestra el tabloide */
-  .tabloide-page,
-  .tabloide-page * {
-    visibility: visible !important;
-  }
-
-  .navbar,
-  .no-print,
-  .print-page__actions,
-  .print-page__preview-label {
-    display: none !important;
-    visibility: hidden !important;
-  }
-
-  .print-page__tabloide-wrap {
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    position: static !important;
     transform: none !important;
-    width: 100% !important;
-    height: 100% !important;
-    margin: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    overflow: visible !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Ocultar interfaz SIN usar reglas globales de visibilidad */
+  .navbar, .no-print, .print-page__actions, .print-page__preview-label, .app-header {
+    display: none !important;
   }
 
   .print-page__tabloide-wrap .tabloide-page {
+    page: tabloide-page;
     transform: none !important;
     width: 11in !important;
     height: 17in !important;
-    position: fixed !important;
+    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
+    visibility: visible !important;
+    display: flex !important;
   }
 }

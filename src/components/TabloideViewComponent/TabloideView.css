@@ -303,31 +303,48 @@
    IMPRESIÓN (REGLAS @media print DE TABLOIDE GIGANTE)
    ══════════════════════════════════════════════════════ */
 @media print {
-  @page {
+  @page tabloide-page {
     size: 11in 17in portrait;
     margin: 0;
   }
 
-  /* Oculta absolutamente todo el resto de la interfaz */
-  body * {
-    visibility: hidden !important;
+  /* Reset all parent wrappers to prevent any padding/margin shifting the printed element */
+  html, body, #root, .app, .print-page, .print-page__preview, .print-page__tabloide-wrap {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Ocultar interfaz SIN usar reglas globales de visibilidad */
+  .navbar, .no-print, .print-page__actions, .print-page__preview-label, .filters-bar, .app-header {
+    display: none !important;
   }
 
   /* Reactivar la visibilidad solo para el tabloide y su contenido */
-  .tabloide-page,
-  .tabloide-page * {
-    visibility: visible !important;
-  }
-
-  /* Anclar la página tabloide en el extremo superior izquierdo sin bordes ni sombras */
   .tabloide-page {
-    position: fixed !important;
+    page: tabloide-page;
+    visibility: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     width: 11in !important;
     height: 17in !important;
     min-height: 17in !important;
-    padding: 0 1.56cm !important; /* EXACT margins maintained at print time! */
+    padding: 0 1.56cm !important;
     margin: 0 !important;
     overflow: hidden !important;
     transform: none !important;
