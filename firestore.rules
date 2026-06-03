@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ───
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function getRol(uid) {
+      return get(/databases/$(database)/documents/usuarios/$(uid)).data.rol;
+    }
+
+    function hasRol(uid, roles) {
+      return isAuth() && roles.hasAny([getRol(uid)]);
+    }
+
+    function esPropietario(userId) {
+      return isAuth() && request.auth.uid == userId;
+    }
+
+    // ─── USUARIOS ───
+    // Cada usuario lee/escribe su propio perfil.
+    // admin/superadmin pueden leer/escribir cualquier perfil.
+    match /usuarios/{userId} {
+      allow read: if esPropietario(userId) || hasRol(request.auth.uid, ['admin', 'superadmin']);
+      allow create: if esPropietario(userId);
+      allow update: if esPropietario(userId) || hasRol(request.auth.uid, ['admin', 'superadmin']);
+      allow delete: if hasRol(request.auth.uid, ['superadmin']);
+    }
+
+    // ─── COLECCIONES DE LECTURA (carreras, turnos, bloques, edificios, salones, profesores, materias, grupos, horarios) ───
+    // Cualquier usuario autenticado puede leer
+    match /{collection}/{doc} {
+      allow read: if isAuth();
+    }
+
+    // ─── ESCRITURA EN COLECCIONES DE DATOS ───
+    // Solo admin/superadmin pueden crear, actualizar, eliminar datos maestros
+    match /{collection}/{doc} {
+      allow create, update, delete: if hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── PROYECTORES ───
+    // Lectura: cualquier autenticado. Escritura: admin/superadmin.
+    match /proyectores/{doc} {
+      allow read: if isAuth();
+      allow create, update, delete: if hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── PRESTAMOS_PROYECTORES ───
+    // Cualquier usuario puede registrar un préstamo (solo para sí mismo)
+    // Solo admin/superadmin pueden modificar préstamos ajenos
+    match /prestamos_proyectores/{doc} {
+      allow read: if isAuth();
+      allow create: if isAuth()
+        && request.resource.data.usuarioId == request.auth.uid;
+      allow update, delete: if esPropietario(resource.data.usuarioId)
+        || hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── CONFIGURACIÓN GLOBAL (solo admin) ───
+    match /config/{doc} {
+      allow read: if isAuth();
+      allow write: if hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── SOLICITUDES DE EQUIPO ───
+    // Docentes pueden crear solicitudes propias y eliminarlas.
+    // Admin/superadmin pueden leer y eliminar cualquiera.
+    match /solicitudes_equipo/{doc} {
+      allow read: if isAuth();
+      allow create: if isAuth() && hasRol(request.auth.uid, ['docente', 'admin', 'superadmin', 'administrativo']);
+      allow delete: if esPropietario(resource.data.profesorId)
+        || hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── CORREOS AUTORIZADOS ───
+    // Solo admin/superadmin pueden gestionar la lista blanca.
+    // Cualquier usuario autenticado puede leer su propio registro.
+    match /correos_autorizados/{email} {
+      allow read: if isAuth();
+      allow write: if hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+
+    // ─── BITÁCORA DE LABORATORIOS ───
+    // Docentes y admin pueden crear. Cada quien lee sus propios, admin lee todos.
+    match /bitacora_lab/{doc} {
+      allow read: if isAuth();
+      allow create: if isAuth() && hasRol(request.auth.uid, ['docente', 'admin', 'superadmin', 'administrativo']);
+      allow delete: if esPropietario(resource.data.profesorId)
+        || hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
+  }
+}

@@ -33,7 +33,7 @@ function FiltersBar({
             {[
               carreraFiltro !== 'Todas' && carreraFiltro,
               turnoFiltro   !== 'Todos' && turnoFiltro,
-              grupoFiltro   !== 'Todos' && grupoFiltro.split(' ').pop(),
+              grupoFiltro   !== 'Todos' && grupoFiltro,
               diaFiltro     !== 'Todos' && diaFiltro,
               salonFiltro   !== 'Todos' && salonFiltro,
               profesorFiltro !== 'Todos' && profesorFiltro.split(' ').pop(),
@@ -50,12 +50,9 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-carrera">Carrera</label>
           <select
             id="f-carrera"
-            className="filter-group__select"
+            className={`filter-group__select ${carreraFiltro !== 'Todas' ? 'filter-group__select--active' : ''}`}
             value={carreraFiltro}
-            onChange={e => {
-              setCarreraFiltro(e.target.value)
-              setGrupoFiltro('Todos') // reset grupo al cambiar carrera
-            }}
+            onChange={e => setCarreraFiltro(e.target.value)}
           >
             {carreras.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
@@ -66,12 +63,9 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-turno">Turno</label>
           <select
             id="f-turno"
-            className="filter-group__select"
+            className={`filter-group__select ${turnoFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={turnoFiltro}
-            onChange={e => {
-              setTurnoFiltro(e.target.value)
-              setGrupoFiltro('Todos')
-            }}
+            onChange={e => setTurnoFiltro(e.target.value)}
           >
             {turnos.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
@@ -82,13 +76,13 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-grupo">Grupo</label>
           <select
             id="f-grupo"
-            className="filter-group__select"
+            className={`filter-group__select ${grupoFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={grupoFiltro}
             onChange={e => setGrupoFiltro(e.target.value)}
           >
             {grupos.map(g => (
               <option key={g} value={g}>
-                {g === 'Todos' ? 'Todos' : g.split(' ').pop()}
+                {g === 'Todos' ? 'Todos' : g}
               </option>
             ))}
           </select>
@@ -99,7 +93,7 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-dia">Día</label>
           <select
             id="f-dia"
-            className="filter-group__select"
+            className={`filter-group__select ${diaFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={diaFiltro}
             onChange={e => setDiaFiltro(e.target.value)}
           >
@@ -112,7 +106,7 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-salon">Salón / Lab</label>
           <select
             id="f-salon"
-            className="filter-group__select"
+            className={`filter-group__select ${salonFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={salonFiltro}
             onChange={e => setSalonFiltro(e.target.value)}
           >
@@ -125,7 +119,7 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-profesor">Profesor</label>
           <select
             id="f-profesor"
-            className="filter-group__select"
+            className={`filter-group__select ${profesorFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={profesorFiltro}
             onChange={e => setProfesorFiltro(e.target.value)}
           >
@@ -138,7 +132,7 @@ function FiltersBar({
           <label className="filter-group__label" htmlFor="f-piso">Piso</label>
           <select
             id="f-piso"
-            className="filter-group__select"
+            className={`filter-group__select ${pisoFiltro !== 'Todos' ? 'filter-group__select--active' : ''}`}
             value={pisoFiltro}
             onChange={e => setPisoFiltro(e.target.value)}
           >

@@ -1,0 +1,583 @@
+/* ── Contenedor principal ── */
+.bl-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.bl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.bl-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 0.2rem;
+}
+.bl-subtitle {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+.bl-header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.bl-select {
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.bl-btn-nuevo {
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), #0891b2);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(1,105,111,0.25);
+  transition: filter 0.15s;
+}
+.bl-btn-nuevo:hover { filter: brightness(1.1); }
+/* ── Botones de impresión por lab ── */
+.bl-print-labs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.bl-print-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-right: 0.25rem;
+}
+.bl-print-btn {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.bl-print-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+/* ── Tabla de registros ── */
+.bl-tabla-wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.bl-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.bl-tabla th {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--color-border);
+}
+.bl-tabla td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text);
+  vertical-align: top;
+}
+.bl-tabla tr:last-child td { border-bottom: none; }
+.bl-tabla tr:hover td { background: var(--color-primary-soft); }
+.bl-center { text-align: center; }
+.bl-nowrap { white-space: nowrap; }
+.bl-obs { max-width: 180px; font-size: 0.8rem; color: var(--color-text-muted); }
+.bl-btn-del {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s;
+}
+.bl-btn-del:hover { background: #fee2e2; }
+.bl-loading,
+.bl-empty {
+  padding: 3rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.bl-empty span { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+
+/* ── Botón Añadir Registro (Nuevo) ── */
+.bl-btn-add {
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary), #0891b2);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(1, 105, 111, 0.25);
+  transition: filter 0.15s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.bl-btn-add:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.bl-btn-add span {
+  font-size: 1.1rem;
+}
+
+/* ── Estructura de Rejilla de Pantalla (Grid) ── */
+.bl-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.bl-content-left {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0; /* Evita que las tablas ensanchen el flex */
+}
+
+/* ── Controles superiores (Filtros y Reportes) ── */
+.bl-controls {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.bl-filter-group,
+.bl-print-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.bl-filter-group label,
+.bl-print-group label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.bl-print-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.bl-btn-print {
+  padding: 0.5rem 1rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.bl-btn-print:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.bl-btn-print:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Tarjeta Lateral de Vista Previa Oficial ── */
+.bl-preview-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  position: sticky;
+  top: 1.5rem;
+}
+
+.bl-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0.75rem;
+}
+
+.bl-preview-header h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-text);
+}
+
+.bl-preview-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.05em;
+}
+
+/* Contenedor miniatura con overflow y escala */
+.bl-preview-mini-wrap {
+  width: 100%;
+  height: 285px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #f1f5f9;
+  position: relative;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.bl-mini-doc {
+  transform: scale(0.35);
+  transform-origin: top left;
+  width: 1030px; /* Ancho físico exacto aproximado */
+  height: 720px;
+}
+
+.bl-preview-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text-muted);
+  gap: 0.75rem;
+}
+
+.bl-preview-empty svg {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.bl-preview-empty p {
+  font-size: 0.8rem;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Ajustes de modo oscuro para la vista previa ── */
+.dark-mode .bl-preview-mini-wrap {
+  background: #1e1e24;
+}
+
+.dark-mode .bl-preview-empty svg {
+  color: var(--color-text-muted);
+}
+
+/* ── Responsividad de la rejilla principal ── */
+@media (max-width: 900px) {
+  .bl-main-grid {
+    grid-template-columns: 1fr;
+  }
+  .bl-preview-card {
+    position: static;
+  }
+}
+
+/* ══════════════════════════════════════════
+   VISTA DE IMPRESIÓN — CARTA HORIZONTAL
+   Replica exacta del formato R-ADC-06-01
+   ══════════════════════════════════════════ */
+.bl-print-toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  align-items: center;
+}
+.bl-print-toolbar button {
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.bl-print-toolbar-btn {
+  background: linear-gradient(135deg, var(--color-primary), #0891b2) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  font-weight: 700 !important;
+}
+/* ── Contenedor de la página ── */
+.bl-print-page {
+  width: 27.3cm;
+  margin: 1rem auto;
+  padding: 0.5cm 0.6cm;
+  background: #fff;
+  color: #000;
+  font-family: 'Century Gothic', CenturyGothic, AppleGothic, sans-serif;
+  font-size: 7.5pt;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+}
+/* ══════════════════════════════════════════
+   TABLA UNIFICADA DE PRECISIÓN (Rejilla Excel)
+   ══════════════════════════════════════════ */
+.bl-pt-unified {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+  table-layout: fixed;
+  margin-bottom: 0;
+  background-color: #fff;
+  color: #000;
+}
+.bl-pt-unified td,
+.bl-pt-unified th {
+  border: 1px solid #000;
+  vertical-align: middle;
+  padding: 0 2px;
+  box-sizing: border-box;
+}
+/* Altura de filas de cabecera (sin bordes) */
+.bl-head-row td {
+  height: 0.65cm;
+  border: none !important;
+  background-color: #fff !important;
+}
+/* Fila de información (Taller, Carrera) */
+.bl-head-info-row td {
+  height: 0.75cm;
+}
+/* Celdas vacías del encabezado (debajo del logo) */
+.bl-head-empty-cell {
+  border: none !important;
+  background-color: #fff !important;
+}
+/* Fila espaciadora blanca sin bordes */
+.bl-head-spacer-row td {
+  border: none !important;
+  background-color: #fff !important;
+  height: 0.25cm !important;
+  padding: 0 !important;
+}
+/* Logo celda */
+.bl-head-logo-cell {
+  background-color: #fff;
+  text-align: center;
+}
+.bl-head-logo-img {
+  max-width: 95%;
+  max-height: 1.8cm;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+}
+/* Título celda */
+.bl-head-title-cell {
+  font-weight: 700;
+  font-size: 9.5pt;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: #fff;
+}
+/* Código celda */
+.bl-head-code-cell {
+  font-size: 7.5pt;
+  text-align: right;
+  padding-right: 8px !important;
+  font-weight: 700;
+  background-color: #fff;
+}
+/* Etiquetas verdes de información */
+.bl-head-label-cell {
+  background-color: #00a482 !important; /* UTJ Green */
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 8.5pt;
+  text-align: center;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+/* Valores de información (Laboratorio, Carrera) */
+.bl-head-value-cell {
+  font-weight: 700;
+  font-size: 9pt;
+  text-align: center;
+  color: #000;
+  background-color: #fff;
+}
+/* Cabeceras de datos */
+.bl-data-header-row th {
+  background-color: #00a482 !important;
+  color: #fff !important;
+  font-size: 6.5pt;
+  font-weight: 700;
+  text-align: center;
+  height: 0.65cm;
+}
+.bl-data-header-row th.c-tot {
+  font-size: 5.5pt !important;
+  line-height: 1.1;
+  padding: 0 1px !important;
+}
+/* Filas de datos */
+.bl-data-row td {
+  height: 0.52cm;
+  font-size: 6.5pt;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Filas pares ligeramente sombreadas para legibilidad */
+.bl-pt-unified tbody tr:nth-child(even) td {
+  background: #fafafa;
+}
+/* Alineaciones de datos */
+.bl-pt-unified .c-turno  { text-align: center; }
+.bl-pt-unified .c-tot    { text-align: center; }
+.bl-pt-unified .c-hor    { text-align: center; }
+/* ── Leyenda sin bordes ── */
+.bl-print-leyenda {
+  border: none !important;
+  padding: 4px 0px;
+  font-size: 6.5pt;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.bl-print-leyenda p {
+  margin: 0 0 2px 0;
+}
+/* ══════════════════════════════════════════
+   @MEDIA PRINT — Carta horizontal
+   ══════════════════════════════════════════ */
+@media print {
+  @page bitacora-page {
+    size: letter landscape;
+    margin: 0.5cm; /* Margen oficial mínimo */
+  }
+  
+  /* Ocultar elementos de la interfaz en lugar de usar visibility: hidden global */
+  .navbar,
+  .filters-bar,
+  .bl-container,
+  .bl-print-toolbar,
+  .no-print,
+  .app-header,
+  header {
+    display: none !important;
+  }
+  
+  .bl-print-page-wrapper {
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+  }
+
+  .bl-print-page {
+    page: bitacora-page;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: #fff !important;
+    visibility: visible !important;
+  }
+
+  .bl-print-page * {
+    visibility: visible !important;
+  }
+
+  .bl-pt-unified {
+    width: 100% !important;
+    height: 97vh !important; /* Obliga a la tabla a estirarse a lo alto de toda la hoja */
+  }
+
+  /* Ajustes de celdas para que se expandan dinámicamente */
+  .bl-data-row td {
+    height: auto !important; 
+    font-size: 8pt !important; /* Un poco más grande para mejor lectura */
+  }
+  
+  .bl-data-header-row th {
+    height: auto !important;
+    padding: 4px 2px !important;
+  }
+  
+  .bl-head-row td {
+    height: 0.55cm !important; /* Ajuste estrecho para evitar grandes saltos de línea en el código de formato */
+  }
+
+  .bl-head-logo-img {
+    max-height: 1.5cm !important;
+  }
+
+  /* Forzar colores de impresión */
+  .bl-head-label-cell,
+  .bl-data-header-row th,
+  .bl-pt-unified tbody tr:nth-child(even) td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

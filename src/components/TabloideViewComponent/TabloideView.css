@@ -1,0 +1,398 @@
+/* ══════════════════════════════════════════════════════
+   TABLOIDE VIEW CSS — Upgraded Giant Official UTJ Style
+   Designed for 11×17" Portrait (Tabloide) Printing
+   Optimized to occupy almost the entire sheet (no empty space)
+   ══════════════════════════════════════════════════════ */
+
+.tabloide-page {
+  width: 27.94cm;            /* Exact 11in */
+  height: 43.18cm;           /* Exact 17in */
+  min-height: 43.18cm;
+  background: #ffffff;
+  padding: 0 1.56cm;         /* 0 vertical padding to fit strictly without scaling */
+  font-family: 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
+  color: #000000;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  margin: 0 auto;
+  border-radius: 4px;
+}
+
+/* ── WATERMARK DE FONDO OFICIAL GIGANTE ── */
+.tabloide-watermark {
+  position: absolute;
+  top: 52%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.42;             /* Incrementado para máxima legibilidad sin obstruir */
+  pointer-events: none;
+  z-index: 1;                /* Capa intermedia (encima del fondo blanco, debajo del contenido) */
+  width: 72%;
+  text-align: center;
+}
+
+.tabloide-watermark img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+/* ── LOGOS SUPERIORES OFICIALES ── */
+.tabloide-header-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0.2cm;      /* Restored */
+}
+
+.tabloide-header-logos-img {
+  width: 100%;
+  height: auto;          /* Natural scaled height from the trimmed file! */
+  display: block;
+}
+
+/* ── TÍTULO DINÁMICO GIGANTE (Laboratorio: M02) ── */
+.tabloide-title {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
+  font-size: 40pt;            /* Exact Word metadata size! */
+  font-family: 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
+  margin-top: 0;
+  margin-bottom: 0.3cm;       /* Restored */
+  position: relative;
+  z-index: 2;                /* Encima del watermark */
+  letter-spacing: -0.5px;
+}
+
+.tabloide-title__tipo {
+  font-weight: 800;           /* En negritas */
+  color: #00A886;             /* Exact Word metadata green! */
+}
+
+.tabloide-title__separator {
+  font-weight: 800;
+  color: #00A886;             /* Exact Word metadata green! */
+  margin-left: 6px;
+  margin-right: 8px;
+}
+
+.tabloide-title__nombre {
+  font-weight: 800;
+  color: #808080;             /* Exact Word metadata gray! */
+}
+
+/* ── TABLA PRINCIPAL GIGANTE ── */
+.tabloide-table {
+  width: 24.82cm !important;   /* Exact physical table width: 2.27cm + 5 * 4.51cm */
+  margin: 0 auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+  border: 2px solid #000000;   /* Bordes más gruesos para máxima definición */
+  position: relative;
+  z-index: 2;                /* Encima del watermark */
+  background-color: transparent;
+  box-sizing: border-box;
+}
+
+/* Cabeceras de la Tabla */
+.tabloide-th {
+  background: #a6a6a6 !important; /* Exact Word metadata background! */
+  color: #000000;
+  font-size: 10pt !important;  /* Exact Word metadata size! */
+  font-weight: 800;
+  padding: 0;                 /* No padding to let wrapper handle layout */
+  text-align: center;
+  border: 1.5px solid #000000;
+  letter-spacing: 1.5px;
+  height: 0.56cm !important;   /* Exact Word physical height! */
+  box-sizing: border-box;
+}
+
+/* Mathematical Alignment for Header and Body Columns */
+.tabloide-th:nth-child(1),
+.tabloide-td:nth-child(1) {
+  width: 2.27cm !important;    /* Exact Word physical width! */
+  max-width: 2.27cm !important;
+  min-width: 2.27cm !important;
+}
+.tabloide-th:nth-child(n+2),
+.tabloide-td:nth-child(n+2) {
+  width: 4.51cm !important;    /* Exact Word physical width! */
+  max-width: 4.51cm !important;
+  min-width: 4.51cm !important;
+}
+
+.tabloide-th-wrapper {
+  height: 0.56cm !important;   /* Exact physical height! */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Celdas del Horario */
+.tabloide-td {
+  height: 1.90cm !important;
+  padding: 0 !important;
+  margin: 0;
+  vertical-align: middle;
+  border: 1.5px solid #000000;
+  box-sizing: border-box;
+}
+
+/* Contenedor de Celda Rígida */
+.tabloide-cell-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  max-height: 1.85cm;       /* Strictly force to slightly under 1.9cm to avoid td expansion */
+  width: 100%;
+  padding: 1px;
+  box-sizing: border-box;
+  overflow: hidden;         /* Never let content break the table height */
+}
+
+.tabloide-cell-wrapper--horario {
+  background: #a6a6a6 !important; /* Exact Word metadata background for the Horario column! */
+  height: 1.9cm !important;    /* Exact physical cell height! */
+  width: 2.27cm !important;    /* Exact physical column width! */
+  font-size: 10pt !important;  /* Exact Word metadata size! */
+  font-weight: 800;
+  color: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+/* Celdas Vacías y Ocupadas */
+.tabloide-td--vacia {
+  background: transparent;
+}
+
+.tabloide-td--ocupada {
+  background: transparent;
+}
+
+/* Información de la Clase (TEXTO OPTIMIZADO Y COMPACTO) */
+.tabloide-materia {
+  display: block;
+  font-size: 10px;            /* Slightly smaller to fit multiple lines */
+  font-weight: 800;
+  color: #000000;
+  line-height: 1;
+  margin-bottom: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;      /* Allow up to 3 lines */
+  -webkit-box-orient: vertical;
+  text-align: center;
+  max-width: 100%;
+}
+
+.tabloide-profesor {
+  display: block;
+  font-size: 9px;             /* Slightly smaller to fit multiple lines */
+  color: #222222;
+  line-height: 1;
+  margin-bottom: 1px;
+  text-align: center;
+  max-width: 100%;
+}
+
+.tabloide-grupo {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  color: #000000;
+  line-height: 1;
+  text-align: center;
+}
+
+/* Clases Virtuales (ESTILO AZUL CRUCIAL) */
+.tabloide-td--virtual {
+  background-color: #8db4e2 !important;
+}
+
+/* ── FILA DE RECESO CENTRADO GIGANTE ── */
+.tabloide-receso-row td {
+  background: #a6a6a6 !important; /* Exact Word metadata background! */
+  border: 1.5px solid #000000;
+  padding: 0 !important;      /* Zero padding */
+  box-sizing: border-box;
+  height: 0.5cm !important;    /* Exact physical row height! */
+}
+
+.tabloide-cell-wrapper--receso {
+  box-sizing: border-box;
+  height: 0.5cm !important;    /* Exact physical cell height! */
+  width: 100% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10pt !important;  /* Exact Word metadata size! */
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 12px;
+  text-indent: 12px;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER Y LOGOS DE GOBIERNO OFICIALES ── */
+.tabloide-footer-text-area {
+  position: relative;
+  width: 100%;
+  margin-top: auto;          /* Push down dynamically */
+  height: 40px;              /* Extra height for descenders */
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.tabloide-footer-ciclo-text {
+  font-size: 18pt !important;  /* Exact Word metadata size! */
+  font-weight: 800;
+  color: #808080 !important;  /* Exact Word metadata gray! */
+  letter-spacing: 0.5px;
+  font-family: 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
+  white-space: nowrap;
+  margin-left: auto;           /* Push to right */
+  margin-right: 0;
+  line-height: 1;
+}
+
+.tabloide-footer-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 2;                /* Encima del watermark */
+  width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  overflow: hidden;          /* Keep hidden to maintain clean bounds */
+}
+
+.tabloide-footer-relative-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.tabloide-footer-logos-img {
+  width: 100%;
+  height: auto;              /* Natural scaled height from the trimmed file! */
+  display: block;
+}
+
+/* ══════════════════════════════════════════════════════
+   IMPRESIÓN (REGLAS @media print DE TABLOIDE GIGANTE)
+   ══════════════════════════════════════════════════════ */
+@media print {
+  @page tabloide-page {
+    size: 11in 17in portrait;
+    margin: 0;
+  }
+
+  /* Reset all parent wrappers to prevent any padding/margin shifting the printed element */
+  html, body, #root, .app, .print-page, .print-page__preview, .print-page__tabloide-wrap {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    position: static !important;
+    transform: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  /* Ocultar interfaz SIN usar reglas globales de visibilidad */
+  .navbar, .no-print, .print-page__actions, .print-page__preview-label, .filters-bar, .app-header {
+    display: none !important;
+  }
+
+  /* Reactivar la visibilidad solo para el tabloide y su contenido */
+  .tabloide-page {
+    page: tabloide-page;
+    visibility: visible !important;
+    display: flex !important;
+    flex-direction: column !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 11in !important;
+    height: 17in !important;
+    min-height: 17in !important;
+    padding: 0 1.56cm !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    z-index: 9999999 !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Forzar la impresión a color para fondos y bordes */
+  .tabloide-th,
+  .tabloide-td--horario,
+  .tabloide-td--virtual,
+  .tabloide-receso-row td {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Forzar bordes negros de alta legibilidad en la impresión */
+  .tabloide-table {
+    border: 2px solid #000000 !important;
+  }
+  .tabloide-th, .tabloide-td, .tabloide-receso-row td {
+    border: 1.5px solid #000000 !important;
+  }
+
+  /* Evitar cortes extraños */
+  .tabloide-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .tabloide-page {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Desactivar cualquier elemento de navegación, selectores o botones */
+  .no-print,
+  .print-page__actions,
+  .print-page__preview-label,
+  .print-page__tabloide-wrap > *:not(.tabloide-page) {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  .tabloide-footer-container {
+    margin-bottom: 0 !important;
+  }
+}

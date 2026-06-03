@@ -27,27 +27,193 @@ export const BLOQUES_VESPERTINO = [
 
 export const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 
+export const slugify = (text) => text
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/['´`]/g, "")
+  .replace(/[^a-zA-Z0-9\s]/g, "")
+  .replace(/\s+/g, "_")
+  .toLowerCase();
+
+export const getFormattedGrupo = (carrera, grupo) => {
+  if (!grupo) return "";
+  if (carrera && (carrera.toUpperCase() === 'ENVD' || carrera.toUpperCase() === 'IEVND')) {
+    if (!grupo.endsWith('-E')) {
+      return grupo + '-E';
+    }
+  }
+  return grupo;
+};
+
+export const consolidarClases = (clases, agruparPorProfesor = true) => {
+  if (!clases || clases.length === 0) return [];
+  
+  const consolidadas = [];
+  
+  clases.forEach(clase => {
+    // Buscar si ya existe una clase en el mismo bloque, día, salón y opcionalmente docente
+    const coincidencia = consolidadas.find(c => 
+      c.bloque === clase.bloque &&
+      c.dia === clase.dia &&
+      c.salon === clase.salon &&
+      (!agruparPorProfesor || c.profesor === clase.profesor)
+    );
+    
+    if (coincidencia) {
+      const grupoNuevoFormateadoLimpio = getFormattedGrupo(clase.carrera, clase.grupo);
+      
+      // Combinar carreras si son diferentes
+      const carrerasExistentes = coincidencia.carrera.split(' / ').map(c => c.trim());
+      if (!carrerasExistentes.includes(clase.carrera)) {
+        coincidencia.carrera = `${coincidencia.carrera} / ${clase.carrera}`;
+      }
+      
+      // Combinar grupos si son diferentes
+      const gruposFormateadosExistentes = coincidencia.grupo.split(' / ').map(g => g.trim());
+      if (!gruposFormateadosExistentes.includes(grupoNuevoFormateadoLimpio)) {
+        coincidencia.grupo = `${coincidencia.grupo} / ${grupoNuevoFormateadoLimpio}`;
+      }
+      
+      // Combinar materias si son diferentes
+      const materiasExistentes = coincidencia.materia.split(' / ').map(m => m.trim());
+      if (!materiasExistentes.includes(clase.materia)) {
+        coincidencia.materia = `${coincidencia.materia} / ${clase.materia}`;
+      }
+    } else {
+      // Agregar copia para no mutar el array original
+      consolidadas.push({
+        ...clase,
+        grupo: getFormattedGrupo(clase.carrera, clase.grupo)
+      });
+    }
+  });
+  
+  return consolidadas;
+};
+
+
+export const aMinutos = (hora) => {
+  const [hh, mm] = hora.split(':').map(Number);
+  return hh * 60 + mm;
+};
+
 export const getBloqueById = (id, turno = "Matutino") => {
   const lista = turno === "Vespertino" ? BLOQUES_VESPERTINO : BLOQUES;
   return lista.find(b => b.id === id);
 };
 
-export const getClasesActuales = () => {
-  const ahora = new Date();
-  const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-  const diaActual = diasSemana[ahora.getDay()];
-  const horaActual = ahora.toTimeString().slice(0, 5);
-  return horarios.filter(h => {
+export const getClasesActuales = (simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let horaActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    horaActual = simulacion.hora;
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    horaActual = ahora.toTimeString().slice(0, 5);
+  }
+
+  return lista.filter(h => {
     const bloque = getBloqueById(h.bloque, h.turno);
     if (!bloque) return false;
     return h.dia === diaActual && horaActual >= bloque.inicio && horaActual < bloque.fin;
   });
 };
 
-export const getTurnoActual = () => {
-  const ahora = new Date();
-  const h = ahora.getHours(), m = ahora.getMinutes();
-  const minutos = h * 60 + m;
+export const getClasesProximas = (minutos = 5, simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let minActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    minActual = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    minActual = aMinutos(ahora.toTimeString().slice(0, 5));
+  }
+
+  return lista
+    .filter(h => {
+      if (!h.proyector && !h.requiereProyector) return false;
+      const bloque = getBloqueById(h.bloque, h.turno);
+      if (!bloque || h.dia !== diaActual) return false;
+      const minBloque = aMinutos(bloque.inicio);
+      return minActual >= minBloque - minutos && minActual < minBloque;
+    })
+    .map(h => {
+      const bloque = getBloqueById(h.bloque, h.turno);
+      const esContinuacion = lista.some(other =>
+        other.carrera === h.carrera &&
+        other.grupo === h.grupo &&
+        other.turno === h.turno &&
+        other.dia === h.dia &&
+        other.materia === h.materia &&
+        other.profesor === h.profesor &&
+        other.salon === h.salon &&
+        other.bloque === h.bloque - 1 &&
+        (other.proyector || other.requiereProyector)
+      );
+      return { ...h, _inicio: bloque.inicio, _firstBlock: !esContinuacion };
+    });
+};
+
+export const getClasesTerminando = (minutos = 5, simulacion, customHorarios) => {
+  const lista = customHorarios || horarios;
+  let diaActual;
+  let minActual;
+
+  if (simulacion?.activo) {
+    diaActual = simulacion.dia;
+    minActual = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    diaActual = diasSemana[ahora.getDay()];
+    minActual = aMinutos(ahora.toTimeString().slice(0, 5));
+  }
+
+  return lista
+    .filter(h => {
+      if (!h.proyector && !h.requiereProyector) return false;
+      const bloque = getBloqueById(h.bloque, h.turno);
+      if (!bloque || h.dia !== diaActual) return false;
+      const minFin = aMinutos(bloque.fin);
+      return minActual >= minFin - minutos && minActual < minFin;
+    })
+    .map(h => {
+      const bloque = getBloqueById(h.bloque, h.turno);
+      const esUltimoBloque = !lista.some(other =>
+        other.carrera === h.carrera &&
+        other.grupo === h.grupo &&
+        other.turno === h.turno &&
+        other.dia === h.dia &&
+        other.materia === h.materia &&
+        other.profesor === h.profesor &&
+        other.salon === h.salon &&
+        other.bloque === h.bloque + 1 &&
+        (other.proyector || other.requiereProyector)
+      );
+      return { ...h, _fin: bloque.fin, _lastBlock: esUltimoBloque };
+    });
+};
+
+export const getTurnoActual = (simulacion) => {
+  let minutos;
+  if (simulacion?.activo) {
+    minutos = aMinutos(simulacion.hora);
+  } else {
+    const ahora = new Date();
+    const h = ahora.getHours(), m = ahora.getMinutes();
+    minutos = h * 60 + m;
+  }
+
   if (minutos >= 7 * 60 && minutos < 14 * 60 + 10) return 'Matutino';
   if (minutos >= 15 * 60 + 30 && minutos < 21 * 60 + 20) return 'Vespertino';
   return null;
@@ -78,7 +244,7 @@ export const USUARIOS = [
 // ESTRUCTURA DE CADA ENTRADA:
 // { carrera, turno, grupo, dia, bloque, materia, profesor, salon }
 // ─────────────────────────────────────────────
-export const horarios = [
+const rawHorarios = [
   // ═══════════════════════════════════════════════════════════════════════════
   // TSU DSM - TURNO MATUTINO (Basado en PDF: 2026B TSU DSM M Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -761,15 +927,15 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 3, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 4, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 5, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 6, materia: "Sistemas Operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02", proyector: "M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 6, materia: "Sistemas Operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
 
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 7, materia: "Sistemas Operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02", proyector: "M02" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 7, materia: "Sistemas Operativos", profesor: "Iliana López Guillen", salon: "Laboratorio M02" },
   // JUEVES
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 1, materia: "Habilidades socioemocionales y manejo de conflictos", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M08" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 2, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 3, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 4, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 5, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 2, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11", proyector: "M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 3, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11", proyector: "M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 4, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07", proyector: "M07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 5, materia: "Cálculo diferencial", profesor: "Edgar Ulises Toledo Nares", salon: "Aula M07", proyector: "M07" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 6, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M02", proyector: "M02" },
 
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Jueves", bloque: 7, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M02", proyector: "M02" },
@@ -778,9 +944,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 2, materia: "Inglés II", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 3, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M11", proyector: "M11" },
   { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 4, materia: "Conmutación y enrutamiento de redes", profesor: "Iliana López Guillen", salon: "Laboratorio M11", proyector: "M11" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 5, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 7, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 5, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11", proyector: "M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 6, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11", proyector: "M11" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "2C", diaVirtual: "Miércoles", dia: "Viernes", bloque: 7, materia: "Programación estructurada", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M11", proyector: "M11" },
 
   // ──────────────────────────────────────────────────────────────────────────
   // Grupo: 3C (DSM)
@@ -790,7 +956,7 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 1, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 2, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 3, materia: "Programación orientada a objetos", profesor: "Olivia Hernández Arce", salon: "Laboratorio M14" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 4, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula M10" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 4, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula M10", proyector: "M10", webcam: true },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 5, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 6, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Lunes", bloque: 7, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M11" },
@@ -808,9 +974,9 @@ export const horarios = [
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 2, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula 110" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 3, materia: "Cálculo integral", profesor: "Jorge Rodríguez Gallegos", salon: "Aula 110" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 5, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 6, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14", proyector: "M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 5, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14", proyector: "M14" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 6, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M14", proyector: "M14" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Miércoles", bloque: 7, materia: "Base de datos", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M14" },
 
   // JUEVES
@@ -824,9 +990,9 @@ export const horarios = [
 
   // VIERNES
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 1, materia: "Desarrollo de pensamiento y toma de decisiones", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula M07" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Laboratorio PB07" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 2, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 3, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 4, materia: "Tópicos de calidad para el diseño de software", profesor: "Roberto Cazares Gomez", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 5, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 6, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
   { carrera: "DSM", turno: "Vespertino", grupo: "3C", diaVirtual: "Lunes", dia: "Viernes", bloque: 7, materia: "Inglés III", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula M10" },
@@ -870,34 +1036,34 @@ export const horarios = [
   // Grupo: 6C (DSM) - CORREGIDO
   // ──────────────────────────────────────────────────────────────────────────
   // LUNES
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 2, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 3, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 2, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 3, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 5, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 6, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 7, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 6, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Lunes", bloque: 7, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
 
   // MARTES
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 5, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 6, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 7, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 5, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 6, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Martes", bloque: 7, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12", proyector: "M12" },
 
   // MIÉRCOLES
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 2, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 3, materia: "Desarrollo de aplicaciones móviles", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 4, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Miércoles", bloque: 5, materia: "Análisis y diseño de software", profesor: "Diego Iñiguez Jiménez", salon: "Laboratorio M12" },
 
   // JUEVES
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 2, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 3, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 2, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 3, materia: "Estructura de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M12", proyector: "M12" },
   { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 4, materia: "Tutoría", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 6, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
-  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 7, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 6, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
+  { carrera: "DSM", turno: "Vespertino", grupo: "6C", dia: "Jueves", bloque: 7, materia: "Aplicaciones Web", profesor: "Roberto Cazares Gomez", salon: "Laboratorio M12", proyector: "M12" },
   // ═══════════════════════════════════════════════════════════════════════════
   // IDGS - TURNO VESPERTINO (Basado en PDF: 2026B IDGS Distribución.pdf)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -955,9 +1121,9 @@ export const horarios = [
   // MIÉRCOLES
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 2, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 3, materia: "Inglés VI", profesor: "Silvia Ruth Magaña Valdes", salon: "Aula 502" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 4, materia: "Tutoría", profesor: "Marcia Josefina Barajas Solorzano", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 5, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 6, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 4, materia: "Tutoría", profesor: "Marcia Josefina Barajas Solorzano", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 5, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 6, materia: "Seguridad informática", profesor: "Edgar Miguel Baños Enríquez", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "7B", dia: "Miércoles", bloque: 7, materia: "Metodologías para el desarrollo de proyectos", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
 
   // JUEVES
@@ -1010,8 +1176,8 @@ export const horarios = [
   // VIERNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula 504" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Laboratorio 503" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 4, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Aula M07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8A", diaVirtual: "Viernes", dia: "Viernes", bloque: 5, materia: "Seguridad en el desarrollo de aplicaciones", profesor: "Jesús Simental Pacheco", salon: "Aula M07" },
 
   // ──────────────────────────────────────────────────────────────────────────
   // Grupo: 8B (IDGS)
@@ -1077,8 +1243,8 @@ export const horarios = [
   // JUEVES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 2, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 3, materia: "Matemáticas para Ingeniería II", profesor: "Juan Carlos Morales Aragón", salon: "Aula M08" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 7, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 6, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Jueves", bloque: 7, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
 
   // VIERNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "8C", diaVirtual: "Jueves", dia: "Viernes", bloque: 2, materia: "Desarrollo web profesional", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio M13" },
@@ -1097,16 +1263,16 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Lunes", bloque: 7, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
 
   // MARTES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 6, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Martes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 503" },
 
   // MIÉRCOLES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 2, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 3, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 4, materia: "Tutoría", profesor: "Felipe Belmont Polanco", salon: "Aula 505" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 5, materia: "Dirección de Equipos de Alto Rendimiento", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 505" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 5, materia: "Dirección de Equipos de Alto Rendimiento", profesor: "Edgar Ulises Toledo Nares", salon: "Aula 505", proyector: "505" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Miércoles", bloque: 6, materia: "Administración de proyectos de TI", profesor: "Saúl Gutiérrez Garibay", salon: "Aula M07" },
 
   // JUEVES
@@ -1114,14 +1280,14 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 3, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M05" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 4, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 6, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 7, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 6, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05", proyector: "M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Jueves", bloque: 7, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05", proyector: "M05" },
 
   // VIERNES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 2, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 3, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13", proyector: "M13" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M13", proyector: "M13" },
 
   // ──────────────────────────────────────────────────────────────────────────
   // Grupo: 9B (IDGS)
@@ -1135,8 +1301,8 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Lunes", bloque: 7, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
 
   // MARTES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 2, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 3, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 2, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14", proyector: "M14" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 3, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M14", proyector: "M14" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 4, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Martes", bloque: 5, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
 
@@ -1149,13 +1315,13 @@ export const horarios = [
   // JUEVES
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 2, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 3, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio 506" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 4, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05", proyector: "M05" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 5, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio M05", proyector: "M05" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 6, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Jueves", bloque: 7, materia: "Inglés VIII", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula M08" },
 
   // VIERNES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Viernes", bloque: 2, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio 506" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Viernes", bloque: 2, materia: "Extracción de conocimiento en bases de datos", profesor: "Adolfo Yakov Castañeda Navarrete", salon: "Laboratorio 506", proyector: "506" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Viernes", bloque: 3, materia: "Tutoría", profesor: "José Antonio Ayllón Ríos", salon: "Aula M08" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Viernes", bloque: 4, materia: "Desarrollo para dispositivos inteligentes", profesor: "Luis Manuel López Hernández", salon: "Laboratorio M02" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "9B", diaVirtual: "Miércoles", dia: "Viernes", bloque: 5, materia: "Desarrollo web integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M02" },
@@ -1187,8 +1353,8 @@ export const horarios = [
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Miércoles", bloque: 7, materia: "Inglés IX", profesor: "Marcia Josefina Barajas Solorzano", salon: "Aula 501" },
 
   // JUEVES
-  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 4, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
-  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Laboratorio PB07" },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 4, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 5, materia: "Aplicaciones Web progresivas", profesor: "Victor Hugo Ramírez Salazar", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 6, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
   { carrera: "IDGS", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Jueves", bloque: 7, materia: "Desarrollo móvil integral", profesor: "Felipe Belmont Polanco", salon: "Laboratorio M13" },
 
@@ -1336,8 +1502,8 @@ export const horarios = [
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Martes", bloque: 7, materia: "Inglés VIII", profesor: "José Antonio Ayllón Ríos", salon: "Aula 505" },
 
   // MIÉRCOLES
-  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 3, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Laboratorio PB07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 2, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 3, materia: "Analítica de datos para negocios digitales", profesor: "Rubén González Ruiz", salon: "Taller PB07", proyector: "PB07", abrir: true },
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 4, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "9A", diaVirtual: "Miércoles", dia: "Miércoles", bloque: 5, materia: "Gestión de proyectos I", profesor: "Fernando Rafael Villaseñor Ulloa", salon: "Aula 110" },
 
@@ -1363,8 +1529,8 @@ export const horarios = [
   // LUNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 3, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Aula M10" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 4, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07", proyector: "PB07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 5, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Laboratorio PB07", proyector: "PB07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 4, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Taller PB07", proyector: "PB07", abrir: true },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Lunes", bloque: 5, materia: "Integradora", profesor: "Iliana López Guillen", salon: "Taller PB07", proyector: "PB07", abrir: true },
 
   // MARTES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Martes", bloque: 2, materia: "Inglés IX", profesor: "Mario Oscar Rodríguez Rodríguez", salon: "Laboratorio M13" },
@@ -1392,6 +1558,15 @@ export const horarios = [
   // VIERNES
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 2, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
   { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 3, materia: "Gestión de proyectos II", profesor: "Lorena del Rocio Santoyo Palafox", salon: "Aula M07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
-  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Aula M07" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 4, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
+  { carrera: "IEVND", turno: "Vespertino", grupo: "10A", diaVirtual: "Martes", dia: "Viernes", bloque: 5, materia: "Programación de aplicaciones web progresivas", profesor: "Brandon Javier Devora Lucio", salon: "Laboratorio 503" },
 ];
+
+export const horarios = rawHorarios.map(h => {
+  if (h.carrera && (h.carrera.toUpperCase() === 'ENVD' || h.carrera.toUpperCase() === 'IEVND')) {
+    if (!h.grupo.endsWith('-E')) {
+      return { ...h, grupo: h.grupo + '-E' };
+    }
+  }
+  return h;
+});

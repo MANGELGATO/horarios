@@ -8,6 +8,8 @@
   gap: var(--space-3);
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--transition);
+  content-visibility: auto;
+  contain-intrinsic-size: 200px;
 }
 
 .room-card:hover { box-shadow: var(--shadow-md); }
@@ -136,4 +138,43 @@
   opacity: 0.75;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+/* ── Dark Mode Overrides for RoomCard ── */
+.dark-mode .room-chip--dsm {
+  background: rgba(0, 100, 148, 0.25);
+  color: #38bdf8;
+}
+.dark-mode .room-chip--evnd {
+  background: rgba(218, 113, 1, 0.25);
+  color: #fb923c;
+}
+.dark-mode .room-chip--idgs {
+  background: rgba(67, 122, 34, 0.25);
+  color: #4ade80;
+}
+.dark-mode .room-chip--ievnd {
+  background: rgba(122, 57, 187, 0.25);
+  color: #c084fc;
+}
+
+.dark-mode .room-item--dsm {
+  background: rgba(0, 100, 148, 0.15);
+  color: #38bdf8;
+}
+.dark-mode .room-item--evnd {
+  background: rgba(218, 113, 1, 0.15);
+  color: #fb923c;
+}
+.dark-mode .room-item--idgs {
+  background: rgba(67, 122, 34, 0.15);
+  color: #4ade80;
+}
+.dark-mode .room-item--ievnd {
+  background: rgba(122, 57, 187, 0.15);
+  color: #c084fc;
+}
+.dark-mode .room-item--default {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-border);
 }
