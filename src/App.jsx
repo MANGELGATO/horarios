@@ -4,6 +4,7 @@ import { collection, query, onSnapshot } from 'firebase/firestore'
 import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
 import { horarios as horariosEstaticos, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
+import { generarICS, descargarICS } from './utils/calendar'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -62,6 +63,7 @@ function App() {
     hora: '07:00'
   })
   const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
+  const [mostrarAyudaICS, setMostrarAyudaICS] = useState(false)
   const [solicitudesEquipo, setSolicitudesEquipo] = useState([])
   const [horariosFirestore, setHorariosFirestore] = useState(null)
   const [claseParaBitacora, setClaseParaBitacora] = useState(null)
@@ -411,11 +413,32 @@ function App() {
                       ? 'Sin resultados'
                       : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
                   </span>
-                  {hayFiltros && (
-                    <button className="btn-limpiar" onClick={limpiarFiltros}>
-                      Limpiar filtros
-                    </button>
-                  )}
+                  <div className="resultados-acciones">
+                    {horariosFiltrados.length > 0 && (
+                      <>
+                        <button className="btn-exportar" onClick={() => descargarICS(generarICS(horariosFiltrados))}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" y1="15" x2="12" y2="3" />
+                          </svg>
+                          Exportar .ics
+                        </button>
+                        <button className="btn-ayuda-ics" onClick={() => setMostrarAyudaICS(true)} title="Cómo importar el archivo .ics en tu calendario">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                          </svg>
+                        </button>
+                      </>
+                    )}
+                    {hayFiltros && (
+                      <button className="btn-limpiar" onClick={limpiarFiltros}>
+                        Limpiar filtros
+                      </button>
+                    )}
+                  </div>
                 </div>
               </>
             )}
@@ -423,7 +446,33 @@ function App() {
         )}
 
         <Routes>
-          <Route path="/" element={<WeeklyTable horarios={horariosFiltrados} />} />
+          <Route path="/" element={
+            <div style={{ position: 'relative' }}>
+              {horariosFiltrados.length > 0 && (
+                <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)', zIndex: 10, display: 'flex', gap: 'var(--space-1)' }}>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => descargarICS(generarICS(horariosFiltrados))}
+                    title="Exportar horario a calendario (.ics)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Exportar .ics
+                  </button>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => setMostrarAyudaICS(true)}
+                    title="Cómo importar el archivo .ics en tu calendario"
+                    style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              <WeeklyTable horarios={horariosFiltrados} />
+            </div>
+          } />
           <Route path="/tabla" element={<WeeklyTable horarios={horariosFiltrados} />} />
           <Route path="/mis-clases" element={
             esDocente
@@ -485,6 +534,59 @@ function App() {
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />
+      )}
+
+      {mostrarAyudaICS && (
+        <div className="crud-modal-backdrop" onClick={() => setMostrarAyudaICS(false)}>
+          <div className="crud-modal" style={{ maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
+            <div className="crud-modal-header">
+              <h3>Como importar tu horario</h3>
+              <button className="crud-modal-close" onClick={() => setMostrarAyudaICS(false)}>x</button>
+            </div>
+            <div className="crud-modal-body">
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Google Calendar (Web)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre <a href="https://calendar.google.com" target="_blank" rel="noopener">calendar.google.com</a></li>
+                  <li>Haz clic en el engranaje (arriba a la derecha) y selecciona <strong>Configuracion</strong></li>
+                  <li>Ve a <strong>Importar y exportar</strong></li>
+                  <li>En "Importar", selecciona el archivo <code>.ics</code> descargado</li>
+                  <li>Elige el calendario destino y haz clic en <strong>Importar</strong></li>
+                </ol>
+                <p style={{ margin: 'var(--space-2) 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Tambien puedes arrastrar el archivo .ics directamente a la ventana de Google Calendar.</p>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Google Calendar (Android)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre la app <strong>Google Calendar</strong></li>
+                  <li>Toca las 3 lineas (menu) y luego <strong>Configuracion</strong></li>
+                  <li>Toca <strong>Importar</strong> y selecciona el archivo <code>.ics</code></li>
+                </ol>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Apple Calendar (iPhone / Mac)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Descarga el archivo <code>.ics</code> en tu dispositivo</li>
+                  <li>Abrelo desde la app <strong>Archivos</strong> o desde <strong>Descargas</strong></li>
+                  <li>Selecciona <strong>Calendario</strong> para importarlo</li>
+                  <li>Elige el calendario donde agregarlo</li>
+                </ol>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Outlook (Web / Escritorio)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre <a href="https://outlook.live.com/calendar" target="_blank" rel="noopener">Outlook Calendar</a></li>
+                  <li>Haz clic en <strong>Agregar calendario</strong> y luego <strong>Cargar desde archivo</strong></li>
+                  <li>Selecciona el archivo <code>.ics</code> descargado</li>
+                </ol>
+              </div>
+            </div>
+            <div className="crud-modal-footer" style={{ justifyContent: 'space-between', gap: 'var(--space-4)' }}>
+              <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>Los eventos se generan respetando los dias festivos del calendario academico. Las clases apareceran como eventos semanales hasta el fin del cuatrimestre.</p>
+              <button className="crud-btn-guardar" onClick={() => setMostrarAyudaICS(false)}>Entendido</button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

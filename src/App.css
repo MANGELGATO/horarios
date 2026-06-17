@@ -185,6 +185,59 @@ img, svg { display: block; }
   background: var(--color-primary-soft);
 }
 
+.resultados-acciones {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.btn-exportar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 150ms;
+  white-space: nowrap;
+}
+
+.btn-exportar:hover {
+  border-color: #2d8a4e;
+  color: #2d8a4e;
+  background: #e8f5e9;
+}
+
+.btn-ayuda-ics {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+
+.btn-ayuda-ics:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.btn-exportar--floating {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
 /* ════════════════════════════════════════
    RESPONSIVE
 ════════════════════════════════════════ */
