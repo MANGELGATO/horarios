@@ -109,10 +109,10 @@ function App() {
     tabla: true,
     salones: !esEstudianteFiltrado,
     proyectores: esAdmin,
-    print: esAdmin || esDocente,
+    print: esAdmin,
     admin: esAdmin,
     'mis-clases': esDocente,
-    'bitacora': esDocente || esAdmin
+    'bitacora': esAdmin
   }
 
   useEffect(() => {
