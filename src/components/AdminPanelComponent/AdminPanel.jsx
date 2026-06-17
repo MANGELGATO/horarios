@@ -549,12 +549,17 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
   const [confirmandoReset, setConfirmandoReset] = useState(false)
   const [seeding, setSeeding] = useState(false)
   const [vistaTarjetas, setVistaTarjetas] = useState(false)
+  const [paginaUsuarios, setPaginaUsuarios] = useState(1)
+  const [paginaHorarios, setPaginaHorarios] = useState(1)
+  const ITEMS_POR_PAGINA = 50
 
   // Estados del CRUD de Horarios
   const [filtroCarrera, setFiltroCarrera] = useState('Todas')
   const [filtroTurno, setFiltroTurno] = useState('Todos')
   const [filtroSalon, setFiltroSalon] = useState('Todos')
   const [busqueda, setBusqueda] = useState('')
+
+  useEffect(() => { setPaginaHorarios(1) }, [filtroCarrera, filtroTurno, filtroSalon, busqueda])
 
   // ── Estados para el Importador Inteligente (PDF & Texto) ──
   const [modalImportarAbierto, setModalImportarAbierto] = useState(false)
@@ -1316,7 +1321,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
 
           {vistaTarjetas ? (
             <div className="admin-tarjetas">
-              {usuarios.map(u => (
+              {usuarios.slice((paginaUsuarios-1)*ITEMS_POR_PAGINA, paginaUsuarios*ITEMS_POR_PAGINA).map(u => (
                 <TarjetaUsuario key={u.id} u={u} />
               ))}
             </div>
@@ -1333,7 +1338,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                   <span className="admin-col admin-col--acciones">Acciones</span>
                 </div>
 
-                {usuarios.map(u => {
+                {usuarios.slice((paginaUsuarios-1)*ITEMS_POR_PAGINA, paginaUsuarios*ITEMS_POR_PAGINA).map(u => {
                   const prefs = u.preferencias
                   const esEstudiante = u.rol === 'estudiante'
 
@@ -1484,6 +1489,13 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
               </div>
             </div>
           )}
+          {Math.ceil(usuarios.length / ITEMS_POR_PAGINA) > 1 && (
+            <div className="admin-paginacion">
+              <button className="admin-paginacion__btn" disabled={paginaUsuarios <= 1} onClick={() => setPaginaUsuarios(p => Math.max(1, p - 1))}>‹ Anterior</button>
+              <span className="admin-paginacion__info">{paginaUsuarios} de {Math.ceil(usuarios.length / ITEMS_POR_PAGINA)}</span>
+              <button className="admin-paginacion__btn" disabled={paginaUsuarios >= Math.ceil(usuarios.length / ITEMS_POR_PAGINA)} onClick={() => setPaginaUsuarios(p => Math.min(Math.ceil(usuarios.length / ITEMS_POR_PAGINA), p + 1))}>Siguiente ›</button>
+            </div>
+          )}
         </>
       )}
 
@@ -1565,7 +1577,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
               {horariosFiltradosAdmin.length === 0 ? (
                 <div className="admin-tarjeta admin-tarjeta--empty">Sin resultados</div>
               ) : (
-                horariosFiltradosAdmin.map(h => (
+                horariosFiltradosAdmin.slice((paginaHorarios-1)*ITEMS_POR_PAGINA, paginaHorarios*ITEMS_POR_PAGINA).map(h => (
                   <div key={h.id} className="admin-tarjeta">
                     <div className="admin-tarjeta-header">
                       <span className="admin-prefs-badge admin-prefs-badge--carrera">{h.carrera} · {h.grupo}</span>
@@ -1601,6 +1613,13 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                   </div>
                 ))
               )}
+              {Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA) > 1 && (
+                <div className="admin-paginacion">
+                  <button className="admin-paginacion__btn" disabled={paginaHorarios <= 1} onClick={() => setPaginaHorarios(p => Math.max(1, p - 1))}>‹ Anterior</button>
+                  <span className="admin-paginacion__info">{paginaHorarios} de {Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA)}</span>
+                  <button className="admin-paginacion__btn" disabled={paginaHorarios >= Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA)} onClick={() => setPaginaHorarios(p => Math.min(Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA), p + 1))}>Siguiente ›</button>
+                </div>
+              )}
             </div>
           ) : (
             /* Vista Desktop para Horarios */
@@ -1623,7 +1642,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                     No se encontraron clases con los filtros aplicados.
                   </div>
                 ) : (
-                  horariosFiltradosAdmin.map(h => (
+                  horariosFiltradosAdmin.slice((paginaHorarios-1)*ITEMS_POR_PAGINA, paginaHorarios*ITEMS_POR_PAGINA).map(h => (
                     <div key={h.id} className="admin-fila">
                       <span className="admin-col admin-col--carrera" style={{ flex: '0.8' }}>
                         <span className="admin-prefs-badge admin-prefs-badge--carrera">{h.carrera}</span>
@@ -1669,6 +1688,13 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                   ))
                 )}
               </div>
+              {Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA) > 1 && (
+                <div className="admin-paginacion">
+                  <button className="admin-paginacion__btn" disabled={paginaHorarios <= 1} onClick={() => setPaginaHorarios(p => Math.max(1, p - 1))}>‹ Anterior</button>
+                  <span className="admin-paginacion__info">{paginaHorarios} de {Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA)}</span>
+                  <button className="admin-paginacion__btn" disabled={paginaHorarios >= Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA)} onClick={() => setPaginaHorarios(p => Math.min(Math.ceil(horariosFiltradosAdmin.length / ITEMS_POR_PAGINA), p + 1))}>Siguiente ›</button>
+                </div>
+              )}
             </div>
           )}
         </>
