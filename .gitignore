@@ -33,3 +33,5 @@ scratch_extract/
 *.bak
 *.zip
 *.docx
+OPENCODE.md
+serviceAccountKey

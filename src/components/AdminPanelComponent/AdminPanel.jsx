@@ -62,7 +62,7 @@ function agruparYFusionarItemsPDF(rawItems) {
       const next = row.items[i];
       const distance = next.x - (current.x + current.width);
       
-      if (distance < 12) {
+      if (distance < 4) {
         const needsSpace = !current.text.endsWith(' ') && !next.text.startsWith(' ');
         current.text += (needsSpace ? ' ' : '') + next.text;
         current.width = (next.x + next.width) - current.x;
@@ -78,8 +78,10 @@ function agruparYFusionarItemsPDF(rawItems) {
   return mergedItems;
 }
 
-export function parsearUTJPdfConCoordenadas(rawItems) {
-  const items = agruparYFusionarItemsPDF(rawItems);
+export function parsearUTJPdfConCoordenadas(rawItems, defaultCarrera = 'DSM', defaultTurno = 'Matutino', defaultGrupo = '1A') {
+  const items = rawItems.length > 0 && 'text' in rawItems[0]
+    ? rawItems
+    : agruparYFusionarItemsPDF(rawItems);
   if (items.length === 0) return [];
 
   const diasBuscados = ['LUNES', 'MARTES', 'MIERCOLES', 'MIÉRCOLES', 'JUEVES', 'VIERNES'];
@@ -155,12 +157,13 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
   // 1. Detectamos block items de la columna izquierda (números 1 a 8)
   const blockItems = items.filter(it => {
     const txt = it.text.trim();
-    return /^[1-8]$/.test(txt) && it.x < firstDayX;
+    return /^[1-8](?:\s|$)/.test(txt) && it.x < firstDayX;
   });
 
   let blockAnchors = [];
   blockItems.forEach(b => {
-    blockAnchors.push({ num: Number(b.text.trim()), y: b.y });
+    const match = b.text.trim().match(/^[1-8]/);
+    if (match) blockAnchors.push({ num: Number(match[0]), y: b.y });
   });
   
   blockAnchors.sort((a, b) => b.y - a.y);
@@ -231,7 +234,7 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
   legendItems.forEach(item => {
     let placed = false;
     for (const row of legendRows) {
-      if (Math.abs(row.y - item.y) < 8) {
+      if (Math.abs(row.y - item.y) < 6) {
         row.items.push(item);
         placed = true;
         break;
@@ -245,7 +248,10 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
   const subjectTeacherMap = {};
   legendRows.forEach(row => {
     row.items.sort((a, b) => a.x - b.x);
-    const texts = row.items.map(it => it.text.trim()).filter(t => t.length > 3);
+    const LEGEND_SKIP = ['materia', 'profesor', 'materia', 'hrs', 'dif', 'n°', 'no.'];
+    const texts = row.items
+      .map(it => it.text.trim())
+      .filter(t => t.length > 3 && !LEGEND_SKIP.some(s => t.toLowerCase().includes(s)));
     if (texts.length >= 2) {
       const materiaName = texts[0];
       const teacherName = texts[texts.length - 1];
@@ -271,10 +277,11 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
     // 4. Ignorar textos comunes que son metadatos y no materias
     const txtLower = txt.toLowerCase();
     const blacklist = [
-      'sede:', 'alumnos:', 'no. alumnos', 'grupo:', 'carrera:', 'periodo:', 'cuatrimestre:', 'turno:', 'aula:', 'edificio:',
+      'sede:', 'alumnos:', 'no. alumnos', 'grupo:', 'carrera:', 'periodo:', 'cuatrimestre:', 'turno:', 'edificio:',
       'universidad tecnológica', 'utj', 'plan de', 'generado', 'página', 'pagina', 'fecha', 'horario', 'bloque',
       'lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes', 'sábado', 'sabado', 'domingo',
-      'receso', 'matutino', 'vespertino', 'ccd'
+      'receso', 'matutino', 'vespertino', 'ccd', 'asignatura', 'asíncrona', 'asincrona',
+      'virtual', 'integrada', 'horarios', 'distribución', 'distribucion', 'materia', 'profesor', 'hrs', 'dif'
     ];
     if (blacklist.some(term => txtLower.includes(term))) return false;
 
@@ -284,6 +291,29 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
     return true;
   });
   
+  // Extraer horarios de cada bloque (ej: "16:20 – 17:10")
+  const timeMap = {};
+  items.forEach(it => {
+    const match = it.text.trim().match(/^(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})$/);
+    if (match && it.x < firstDayX - 10) {
+      let nearestBlock = blockAnchors[0]?.num || 1;
+      let nearestDist = Math.abs(it.y - (blockAnchors[0]?.y || 0));
+      for (let i = 1; i < blockAnchors.length; i++) {
+        const dist = Math.abs(it.y - blockAnchors[i].y);
+        if (dist < nearestDist) {
+          nearestDist = dist;
+          nearestBlock = blockAnchors[i].num;
+        }
+      }
+      if (nearestDist < dy * 1.5) {
+        timeMap[nearestBlock] = it.text;
+      }
+    }
+  });
+  
+  // Asignar items a celdas por día y bloque
+  // Primero agrupar por día
+  const dayItemGroups = {};
   gridItems.forEach(it => {
     let closestDay = dayAnchors[0].name;
     let minDayDist = Math.abs(it.x - dayAnchors[0].x);
@@ -294,22 +324,40 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
         closestDay = dayAnchors[i].name;
       }
     }
-    
-    let closestBlock = blockAnchors[0].num;
-    let minBlockDist = Math.abs(it.y - blockAnchors[0].y);
-    for (let i = 1; i < blockAnchors.length; i++) {
-      const dist = Math.abs(it.y - blockAnchors[i].y);
-      if (dist < minBlockDist) {
-        minBlockDist = dist;
-        closestBlock = blockAnchors[i].num;
+    if (!dayItemGroups[closestDay]) dayItemGroups[closestDay] = [];
+    dayItemGroups[closestDay].push(it);
+  });
+  
+  // Dentro de cada día, ordenar por Y y asignar a bloques consecutivamente
+  Object.entries(dayItemGroups).forEach(([day, items]) => {
+    items.sort((a, b) => b.y - a.y);
+    let blockIdx = 0;
+    items.forEach(it => {
+      if (blockIdx < blockAnchors.length - 1) {
+        const curDist = Math.abs(it.y - blockAnchors[blockIdx].y);
+        const nextDist = Math.abs(it.y - blockAnchors[blockIdx + 1].y);
+        if (nextDist < curDist) {
+          blockIdx++;
+        }
       }
-    }
-    
-    // Con la proyección de 8 bloques, aumentamos ligeramente la tolerancia horizontal/vertical a dy * 0.7
-    if (minBlockDist < dy * 0.7) {
-      const key = `${closestDay}-${closestBlock}`;
+      const key = `${day}-${blockAnchors[blockIdx].num}`;
       if (!cellGroups[key]) cellGroups[key] = [];
       cellGroups[key].push(it);
+    });
+  });
+  
+  // Post-process: mover salones huérfanos al bloque anterior
+  const diasList = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+  diasList.forEach(dia => {
+    for (let b = 2; b <= 8; b++) {
+      const key = `${dia}-${b}`;
+      const prevKey = `${dia}-${b - 1}`;
+      if (!cellGroups[key] || !cellGroups[prevKey]) continue;
+      const tieneMateria = cellGroups[key].some(it => !esSalon(it.text));
+      if (!tieneMateria) {
+        cellGroups[key].forEach(it => cellGroups[prevKey].push(it));
+        delete cellGroups[key];
+      }
     }
   });
 
@@ -320,28 +368,41 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
     
     if (cellItems.length === 0) return;
     
+    // Unir items por X y extraer salón y materia
+    cellItems.sort((a, b) => a.x - b.x);
+    const tokens = cellItems
+      .map(it => it.text.trim())
+      .filter(Boolean)
+      .join(' ')
+      .split(/\s+/);
+    
     let salon = '';
-    const materiaParts = [];
+    const materiaTokens = [];
     
-    cellItems.forEach(it => {
-      const text = it.text.trim();
-      if (esSalon(text)) {
-        salon = text;
-      } else {
-        if (text.length > 1 && !/^[1-8]$/.test(text)) {
-          materiaParts.push(text);
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      if (esSalon(token)) {
+        const roomParts = [token];
+        let j = i + 1;
+        while (j < tokens.length && (/^(?:pb)?\d+$/i.test(tokens[j]) || /^m\d+$/i.test(tokens[j]))) {
+          roomParts.push(tokens[j]);
+          j++;
         }
-      }
-    });
-    
-    if (!salon && cellItems.length > 0) {
-      const lastItem = cellItems[cellItems.length - 1];
-      if (esSalon(lastItem.text)) {
-        salon = lastItem.text;
+        salon = roomParts.join(' ');
+        i = j - 1;
+      } else if (!/^[1-9]$/.test(token)) {
+        materiaTokens.push(token);
       }
     }
     
-    let materia = materiaParts.join(' ').trim();
+    // Fallback: si algo parece salón al final del texto combinado
+    if (!salon) {
+      const combined = tokens.join(' ');
+      const salonMatch = combined.match(/(Aula|Laboratorio|Lab|Taller|Salón|Salon|PB\d+|M\d+)\s*:?\s*[\w\d]+/i);
+      if (salonMatch) salon = salonMatch[0];
+    }
+    
+    let materia = materiaTokens.join(' ').trim();
     if (!materia) return;
     
     // Filtro secundario de materia para evitar basuras
@@ -349,7 +410,8 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
     const blacklistMateria = [
       'sede:', 'alumnos:', 'no. alumnos', 'grupo:', 'carrera:', 'periodo:', 'cuatrimestre:', 'turno:', 'aula:', 'edificio:',
       'universidad', 'tecnológica', 'utj', 'generado', 'página', 'pagina', 'fecha', 'horario', 'bloque',
-      'lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes', 'sábado', 'sabado', 'domingo', 'receso'
+      'lunes', 'martes', 'miércoles', 'miercoles', 'jueves', 'viernes', 'sábado', 'sabado', 'domingo', 'receso',
+      'materia', 'profesor', 'hrs', 'dif'
     ];
     if (blacklistMateria.some(term => matLower.includes(term))) return;
     if (materia.length < 3) return; // Filtramos materias extremadamente cortas
@@ -371,12 +433,13 @@ export function parsearUTJPdfConCoordenadas(rawItems) {
     
     clases.push({
       id: Math.random().toString(36).substr(2, 9),
-      carrera: 'DSM',
-      turno: 'Matutino',
-      grupo: '1A',
+      carrera: defaultCarrera,
+      turno: defaultTurno,
+      grupo: defaultGrupo,
       dia,
       diaVirtual: '',
       bloque,
+      horario: timeMap[bloque] || '',
       materia,
       profesor,
       salon,
@@ -528,44 +591,124 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
     });
   };
 
+  const MAP_GRADO = {
+    'primero': '1', 'segundo': '2', 'tercero': '3', 'cuarto': '4',
+    'quinto': '5', 'sexto': '6', 'septimo': '7', 'octavo': '8',
+    'noveno': '9', 'decimo': '10'
+  };
+
+  const extraerCarreraTurno = (items) => {
+    const titleIdx = items.findIndex(it =>
+      it.text.toUpperCase().includes('HORARIOS')
+    );
+    if (titleIdx === -1) return { carrera: 'DSM', turno: 'Matutino' };
+    let titleText = items[titleIdx].text;
+    const titleItem = items[titleIdx];
+    if (titleItem.y !== undefined) {
+      const sameLine = items
+        .slice(titleIdx + 1)
+        .filter(it => it.y !== undefined && Math.abs(it.y - titleItem.y) < 6)
+        .sort((a, b) => a.x - b.x);
+      if (sameLine.length > 0) {
+        titleText += ' ' + sameLine.map(it => it.text).join(' ');
+      }
+    }
+    const match = titleText.match(/HORARIOS\s+(.+?)\s+TURNO\s+(.+)/i);
+    if (!match) return { carrera: 'DSM', turno: 'Matutino' };
+    const rawCarrera = match[1].trim().toUpperCase();
+    const rawTurno = match[2].trim();
+    const turno = rawTurno.charAt(0).toUpperCase() + rawTurno.slice(1).toLowerCase();
+    let carrera = 'DSM';
+    if (rawCarrera.includes('DGS')) carrera = 'IDGS';
+    else if (rawCarrera.includes('EVND')) carrera = 'EVND';
+    else if (rawCarrera.includes('TIDSM') || rawCarrera.includes('DSM')) carrera = 'DSM';
+    else if (rawCarrera.includes('ITI')) carrera = 'ITI';
+    else carrera = rawCarrera;
+    return { carrera, turno };
+  };
+
+  const extraerGrupo = (items, desdeIdx = 0) => {
+    const grupoIdx = items.findIndex((it, i) => i >= desdeIdx && /^Grupo/i.test(it.text.trim()));
+    if (grupoIdx === -1) return '';
+    const grupoItem = items[grupoIdx];
+    let text = grupoItem.text.replace(/^Grupo:\s*/i, '').trim();
+    if (!text && grupoItem.y !== undefined) {
+      const grupoY = grupoItem.y;
+      const rightItems = items
+        .slice(grupoIdx + 1)
+        .filter(it => it.y !== undefined && Math.abs(it.y - grupoY) < 6)
+        .sort((a, b) => a.x - b.x);
+      text = rightItems.map(it => it.text).join(' ').trim();
+    }
+    if (!text) return '';
+    const match = text.match(/(\S+)\s+(\S+)/);
+    if (match) {
+      const grado = MAP_GRADO[match[1].toLowerCase()] || match[1];
+      return grado + match[2];
+    }
+    return text;
+  };
+
   const procesarArchivoPDF = async (file) => {
     if (!file) return;
     setCargandoImportar(true);
     try {
       const pdfjs = await cargarPdfJs();
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const typedarray = new Uint8Array(e.target.result);
-          const pdfDoc = await pdfjs.getDocument({ data: typedarray }).promise;
-          
-          let todasLasClases = [];
-          if (pdfDoc.numPages > 0) {
-            const page = await pdfDoc.getPage(1);
-            const textContent = await page.getTextContent();
-            const clasesDePagina = parsearUTJPdfConCoordenadas(textContent.items);
-            todasLasClases = [...todasLasClases, ...clasesDePagina];
+      const arrayBuffer = await file.arrayBuffer();
+      const typedarray = new Uint8Array(arrayBuffer);
+      const pdfDoc = await pdfjs.getDocument({ data: typedarray }).promise;
+
+      let todasLasClases = [];
+      let metadataGlobal = { carrera: 'DSM', turno: 'Matutino' };
+
+      for (let p = 1; p <= pdfDoc.numPages; p++) {
+        const page = await pdfDoc.getPage(p);
+        const textContent = await page.getTextContent();
+        const items = agruparYFusionarItemsPDF(textContent.items);
+        if (items.length === 0) continue;
+
+        if (p === 1) metadataGlobal = extraerCarreraTurno(items);
+
+        const grupoIndices = [];
+        items.forEach((item, idx) => {
+          if (/^Grupo:\s/i.test(item.text.trim())) grupoIndices.push(idx);
+        });
+
+        if (grupoIndices.length === 0) {
+          const clases = parsearUTJPdfConCoordenadas(
+            items, metadataGlobal.carrera, metadataGlobal.turno, ''
+          );
+          todasLasClases = [...todasLasClases, ...clases];
+        } else {
+          for (let g = 0; g < grupoIndices.length; g++) {
+            const startIdx = grupoIndices[g];
+            const endIdx = g < grupoIndices.length - 1 ? grupoIndices[g + 1] : items.length;
+            const groupItems = items.slice(startIdx, endIdx);
+            const grupo = extraerGrupo(items, startIdx);
+            const clases = parsearUTJPdfConCoordenadas(
+              groupItems, metadataGlobal.carrera, metadataGlobal.turno, grupo
+            );
+            todasLasClases = [...todasLasClases, ...clases];
           }
-          
-          if (todasLasClases.length === 0) {
-            alert('No se detectaron clases en la cuadrícula. Intenta con la pestaña de pegado manual.');
-          } else {
-            setClasesImportadas(todasLasClases.map(c => ({ ...c, seleccionado: true })));
-            mostrarMensaje(`¡PDF procesado! Se detectaron ${todasLasClases.length} clases.`);
-          }
-        } catch (err) {
-          console.error(err);
-          alert('Error al leer el PDF: ' + err.message);
-        } finally {
-          setCargandoImportar(false);
         }
-      };
-      
-      reader.readAsArrayBuffer(file);
+      }
+
+      if (todasLasClases.length === 0) {
+        alert('No se detectaron clases en la cuadrícula. Intenta con la pestaña de pegado manual.');
+      } else {
+        setClasesImportadas(todasLasClases.map(c => ({ ...c, seleccionado: true })));
+        const primera = todasLasClases[0];
+        if (primera) {
+          if (primera.carrera) setCarreraImportar(primera.carrera);
+          if (primera.grupo) setGrupoImportar(primera.grupo);
+          if (primera.turno) setTurnoImportar(primera.turno);
+        }
+        mostrarMensaje(`¡PDF procesado! Se detectaron ${todasLasClases.length} clases.`);
+      }
     } catch (err) {
       console.error(err);
-      alert(err.message);
+      alert('Error al leer el PDF: ' + err.message);
+    } finally {
       setCargandoImportar(false);
     }
   };
@@ -597,6 +740,8 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
     }
   };
 
+  const BATCH_LIMIT = 500;
+
   const confirmarImportacion = async () => {
     const clasesAImportar = clasesImportadas.filter(c => c.seleccionado);
     if (clasesAImportar.length === 0) {
@@ -610,34 +755,37 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
     
     setGuardandoImportacion(true);
     try {
-      const batch = writeBatch(db);
-      
-      clasesAImportar.forEach(clase => {
-        const docRef = doc(collection(db, 'horarios'));
-        batch.set(docRef, {
-          carrera: clase.carrera,
-          carreraLabel: clase.carrera,
-          turno: clase.turno,
-          turnoLabel: clase.turno,
-          grupo: clase.grupo,
-          grupoLabel: clase.grupo,
-          dia: clase.dia,
-          diaVirtual: clase.diaVirtual || '',
-          bloque: Number(clase.bloque),
-          bloqueNumero: Number(clase.bloque),
-          materia: clase.materia.trim(),
-          materiaLabel: clase.materia.trim(),
-          profesor: clase.profesor.trim(),
-          profesorLabel: clase.profesor.trim(),
-          salon: clase.salon.trim(),
-          salonLabel: clase.salon.trim(),
-          proyector: clase.proyector || '',
-          proyectorAsignado: clase.proyector || '',
-          requiereProyector: !!clase.proyector
+      for (let i = 0; i < clasesAImportar.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(db);
+        const chunk = clasesAImportar.slice(i, i + BATCH_LIMIT);
+        
+        chunk.forEach(clase => {
+          const docRef = doc(collection(db, 'horarios'));
+          batch.set(docRef, {
+            carrera: clase.carrera,
+            carreraLabel: clase.carrera,
+            turno: clase.turno,
+            turnoLabel: clase.turno,
+            grupo: clase.grupo,
+            grupoLabel: clase.grupo,
+            dia: clase.dia,
+            diaVirtual: clase.diaVirtual || '',
+            bloque: Number(clase.bloque),
+            bloqueNumero: Number(clase.bloque),
+            materia: clase.materia.trim(),
+            materiaLabel: clase.materia.trim(),
+            profesor: clase.profesor.trim(),
+            profesorLabel: clase.profesor.trim(),
+            salon: clase.salon.trim(),
+            salonLabel: clase.salon.trim(),
+            proyector: clase.proyector || '',
+            proyectorAsignado: clase.proyector || '',
+            requiereProyector: !!clase.proyector
+          });
         });
-      });
-      
-      await batch.commit();
+        
+        await batch.commit();
+      }
       mostrarMensaje(`¡Éxito! Se importaron ${clasesAImportar.length} clases correctamente.`);
       setModalImportarAbierto(false);
       setClasesImportadas([]);
@@ -1803,8 +1951,12 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                               }}
                             />
                           </th>
+                          <th className="import-preview-th">Carrera</th>
+                          <th className="import-preview-th">Grupo</th>
+                          <th className="import-preview-th">Turno</th>
                           <th className="import-preview-th">Día</th>
                           <th className="import-preview-th">Bloque</th>
+                          <th className="import-preview-th">Horario</th>
                           <th className="import-preview-th">Materia</th>
                           <th className="import-preview-th">Profesor</th>
                           <th className="import-preview-th">Salón</th>
@@ -1823,6 +1975,15 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                                   setClasesImportadas(prev => prev.map((c, i) => i === idx ? { ...c, seleccionado: val } : c));
                                 }}
                               />
+                            </td>
+                            <td className="import-preview-td" style={{ width: '80px' }}>
+                              <span style={{ fontSize: 'var(--text-xs)' }}>{clase.carrera}</span>
+                            </td>
+                            <td className="import-preview-td" style={{ width: '50px' }}>
+                              <span style={{ fontSize: 'var(--text-xs)' }}>{clase.grupo}</span>
+                            </td>
+                            <td className="import-preview-td" style={{ width: '80px' }}>
+                              <span style={{ fontSize: 'var(--text-xs)' }}>{clase.turno}</span>
                             </td>
                             <td className="import-preview-td" style={{ width: '100px' }}>
                               <select
@@ -1851,6 +2012,9 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                                   setClasesImportadas(prev => prev.map((c, i) => i === idx ? { ...c, bloque: val } : c));
                                 }}
                               />
+                            </td>
+                            <td className="import-preview-td" style={{ width: '120px' }}>
+                              <span style={{ fontSize: 'var(--text-xs)' }}>{clase.horario}</span>
                             </td>
                             <td className="import-preview-td">
                               <input
@@ -1911,7 +2075,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                           setClasesImportadas(prev => prev.map(c => ({ ...c, carrera: val })));
                         }}
                       >
-                        {opcionesCRUD.carreras.map(c => <option key={c} value={c}>{c}</option>)}
+                        {[...new Set([...opcionesCRUD.carreras, ...clasesImportadas.map(c => c.carrera).filter(Boolean)])].sort().map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
 
@@ -1925,7 +2089,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                           setClasesImportadas(prev => prev.map(c => ({ ...c, grupo: val })));
                         }}
                       >
-                        {opcionesCRUD.grupos.map(g => <option key={g} value={g}>{g}</option>)}
+                        {[...new Set([...opcionesCRUD.grupos, ...clasesImportadas.map(c => c.grupo).filter(Boolean)])].sort().map(g => <option key={g} value={g}>{g}</option>)}
                       </select>
                     </div>
 
