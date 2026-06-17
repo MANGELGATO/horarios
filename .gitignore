@@ -35,3 +35,4 @@ scratch_extract/
 *.docx
 OPENCODE.md
 serviceAccountKey
+browser_test.cjs

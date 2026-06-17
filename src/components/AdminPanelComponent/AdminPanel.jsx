@@ -4,10 +4,10 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, deleteDoc, writ
 import { db, eliminarSolicitudEquipo, autorizarCorreo, eliminarCorreoAutorizado } from '../../firebase'
 import './AdminPanel.css'
 
-const ROLES = ['estudiante', 'docente', 'administrativo', 'admin']
-const ETIQUETAS_ROL = { estudiante: 'Estudiante', docente: 'Docente', administrativo: 'Administrativo', admin: 'Admin', superadmin: 'Super Admin' }
-const ETIQUETAS_CORTAS = { estudiante: 'Estu', docente: 'Doc', administrativo: 'Admini', admin: 'Admin', superadmin: 'S.Admin' }
-const COLORES_ROL = { estudiante: '#2e7d32', docente: '#1565c0', administrativo: '#e65100', admin: '#c62828', superadmin: '#b71c1c' }
+const ROLES = ['estudiante', 'docente', 'servicio', 'administrativo', 'admin']
+const ETIQUETAS_ROL = { estudiante: 'Estudiante', docente: 'Docente', servicio: 'Servicio', administrativo: 'Administrativo', admin: 'Admin', superadmin: 'Super Admin' }
+const ETIQUETAS_CORTAS = { estudiante: 'Estu', docente: 'Doc', servicio: 'Serv', administrativo: 'Admini', admin: 'Admin', superadmin: 'S.Admin' }
+const COLORES_ROL = { estudiante: '#2e7d32', docente: '#1565c0', servicio: '#6d28d9', administrativo: '#e65100', admin: '#c62828', superadmin: '#b71c1c' }
 
 // ── Helpers e Inteligencia de Parseo para PDF y Texto ──
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { collection, query, onSnapshot } from 'firebase/firestore'
 import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
-import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
+import { horarios as horariosEstaticos, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -56,6 +56,7 @@ function App() {
   })
   const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
   const [solicitudesEquipo, setSolicitudesEquipo] = useState([])
+  const [horariosFirestore, setHorariosFirestore] = useState(null)
   const [claseParaBitacora, setClaseParaBitacora] = useState(null)
 
   useEffect(() => {
@@ -67,8 +68,40 @@ function App() {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    const q = query(collection(db, 'horarios'))
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        setHorariosFirestore(null)
+        return
+      }
+      const data = snapshot.docs.map(doc => {
+        const d = doc.data()
+        return {
+          carrera: d.carrera || d.carreraLabel || '',
+          turno: d.turno || d.turnoLabel || '',
+          grupo: d.grupo || d.grupoLabel || '',
+          dia: d.dia || '',
+          diaVirtual: d.diaVirtual || '',
+          bloque: Number(d.bloque ?? d.bloqueNumero ?? 1),
+          materia: d.materia || d.materiaLabel || '',
+          profesor: d.profesor || d.profesorLabel || '',
+          salon: d.salon || d.salonLabel || '',
+          proyector: d.proyector || d.proyectorAsignado || '',
+        }
+      })
+      setHorariosFirestore(data)
+    }, (error) => {
+      console.warn('[Firestore] Error al cargar horarios, usando datos estáticos:', error)
+      setHorariosFirestore(null)
+    })
+    return unsubscribe
+  }, [])
+
+  const fuenteHorarios = horariosFirestore || horariosEstaticos
+
   const horariosDinamicos = useMemo(() => {
-    const arr = horarios.map(h => ({ ...h }))
+    const arr = fuenteHorarios.map(h => ({ ...h }))
     const hoyDate = new Date()
     const hoyStr = hoyDate.getFullYear() + '-' + String(hoyDate.getMonth()+1).padStart(2, '0') + '-' + String(hoyDate.getDate()).padStart(2, '0')
 
@@ -93,23 +126,24 @@ function App() {
       }
     })
     return arr
-  }, [solicitudesEquipo])
+  }, [solicitudesEquipo, fuenteHorarios])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark-mode', tema === 'oscuro')
     localStorage.setItem('tema-horarios', tema)
   }, [tema])
 
+  const esServicio = usuario?.rol === 'servicio'
   const necesitaSetup = usuario && !usuario.preferencias && (usuario.rol === 'estudiante' || usuario.rol === 'docente')
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
   const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
-  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin
+  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin && !esServicio
 
   const vistasPermitidas = {
     tabla: true,
     salones: !esEstudianteFiltrado,
-    proyectores: esAdmin,
-    print: esAdmin,
+    proyectores: esAdmin || esServicio,
+    print: esAdmin || esServicio,
     admin: esAdmin,
     'mis-clases': esDocente,
     'bitacora': esAdmin
@@ -145,11 +179,8 @@ function App() {
     return unsubscribe
   }, [])
 
-  // Sincronización en tiempo real desactivada temporalmente a petición del usuario.
-  // Se utilizan los horarios locales estáticos precargados de manera 100% estable.
-
   const prefsFilter = useMemo(() => {
-    if (esAdmin) return null
+    if (esAdmin || esServicio) return null
     if (!usuario?.preferencias) return null
     const p = usuario.preferencias
     if (p.tipo === 'estudiante') {
@@ -159,10 +190,10 @@ function App() {
       return (h) => slugify(h.profesor) === p.profesorId
     }
     return null
-  }, [usuario?.preferencias, esAdmin])
+  }, [usuario?.preferencias, esAdmin, esServicio])
 
   const baseHorarios = useMemo(() => {
-    if (esAdmin || esDocente) return horariosDinamicos
+    if (esAdmin || esDocente || esServicio) return horariosDinamicos
     if (prefsFilter) return horariosDinamicos.filter(prefsFilter)
     return horariosDinamicos
   }, [prefsFilter, horariosDinamicos, esAdmin, esDocente])
@@ -335,7 +366,7 @@ function App() {
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
-            {(clasesAhora.length > 0 || esAdmin) && (
+            {(clasesAhora.length > 0 || esAdmin || esServicio) && (
               <CurrentClassPanel
                 clases={clasesAhora}
                 esAdmin={esAdmin}
@@ -344,7 +375,7 @@ function App() {
               />
             )}
 
-            {esAdmin && (
+            {(esAdmin || esServicio) && (
               <ProjectorPanel
                 clases={clasesAhora}
                 proximas={clasesProximas}
@@ -422,7 +453,7 @@ function App() {
           )
         )}
 
-        {vista === 'proyectores' && esAdmin && (
+        {vista === 'proyectores' && (esAdmin || esServicio) && (
           Object.keys(proyectoresAgrupados).length === 0 ? (
             <div className="weekly-empty">
               <span>🔍</span>
@@ -458,7 +489,7 @@ function App() {
       {mostrarSolicitud && (
         <SolicitudEquipoModal
           usuario={usuario}
-          horariosProfesor={horarios.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
+          horariosProfesor={fuenteHorarios.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
           onClose={() => setMostrarSolicitud(false)}
         />
       )}

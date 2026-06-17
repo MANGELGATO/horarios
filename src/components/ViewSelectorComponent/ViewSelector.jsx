@@ -3,6 +3,7 @@ import './ViewSelector.css'
 function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
   const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
+  const esServicio = usuario?.rol === 'servicio'
   const esEstudiante = usuario?.rol === 'estudiante'
 
   if (esEstudiante) return null
@@ -47,7 +48,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
         Por salón
       </button>
 
-      {esAdmin && (
+      {(esAdmin || esServicio) && (
         <button
           className={`view-selector__btn ${vista === 'proyectores' ? 'view-selector__btn--active' : ''}`}
           onClick={() => setVista('proyectores')}
@@ -93,7 +94,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
       )}
 
       <div className="view-selector__right">
-        {esAdmin && (
+        {(esAdmin || esServicio) && (
           <button
             className={`view-selector__btn view-selector__btn--print ${vista === 'print' ? 'view-selector__btn--active' : ''}`}
             onClick={() => setVista('print')}

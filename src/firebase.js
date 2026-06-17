@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { horarios } from './data/horarios';
 
@@ -18,6 +18,15 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 export const db = getFirestore(app);
+
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('[Firestore] Persistencia offline no disponible: múltiples pestañas abiertas');
+  } else if (err.code === 'unimplemented') {
+    console.warn('[Firestore] Persistencia offline no soportada en este navegador');
+  }
+});
+
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 
