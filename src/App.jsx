@@ -473,7 +473,33 @@ function App() {
               <WeeklyTable horarios={horariosFiltrados} />
             </div>
           } />
-          <Route path="/tabla" element={<WeeklyTable horarios={horariosFiltrados} />} />
+          <Route path="/tabla" element={
+            <div style={{ position: 'relative' }}>
+              {horariosFiltrados.length > 0 && (
+                <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)', zIndex: 10, display: 'flex', gap: 'var(--space-1)' }}>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => descargarICS(generarICS(horariosFiltrados))}
+                    title="Exportar horario a calendario (.ics)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Exportar .ics
+                  </button>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => setMostrarAyudaICS(true)}
+                    title="Como importar el archivo .ics en tu calendario"
+                    style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              <WeeklyTable horarios={horariosFiltrados} />
+            </div>
+          } />
           <Route path="/mis-clases" element={
             esDocente
               ? <MisClases
