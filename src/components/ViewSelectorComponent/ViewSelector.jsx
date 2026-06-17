@@ -1,7 +1,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'
 import './ViewSelector.css'
 
-function ViewSelector({ usuario, onPedirEquipo }) {
+function ViewSelector({ usuario, onPedirEquipo, onMiHorario, onVerTodos, filtroActivo }) {
   const navigate = useNavigate()
   const location = useLocation()
   const vista = location.pathname.replace(/^\//, '') || 'tabla'
@@ -9,14 +9,29 @@ function ViewSelector({ usuario, onPedirEquipo }) {
   const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
   const esServicio = usuario?.rol === 'servicio'
   const esEstudiante = usuario?.rol === 'estudiante'
+  const tienePrefsEstudiante = esServicio && usuario?.preferencias?.tipo === 'estudiante'
 
   if (esEstudiante) return null
 
   return (
     <div className="view-selector">
+      {tienePrefsEstudiante && (
+        <button
+          className={`view-selector__btn ${filtroActivo ? 'view-selector__btn--active' : ''}`}
+          onClick={() => { if (onMiHorario) onMiHorario(); navigate('/tabla') }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+          Mi horario
+        </button>
+      )}
+
       <button
-        className={`view-selector__btn ${vista === 'tabla' ? 'view-selector__btn--active' : ''}`}
-        onClick={() => navigate('/tabla')}
+        className={`view-selector__btn ${vista === 'tabla' && !filtroActivo ? 'view-selector__btn--active' : ''}`}
+        onClick={() => { if (onVerTodos) onVerTodos(); navigate('/tabla') }}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" aria-hidden="true">

@@ -373,7 +373,23 @@ function App() {
 
       <main className="app-main">
 
-        <ViewSelector usuario={usuario} onPedirEquipo={() => setMostrarSolicitud(true)} />
+        <ViewSelector
+          usuario={usuario}
+          onPedirEquipo={() => setMostrarSolicitud(true)}
+          onMiHorario={() => {
+            const p = usuario?.preferencias
+            if (p?.carrera) setCarreraFiltro(p.carrera)
+            if (p?.turno) setTurnoFiltro(p.turno)
+            if (p?.grupo) setGrupoFiltro(p.grupo)
+          }}
+          onVerTodos={() => { setCarreraFiltro('Todas'); setTurnoFiltro('Todos'); setGrupoFiltro('Todos'); setDiaFiltro('Todos'); setSalonFiltro('Todos'); setProfesorFiltro('Todos'); setPisoFiltro('Todos') }}
+          filtroActivo={
+            esServicio && usuario?.preferencias?.tipo === 'estudiante' &&
+            carreraFiltro === usuario?.preferencias?.carrera &&
+            turnoFiltro === usuario?.preferencias?.turno &&
+            grupoFiltro === usuario?.preferencias?.grupo
+          }
+        />
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
@@ -417,21 +433,6 @@ function App() {
                     {hayFiltros && (
                       <button className="btn-limpiar" onClick={limpiarFiltros}>
                         Limpiar filtros
-                      </button>
-                    )}
-                    {hayFiltros && (
-                      <button className="btn-limpiar" onClick={limpiarFiltros}>
-                        Limpiar filtros
-                      </button>
-                    )}
-                    {esServicio && usuario?.preferencias?.tipo === 'estudiante' && (
-                      <button className="btn-mihorario" onClick={() => {
-                        const p = usuario.preferencias
-                        if (p?.carrera) setCarreraFiltro(p.carrera)
-                        if (p?.turno) setTurnoFiltro(p.turno)
-                        if (p?.grupo) setGrupoFiltro(p.grupo)
-                      }}>
-                        Mi horario
                       </button>
                     )}
                   </div>
