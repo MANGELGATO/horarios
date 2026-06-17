@@ -414,28 +414,24 @@ function App() {
                       : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
                   </span>
                   <div className="resultados-acciones">
-                    {horariosFiltrados.length > 0 && (
-                      <>
-                        <button className="btn-exportar" onClick={() => descargarICS(generarICS(horariosFiltrados))}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                          </svg>
-                          Exportar .ics
-                        </button>
-                        <button className="btn-ayuda-ics" onClick={() => setMostrarAyudaICS(true)} title="Cómo importar el archivo .ics en tu calendario">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="16" x2="12" y2="12" />
-                            <line x1="12" y1="8" x2="12.01" y2="8" />
-                          </svg>
-                        </button>
-                      </>
+                    {hayFiltros && (
+                      <button className="btn-limpiar" onClick={limpiarFiltros}>
+                        Limpiar filtros
+                      </button>
                     )}
                     {hayFiltros && (
                       <button className="btn-limpiar" onClick={limpiarFiltros}>
                         Limpiar filtros
+                      </button>
+                    )}
+                    {esServicio && usuario?.preferencias?.tipo === 'estudiante' && (
+                      <button className="btn-mihorario" onClick={() => {
+                        const p = usuario.preferencias
+                        if (p?.carrera) setCarreraFiltro(p.carrera)
+                        if (p?.turno) setTurnoFiltro(p.turno)
+                        if (p?.grupo) setGrupoFiltro(p.grupo)
+                      }}>
+                        Mi horario
                       </button>
                     )}
                   </div>
