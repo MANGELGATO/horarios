@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { collection, query, onSnapshot } from 'firebase/firestore'
+import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
 import { horarios as horariosEstaticos, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
 import Navbar from './components/NavbarComponent/Navbar'
@@ -22,15 +23,21 @@ import BitacoraLab from './components/BitacoraLabComponent/BitacoraLab'
 import './App.css'
 
 function App() {
-  const [vista, setVista] = useState('tabla')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const vista = location.pathname.replace(/^\//, '') || 'tabla'
+
+  const setVista = useCallback((key) => {
+    navigate('/' + key)
+  }, [navigate])
 
   useEffect(() => {
     const handleCambiarVista = (e) => {
-      if (e.detail) setVista(e.detail)
+      if (e.detail) navigate('/' + e.detail)
     }
     window.addEventListener('cambiar-vista', handleCambiarVista)
     return () => window.removeEventListener('cambiar-vista', handleCambiarVista)
-  }, [])
+  }, [navigate])
   const [carreraFiltro, setCarreraFiltro] = useState('Todas')
   const [turnoFiltro, setTurnoFiltro] = useState('Todos')
   const [grupoFiltro, setGrupoFiltro] = useState('Todos')
@@ -150,8 +157,10 @@ function App() {
   }
 
   useEffect(() => {
-    // Redirección automática eliminada para permitir a los docentes ver el horario general
-  }, [usuario, vista])
+    if (usuario && vista !== 'tabla' && !vistasPermitidas[vista]) {
+      navigate('/tabla')
+    }
+  }, [usuario, vista, navigate])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -362,7 +371,7 @@ function App() {
 
       <main className="app-main">
 
-        <ViewSelector vista={vista} setVista={setVista} usuario={usuario} onPedirEquipo={() => setMostrarSolicitud(true)} />
+        <ViewSelector usuario={usuario} onPedirEquipo={() => setMostrarSolicitud(true)} />
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
@@ -384,7 +393,7 @@ function App() {
               />
             )}
 
-            {!esEstudianteFiltrado && (
+            {!esEstudianteFiltrado && vista === 'tabla' && (
               <>
                 <FiltersBar
                   carreras={opcionesFiltros.carreras} carreraFiltro={carreraFiltro} setCarreraFiltro={setCarreraFiltro}
@@ -413,74 +422,54 @@ function App() {
           </>
         )}
 
-        {vista === 'tabla' && (
-          <WeeklyTable horarios={horariosFiltrados} />
-        )}
-
-        {vista === 'mis-clases' && esDocente && (
-          <MisClases 
-            horarios={horariosDinamicos.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)} 
-            profesorNombre={usuario?.preferencias?.profesorLabel}
-            onClaseClick={(clase) => {
-              setClaseParaBitacora(clase)
-              setVista('bitacora')
-            }}
-          />
-        )}
-
-        {vista === 'bitacora' && (
-          <BitacoraLab 
-            usuario={usuario} 
-            clasePrellenada={claseParaBitacora}
-            onLimpiarPrellenado={() => setClaseParaBitacora(null)}
-          />
-        )}
-
-        {vista === 'salones' && (
-          horariosFiltrados.length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — intenta cambiar los filtros</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(salonesAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([salon, clases]) => (
-                  <RoomCard key={salon} salon={salon} clases={clases} />
-                ))}
-            </div>
-          )
-        )}
-
-        {vista === 'proyectores' && (esAdmin || esServicio) && (
-          Object.keys(proyectoresAgrupados).length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — no hay clases con proyector</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(proyectoresAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([proyector, clases]) => (
-                  <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
-                ))}
-            </div>
-          )
-        )}
-
-        {vista === 'print' && (
-          <PrintPage
-            horarios={horariosDinamicos}
-            salones={opcionesFiltros.salones}
-            onVolver={() => setVista('tabla')}
-          />
-        )}
-
-        {vista === 'admin' && esAdmin && (
-          <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} setVista={setVista} />
-        )}
+        <Routes>
+          <Route path="/" element={<WeeklyTable horarios={horariosFiltrados} />} />
+          <Route path="/tabla" element={<WeeklyTable horarios={horariosFiltrados} />} />
+          <Route path="/mis-clases" element={
+            esDocente
+              ? <MisClases
+                  horarios={horariosDinamicos.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
+                  profesorNombre={usuario?.preferencias?.profesorLabel}
+                  onClaseClick={(clase) => {
+                    setClaseParaBitacora(clase)
+                    navigate('/bitacora')
+                  }}
+                />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/bitacora" element={<BitacoraLab usuario={usuario} clasePrellenada={claseParaBitacora} onLimpiarPrellenado={() => setClaseParaBitacora(null)} />} />
+          <Route path="/salones" element={
+            horariosFiltrados.length === 0
+              ? <div className="weekly-empty"><span>🔍</span><p>Sin resultados — intenta cambiar los filtros</p></div>
+              : <div className="rooms-grid">
+                  {Object.entries(salonesAgrupados).sort(([a], [b]) => a.localeCompare(b)).map(([salon, clases]) => (
+                    <RoomCard key={salon} salon={salon} clases={clases} />
+                  ))}
+                </div>
+          } />
+          <Route path="/proyectores" element={
+            (esAdmin || esServicio)
+              ? (Object.keys(proyectoresAgrupados).length === 0
+                  ? <div className="weekly-empty"><span>🔍</span><p>Sin resultados — no hay clases con proyector</p></div>
+                  : <div className="rooms-grid">
+                      {Object.entries(proyectoresAgrupados).sort(([a], [b]) => a.localeCompare(b)).map(([proyector, clases]) => (
+                        <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
+                      ))}
+                    </div>)
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/print" element={
+            (esAdmin || esServicio)
+              ? <PrintPage horarios={horariosDinamicos} salones={opcionesFiltros.salones} onVolver={() => navigate('/tabla')} />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/admin" element={
+            esAdmin
+              ? <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} setVista={setVista} />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="*" element={<Navigate to="/tabla" replace />} />
+        </Routes>
 
       </main>
 

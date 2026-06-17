@@ -1,6 +1,10 @@
+import { useNavigate, useLocation } from 'react-router-dom'
 import './ViewSelector.css'
 
-function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
+function ViewSelector({ usuario, onPedirEquipo }) {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const vista = location.pathname.replace(/^\//, '') || 'tabla'
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
   const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
   const esServicio = usuario?.rol === 'servicio'
@@ -12,7 +16,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
     <div className="view-selector">
       <button
         className={`view-selector__btn ${vista === 'tabla' ? 'view-selector__btn--active' : ''}`}
-        onClick={() => setVista('tabla')}
+        onClick={() => navigate('/tabla')}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -25,7 +29,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
       {esDocente && (
         <button
           className={`view-selector__btn ${vista === 'mis-clases' ? 'view-selector__btn--active' : ''}`}
-          onClick={() => setVista('mis-clases')}
+          onClick={() => navigate('/mis-clases')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -38,7 +42,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
 
       <button
         className={`view-selector__btn ${vista === 'salones' ? 'view-selector__btn--active' : ''}`}
-        onClick={() => setVista('salones')}
+        onClick={() => navigate('/salones')}
       >
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -51,7 +55,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
       {(esAdmin || esServicio) && (
         <button
           className={`view-selector__btn ${vista === 'proyectores' ? 'view-selector__btn--active' : ''}`}
-          onClick={() => setVista('proyectores')}
+          onClick={() => navigate('/proyectores')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -66,7 +70,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
       {esAdmin && (
         <button
           className={`view-selector__btn ${vista === 'admin' ? 'view-selector__btn--active' : ''}`}
-          onClick={() => setVista('admin')}
+          onClick={() => navigate('/admin')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -80,7 +84,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
       {esAdmin && (
         <button
           className={`view-selector__btn ${vista === 'bitacora' ? 'view-selector__btn--active' : ''}`}
-          onClick={() => setVista('bitacora')}
+          onClick={() => navigate('/bitacora')}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -97,7 +101,7 @@ function ViewSelector({ vista, setVista, usuario, onPedirEquipo }) {
         {(esAdmin || esServicio) && (
           <button
             className={`view-selector__btn view-selector__btn--print ${vista === 'print' ? 'view-selector__btn--active' : ''}`}
-            onClick={() => setVista('print')}
+            onClick={() => navigate('/print')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" strokeWidth="2" aria-hidden="true">
