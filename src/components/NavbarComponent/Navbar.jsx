@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import './Navbar.css'
 
 const ETIQUETAS_ROL = {
@@ -30,11 +31,12 @@ function AvatarUser({ foto, nombre }) {
 }
 
 function Navbar({ usuario, onLogout, onInfoClick, turnoActual, tema, onToggleTema }) {
+  const navigate = useNavigate()
   return (
     <header className="navbar">
       <div className="navbar__inner">
 
-        <div className="navbar__brand">
+        <button className="navbar__brand" onClick={() => navigate('/tabla')}>
           <svg className="navbar__logo" viewBox="0 0 40 40" fill="none" aria-label="Logo">
             <rect x="4" y="4" width="14" height="14" rx="3" fill="currentColor" opacity="0.9" />
             <rect x="22" y="4" width="14" height="14" rx="3" fill="currentColor" opacity="0.6" />
@@ -45,7 +47,7 @@ function Navbar({ usuario, onLogout, onInfoClick, turnoActual, tema, onToggleTem
             <p className="navbar__title">Dashboard de Horarios</p>
             <p className="navbar__subtitle">CCD · Ciclo 2026B</p>
           </div>
-        </div>
+        </button>
 
         <div className="navbar__right">
           <div className="navbar__badges">

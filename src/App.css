@@ -185,10 +185,19 @@ img, svg { display: block; }
   background: var(--color-primary-soft);
 }
 
+.resultados-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
 .resultados-acciones {
   display: flex;
   gap: var(--space-2);
   align-items: center;
+  flex-shrink: 0;
 }
 
 .btn-exportar {
@@ -355,6 +364,131 @@ img, svg { display: block; }
   text-align: right;
 }
 
+.ocupacion-view {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.ocupacion-header {
+  margin-bottom: var(--space-4);
+}
+
+.ocupacion-titulo {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.ocupacion-sub {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.ocupacion-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: var(--space-3);
+}
+
+.ocupacion-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: box-shadow 150ms, transform 150ms;
+}
+
+.ocupacion-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.ocupacion-card--libre {
+  border-left: 3px solid #4ade80;
+}
+
+.ocupacion-card--ocupado {
+  border-left: 3px solid #ef4444;
+}
+
+.ocupacion-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.ocupacion-card-estado-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ocupacion-card-estado-dot--libre {
+  background: #4ade80;
+}
+
+.ocupacion-card-estado-dot--ocupado {
+  background: #ef4444;
+}
+
+.ocupacion-card-nombre {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text);
+  flex: 1;
+}
+
+.ocupacion-card-estado-texto {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.ocupacion-card-estado-texto--libre {
+  background: #e8f5e9;
+  color: #2d8a4e;
+}
+
+.ocupacion-card-estado-texto--ocupado {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.ocupacion-card-clases {
+  padding: 0 var(--space-4) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+  margin-top: 0;
+}
+
+.ocupacion-card-clase {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-xs);
+}
+
+.ocupacion-card-clase-mat {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ocupacion-card-clase-profe {
+  color: var(--color-text-muted);
+}
+
+.ocupacion-card-clase-info {
+  color: var(--color-text-muted);
+}
+
 
 
 .btn-exportar--floating {
@@ -450,6 +584,16 @@ svg {
 .dark-mode .conflicto-card-badge--media {
   background: #1c1917;
   color: #fbbf24;
+}
+
+.dark-mode .ocupacion-card-estado-texto--libre {
+  background: #052e16;
+  color: #4ade80;
+}
+
+.dark-mode .ocupacion-card-estado-texto--ocupado {
+  background: #450a0a;
+  color: #fca5a5;
 }
 
 
