@@ -82,5 +82,14 @@ service cloud.firestore {
       allow read: if isAuth();
       allow write: if hasRol(request.auth.uid, ['admin', 'superadmin']);
     }
+
+    // ─── BITÁCORA DE LABORATORIOS ───
+    // Docentes y admin pueden crear. Cada quien lee sus propios, admin lee todos.
+    match /bitacora_lab/{doc} {
+      allow read: if isAuth();
+      allow create: if isAuth() && hasRol(request.auth.uid, ['docente', 'admin', 'superadmin', 'administrativo']);
+      allow delete: if esPropietario(resource.data.profesorId)
+        || hasRol(request.auth.uid, ['admin', 'superadmin']);
+    }
   }
 }

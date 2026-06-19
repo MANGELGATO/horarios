@@ -1,4 +1,5 @@
 import './TabloideView.css'
+import { getFormattedGrupo } from '../../data/horarios'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
@@ -20,14 +21,36 @@ function getClase(horarios, salon, dia, turno, bloqueId) {
   const normalizedDia = dia.toLowerCase().trim();
   const normalizedTurno = turno.toLowerCase().trim();
   
-  return horarios.find(h => {
+  const matches = horarios.filter(h => {
     if (!h.salon || !h.dia || !h.turno) return false;
     return h.salon.toLowerCase().trim() === normalizedSalon &&
       h.dia.toLowerCase().trim() === normalizedDia &&
       h.turno.toLowerCase().trim() === normalizedTurno &&
       Number(h.bloque) === Number(bloqueId);
   });
+  
+  if (matches.length === 0) return undefined;
+  if (matches.length === 1) {
+    return {
+      ...matches[0],
+      grupo: getFormattedGrupo(matches[0].carrera, matches[0].grupo)
+    };
+  }
+  
+  // Consolidar múltiples materias asíncronas del mismo profesor/bloque en el mismo salón
+  const uniqueGroups = [...new Set(matches.map(m => getFormattedGrupo(m.carrera, m.grupo)).filter(Boolean))];
+  const uniqueMaterias = [...new Set(matches.map(m => m.materia).filter(Boolean))];
+  const uniqueProfesores = [...new Set(matches.map(m => m.profesor).filter(Boolean))];
+  
+  return {
+    ...matches[0],
+    grupo: uniqueGroups.join(' / '),
+    materia: uniqueMaterias.join(' / '),
+    profesor: uniqueProfesores.join(' / '),
+    diaVirtual: matches.some(m => m.diaVirtual === dia) ? dia : matches[0].diaVirtual
+  };
 }
+
 
 function CeldaClase({ clase, dia }) {
   if (!clase) {

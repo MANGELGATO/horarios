@@ -1,5 +1,6 @@
 import { memo } from 'react'
 import './ProjectorCard.css'
+import { consolidarClases } from '../../data/horarios'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
@@ -30,8 +31,10 @@ function getHora(bloque, turno) {
 }
 
 function getColor(carrera) {
+  if (!carrera) return 'default'
+  const firstCarrera = carrera.split(' / ')[0].trim()
   const map = { DSM: 'dsm', EVND: 'evnd', IDGS: 'idgs', IEVND: 'ievnd' }
-  return map[carrera] || 'default'
+  return map[firstCarrera] || 'default'
 }
 
 function ProjectorCard({ proyector, clases }) {
@@ -39,7 +42,7 @@ function ProjectorCard({ proyector, clases }) {
   DIAS.forEach(d => { porDia[d] = clases.filter(c => c.dia === d) })
 
   const totalClases = clases.length
-  const carreras = [...new Set(clases.map(c => c.carrera))]
+  const careers = [...new Set(clases.map(c => c.carrera))]
   const salones = [...new Set(clases.map(c => c.salon))]
   const esWebcam = clases.some(c => c.webcam)
   const esAbrir = clases.some(c => c.abrir)
@@ -61,7 +64,7 @@ function ProjectorCard({ proyector, clases }) {
 
       <div className="proyector-card__meta">
         <div className="proyector-card__carreras">
-          {carreras.map(c => (
+          {careers.map(c => (
             <span key={c} className={`proyector-chip proyector-chip--${getColor(c)}`}>{c}</span>
           ))}
         </div>
@@ -74,7 +77,7 @@ function ProjectorCard({ proyector, clases }) {
 
       <div className="proyector-card__dias">
         {DIAS.map(dia => {
-          const clasesDelDia = porDia[dia]
+          const clasesDelDia = consolidarClases(porDia[dia])
           if (clasesDelDia.length === 0) return null
           return (
             <div key={dia} className="proyector-card__dia-group">

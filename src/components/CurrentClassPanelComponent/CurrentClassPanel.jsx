@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './CurrentClassPanel.css'
+import { consolidarClases } from '../../data/horarios'
 
 // ── Mapas de bloque → hora ──
 const HORAS_MAT = {
@@ -29,6 +30,7 @@ function getHora(bloque, turno) {
 }
 
 function CurrentClassPanel({ clases, esAdmin, simulacion, setSimulacion }) {
+  const clasesConsolidadas = consolidarClases(clases)
   const [expandido, setExpandido] = useState(false)
   const ahora = new Date()
   const dias  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado']
@@ -143,7 +145,7 @@ function CurrentClassPanel({ clases, esAdmin, simulacion, setSimulacion }) {
             </div>
           ) : (
             <div className="current-panel__grid">
-              {clases.map((clase, i) => (
+              {clasesConsolidadas.map((clase, i) => (
                 <div key={i} className={`current-card current-card--${clase.turno === 'Matutino' ? 'mat' : 'ves'}`}>
                   <div className="current-card__top">
                     <span className={`current-card__badge ${clase.turno === 'Matutino' ? 'badge--matutino' : 'badge--vespertino'}`}>

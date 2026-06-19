@@ -33,3 +33,6 @@ scratch_extract/
 *.bak
 *.zip
 *.docx
+OPENCODE.md
+serviceAccountKey
+browser_test.cjs

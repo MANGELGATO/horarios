@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { horarios } from './data/horarios';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpnWad3uYy1qVQyQlxjOSHt7JLPzCUa3E",
@@ -17,6 +18,15 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 export const db = getFirestore(app);
+
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('[Firestore] Persistencia offline no disponible: múltiples pestañas abiertas');
+  } else if (err.code === 'unimplemented') {
+    console.warn('[Firestore] Persistencia offline no soportada en este navegador');
+  }
+});
+
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 
@@ -81,14 +91,106 @@ const PROFESOR_EMAILS = {
   'juan.morales@utj.edu.mx': 'Juan Carlos Morales Aragón',
 };
 
+export function getProfesoresDinamicos() {
+  const profesSet = new Set();
+  horarios.forEach(h => {
+    if (h.profesor && h.profesor.trim()) {
+      profesSet.add(h.profesor.trim());
+    }
+  });
+  return Array.from(profesSet);
+}
+
+export function predecirCorreosParaDocente(nombreCompleto) {
+  if (!nombreCompleto) return [];
+  
+  const normalizado = nombreCompleto
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z\s]/g, "")
+    .toLowerCase();
+    
+  const conectores = ['de', 'del', 'la', 'las', 'los', 'y'];
+  const words = normalizado.split(/\s+/).filter(w => w.length > 0 && !conectores.includes(w));
+  
+  if (words.length === 0) return [];
+  
+  const emails = new Set();
+  const firstName = words[0];
+  const firstLetter = firstName.charAt(0);
+  
+  if (words.length === 1) {
+    emails.add(`${firstName}@utj.edu.mx`);
+  } else if (words.length === 2) {
+    const surname1 = words[1];
+    emails.add(`${firstLetter}${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}.${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}${surname1}@utj.edu.mx`);
+  } else if (words.length === 3) {
+    const surname1 = words[1];
+    const surname2 = words[2];
+    
+    emails.add(`${firstLetter}${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}.${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}${surname1}@utj.edu.mx`);
+    
+    emails.add(`${firstLetter}${surname1}${surname2}@utj.edu.mx`);
+    emails.add(`${firstName}.${surname1}.${surname2}@utj.edu.mx`);
+    emails.add(`${firstName}${surname1}${surname2}@utj.edu.mx`);
+  } else if (words.length >= 4) {
+    const middleName = words[1];
+    const surname1 = words[2];
+    const surname2 = words[3] || '';
+    
+    emails.add(`${firstLetter}${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}.${surname1}@utj.edu.mx`);
+    emails.add(`${firstName}${surname1}@utj.edu.mx`);
+    
+    const middleLetter = middleName.charAt(0);
+    emails.add(`${middleLetter}${surname1}@utj.edu.mx`);
+    emails.add(`${middleName}.${surname1}@utj.edu.mx`);
+    
+    if (surname2) {
+      emails.add(`${firstLetter}${surname1}${surname2}@utj.edu.mx`);
+      emails.add(`${firstName}.${surname1}.${surname2}@utj.edu.mx`);
+      emails.add(`${firstName}${surname1}${surname2}@utj.edu.mx`);
+    }
+  }
+  
+  return Array.from(emails);
+}
+
+export function buscarDocentePorEmail(email) {
+  if (!email || !email.endsWith(`@${DOMINIO_DOCENTE}`)) return null;
+  
+  if (PROFESOR_EMAILS[email]) {
+    return PROFESOR_EMAILS[email];
+  }
+  
+  const profesores = getProfesoresDinamicos();
+  for (const prof of profesores) {
+    const correosPredichos = predecirCorreosParaDocente(prof);
+    if (correosPredichos.includes(email)) {
+      return prof;
+    }
+  }
+  
+  return null;
+}
+
 export function getRolPorDominio(email) {
   if (ADMIN_EMAILS.includes(email)) return 'admin';
   if (email.endsWith(`@${DOMINIO_ESTUDIANTE}`)) return 'estudiante';
+  if (email.endsWith(`@${DOMINIO_DOCENTE}`)) {
+    if (buscarDocentePorEmail(email)) {
+      return 'docente';
+    }
+  }
   return null;
 }
 
 export function getProfesorPorEmail(email) {
-  return PROFESOR_EMAILS[email] || null;
+  return buscarDocentePorEmail(email);
 }
 
 export function dominioPermitido(email) {
@@ -120,7 +222,23 @@ export function slugify(text) {
 export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
   const email = usuarioFirebase.email;
   const dominio = email.split('@')[1];
+  const esAdminEmail = ADMIN_EMAILS.includes(email);
   const rolBase = getRolPorDominio(email);
+
+  // Validacion de dominio: solo correos institucionales,
+  // a menos que el correo este explicitamente en la whitelist
+  if (!esAdminEmail && !dominioPermitido(email)) {
+    try {
+      const authRef = doc(db, 'correos_autorizados', email);
+      const authSnap = await getDoc(authRef);
+      if (!authSnap.exists()) {
+        throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar tu correo institucional.');
+      }
+    } catch (e) {
+      if (e.message?.includes('ACCESO DENEGADO')) throw e;
+      throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar un correo institucional.');
+    }
+  }
 
   console.log('[firebase] photoURL desde Google:', usuarioFirebase.photoURL);
 
@@ -129,7 +247,6 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
     const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
-      // Verificar lista blanca (correos_autorizados) si no es admin
       let rolDefinitivo = rolBase;
       if (rolBase !== 'admin') {
         const authRef = doc(db, 'correos_autorizados', email);
@@ -137,7 +254,7 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
         if (authSnap.exists()) {
           rolDefinitivo = authSnap.data().rol;
         } else if (!rolBase) {
-          throw new Error('ACCESO DENEGADO: Tu correo no está registrado en la lista blanca de la institución.');
+          throw new Error('ACCESO DENEGADO: Tu correo no está autorizado para acceder al sistema.');
         }
       }
 
@@ -185,6 +302,10 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
     if (err.message?.includes('desactivada')) throw err;
 
     console.warn('[firebase] Firestore no disponible, usando fallback:', err.message);
+
+    if (!esAdminEmail && !dominioPermitido(email)) {
+      throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar un correo institucional.');
+    }
 
     const preferencias = crearPreferenciasIniciales(rolBase, email);
 
@@ -248,6 +369,42 @@ export async function eliminarCorreoAutorizado(email) {
     await deleteDoc(doc(db, 'correos_autorizados', email));
   } catch (err) {
     console.error('[firebase] Error al eliminar correo autorizado:', err);
+    throw err;
+  }
+}
+
+// ── Bitácora de Laboratorios ──
+
+export const LABORATORIOS = [
+  '102', '106', '109',
+  '503', '506',
+  'M02', 'M05', 'M11', 'M12', 'M13', 'M14'
+];
+
+export const ACTIVIDADES = {
+  'CP': 'Clase Programada',
+  'CNP': 'Clase No Programada',
+  'O': 'Otros'
+};
+
+export async function guardarRegistroBitacora(registro) {
+  try {
+    const docRef = await addDoc(collection(db, 'bitacora_lab'), {
+      ...registro,
+      timestamp: serverTimestamp()
+    });
+    return docRef.id;
+  } catch (err) {
+    console.error('[firebase] Error al guardar registro de bitácora:', err);
+    throw err;
+  }
+}
+
+export async function eliminarRegistroBitacora(id) {
+  try {
+    await deleteDoc(doc(db, 'bitacora_lab', id));
+  } catch (err) {
+    console.error('[firebase] Error al eliminar registro de bitácora:', err);
     throw err;
   }
 }

@@ -1,8 +1,11 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { signOut, onAuthStateChanged } from 'firebase/auth'
 import { collection, query, onSnapshot } from 'firebase/firestore'
+import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-dom'
 import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
-import { horarios, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
+import { horarios as horariosEstaticos, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
+import { generarICS, descargarICS } from './utils/calendar'
+import { detectarConflictos } from './utils/conflictos'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -18,10 +21,25 @@ import SetupProfile from './components/SetupProfileComponent/SetupProfile'
 import ViewSelector from './components/ViewSelectorComponent/ViewSelector'
 import SolicitudEquipoModal from './components/SolicitudEquipoModalComponent/SolicitudEquipoModal'
 import MisClases from './components/MisClasesComponent/MisClases'
+import BitacoraLab from './components/BitacoraLabComponent/BitacoraLab'
 import './App.css'
 
 function App() {
-  const [vista, setVista] = useState('tabla')
+  const navigate = useNavigate()
+  const location = useLocation()
+  const vista = location.pathname.replace(/^\//, '') || 'tabla'
+
+  const setVista = useCallback((key) => {
+    navigate('/' + key)
+  }, [navigate])
+
+  useEffect(() => {
+    const handleCambiarVista = (e) => {
+      if (e.detail) navigate('/' + e.detail)
+    }
+    window.addEventListener('cambiar-vista', handleCambiarVista)
+    return () => window.removeEventListener('cambiar-vista', handleCambiarVista)
+  }, [navigate])
   const [carreraFiltro, setCarreraFiltro] = useState('Todas')
   const [turnoFiltro, setTurnoFiltro] = useState('Todos')
   const [grupoFiltro, setGrupoFiltro] = useState('Todos')
@@ -46,7 +64,10 @@ function App() {
     hora: '07:00'
   })
   const [mostrarSolicitud, setMostrarSolicitud] = useState(false)
+  const [mostrarAyudaICS, setMostrarAyudaICS] = useState(false)
   const [solicitudesEquipo, setSolicitudesEquipo] = useState([])
+  const [horariosFirestore, setHorariosFirestore] = useState(null)
+  const [claseParaBitacora, setClaseParaBitacora] = useState(null)
 
   useEffect(() => {
     const q = query(collection(db, 'solicitudes_equipo'))
@@ -57,8 +78,40 @@ function App() {
     return unsubscribe
   }, [])
 
+  useEffect(() => {
+    const q = query(collection(db, 'horarios'))
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        setHorariosFirestore(null)
+        return
+      }
+      const data = snapshot.docs.map(doc => {
+        const d = doc.data()
+        return {
+          carrera: d.carrera || d.carreraLabel || '',
+          turno: d.turno || d.turnoLabel || '',
+          grupo: d.grupo || d.grupoLabel || '',
+          dia: d.dia || '',
+          diaVirtual: d.diaVirtual || '',
+          bloque: Number(d.bloque ?? d.bloqueNumero ?? 1),
+          materia: d.materia || d.materiaLabel || '',
+          profesor: d.profesor || d.profesorLabel || '',
+          salon: d.salon || d.salonLabel || '',
+          proyector: d.proyector || d.proyectorAsignado || '',
+        }
+      })
+      setHorariosFirestore(data)
+    }, (error) => {
+      console.warn('[Firestore] Error al cargar horarios, usando datos estáticos:', error)
+      setHorariosFirestore(null)
+    })
+    return unsubscribe
+  }, [])
+
+  const fuenteHorarios = horariosFirestore || horariosEstaticos
+
   const horariosDinamicos = useMemo(() => {
-    const arr = horarios.map(h => ({ ...h }))
+    const arr = fuenteHorarios.map(h => ({ ...h }))
     const hoyDate = new Date()
     const hoyStr = hoyDate.getFullYear() + '-' + String(hoyDate.getMonth()+1).padStart(2, '0') + '-' + String(hoyDate.getDate()).padStart(2, '0')
 
@@ -83,32 +136,35 @@ function App() {
       }
     })
     return arr
-  }, [solicitudesEquipo])
+  }, [solicitudesEquipo, fuenteHorarios])
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark-mode', tema === 'oscuro')
     localStorage.setItem('tema-horarios', tema)
   }, [tema])
 
+  const esServicio = usuario?.rol === 'servicio'
   const necesitaSetup = usuario && !usuario.preferencias && (usuario.rol === 'estudiante' || usuario.rol === 'docente')
   const esAdmin = usuario?.rol === 'admin' || usuario?.rol === 'superadmin'
-  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin
+  const esDocente = usuario?.rol === 'docente' || usuario?.preferencias?.tipo === 'docente'
+  const esEstudianteFiltrado = usuario?.preferencias?.tipo === 'estudiante' && !esAdmin && !esServicio
 
   const vistasPermitidas = {
     tabla: true,
     salones: !esEstudianteFiltrado,
-    proyectores: esAdmin,
-    print: true,
+    proyectores: esAdmin || esServicio,
+    conflictos: esAdmin || esServicio,
+    print: esAdmin || esServicio,
     admin: esAdmin,
-    'mis-clases': usuario?.rol === 'docente'
+    'mis-clases': esDocente,
+    'bitacora': esAdmin
   }
 
   useEffect(() => {
-    // Si es docente y está en la tabla general, enviarlo a su vista por defecto
-    if (usuario?.rol === 'docente' && vista === 'tabla') {
-      setVista('mis-clases')
+    if (usuario && vista !== 'tabla' && !vistasPermitidas[vista]) {
+      navigate('/tabla')
     }
-  }, [usuario, vista])
+  }, [usuario, vista, navigate])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -136,11 +192,8 @@ function App() {
     return unsubscribe
   }, [])
 
-  // Sincronización en tiempo real desactivada temporalmente a petición del usuario.
-  // Se utilizan los horarios locales estáticos precargados de manera 100% estable.
-
   const prefsFilter = useMemo(() => {
-    if (esAdmin) return null
+    if (esAdmin || esServicio) return null
     if (!usuario?.preferencias) return null
     const p = usuario.preferencias
     if (p.tipo === 'estudiante') {
@@ -150,12 +203,13 @@ function App() {
       return (h) => slugify(h.profesor) === p.profesorId
     }
     return null
-  }, [usuario?.preferencias, esAdmin])
+  }, [usuario?.preferencias, esAdmin, esServicio])
 
   const baseHorarios = useMemo(() => {
+    if (esAdmin || esDocente || esServicio) return horariosDinamicos
     if (prefsFilter) return horariosDinamicos.filter(prefsFilter)
     return horariosDinamicos
-  }, [prefsFilter, horariosDinamicos])
+  }, [prefsFilter, horariosDinamicos, esAdmin, esDocente])
 
   const filtrarPorPrefs = useMemo(() => {
     if (!prefsFilter) return (c) => c
@@ -277,6 +331,8 @@ function App() {
     setPisoFiltro('Todos')
   }
 
+  const conflictos = useMemo(() => detectarConflictos(horariosDinamicos), [horariosDinamicos])
+
   const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' ||
     salonFiltro !== 'Todos' || profesorFiltro !== 'Todos' ||
@@ -321,11 +377,27 @@ function App() {
 
       <main className="app-main">
 
-        <ViewSelector vista={vista} setVista={setVista} usuario={usuario} onPedirEquipo={() => setMostrarSolicitud(true)} />
+        <ViewSelector
+          usuario={usuario}
+          onPedirEquipo={() => setMostrarSolicitud(true)}
+          onMiHorario={() => {
+            const p = usuario?.preferencias
+            if (p?.carrera) setCarreraFiltro(p.carrera)
+            if (p?.turno) setTurnoFiltro(p.turno)
+            if (p?.grupo) setGrupoFiltro(p.grupo)
+          }}
+          onVerTodos={() => { setCarreraFiltro('Todas'); setTurnoFiltro('Todos'); setGrupoFiltro('Todos'); setDiaFiltro('Todos'); setSalonFiltro('Todos'); setProfesorFiltro('Todos'); setPisoFiltro('Todos') }}
+          filtroActivo={
+            esServicio && usuario?.preferencias?.tipo === 'estudiante' &&
+            carreraFiltro === usuario?.preferencias?.carrera &&
+            turnoFiltro === usuario?.preferencias?.turno &&
+            grupoFiltro === usuario?.preferencias?.grupo
+          }
+        />
 
         {vista !== 'print' && vista !== 'admin' && (
           <>
-            {(clasesAhora.length > 0 || esAdmin) && (
+            {(clasesAhora.length > 0 || esAdmin || esServicio) && (
               <CurrentClassPanel
                 clases={clasesAhora}
                 esAdmin={esAdmin}
@@ -334,7 +406,7 @@ function App() {
               />
             )}
 
-            {esAdmin && (
+            {(esAdmin || esServicio) && (
               <ProjectorPanel
                 clases={clasesAhora}
                 proximas={clasesProximas}
@@ -343,7 +415,7 @@ function App() {
               />
             )}
 
-            {!esEstudianteFiltrado && (
+            {!esEstudianteFiltrado && vista === 'tabla' && (
               <>
                 <FiltersBar
                   carreras={opcionesFiltros.carreras} carreraFiltro={carreraFiltro} setCarreraFiltro={setCarreraFiltro}
@@ -361,73 +433,157 @@ function App() {
                       ? 'Sin resultados'
                       : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
                   </span>
-                  {hayFiltros && (
-                    <button className="btn-limpiar" onClick={limpiarFiltros}>
-                      Limpiar filtros
-                    </button>
-                  )}
+                  <div className="resultados-acciones">
+                    {hayFiltros && (
+                      <button className="btn-limpiar" onClick={limpiarFiltros}>
+                        Limpiar filtros
+                      </button>
+                    )}
+                  </div>
                 </div>
               </>
             )}
           </>
         )}
 
-        {vista === 'tabla' && (
-          <WeeklyTable horarios={horariosFiltrados} />
-        )}
-
-        {vista === 'mis-clases' && usuario?.rol === 'docente' && (
-          <MisClases 
-            horarios={horariosFiltrados} 
-            profesorNombre={usuario?.preferencias?.profesorLabel}
-          />
-        )}
-
-        {vista === 'salones' && (
-          horariosFiltrados.length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — intenta cambiar los filtros</p>
+        <Routes>
+          <Route path="/" element={
+            <div style={{ position: 'relative' }}>
+              {horariosFiltrados.length > 0 && (
+                <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)', zIndex: 10, display: 'flex', gap: 'var(--space-1)' }}>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => descargarICS(generarICS(horariosFiltrados))}
+                    title="Exportar horario a calendario (.ics)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Exportar .ics
+                  </button>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => setMostrarAyudaICS(true)}
+                    title="Cómo importar el archivo .ics en tu calendario"
+                    style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              <WeeklyTable horarios={horariosFiltrados} />
             </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(salonesAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([salon, clases]) => (
-                  <RoomCard key={salon} salon={salon} clases={clases} />
-                ))}
+          } />
+          <Route path="/tabla" element={
+            <div style={{ position: 'relative' }}>
+              {horariosFiltrados.length > 0 && (
+                <div style={{ position: 'absolute', top: 'var(--space-2)', right: 'var(--space-2)', zIndex: 10, display: 'flex', gap: 'var(--space-1)' }}>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => descargarICS(generarICS(horariosFiltrados))}
+                    title="Exportar horario a calendario (.ics)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    Exportar .ics
+                  </button>
+                  <button className="btn-exportar btn-exportar--floating" onClick={() => setMostrarAyudaICS(true)}
+                    title="Como importar el archivo .ics en tu calendario"
+                    style={{ borderRadius: '50%', width: '32px', height: '32px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="16" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+              <WeeklyTable horarios={horariosFiltrados} />
             </div>
-          )
-        )}
-
-        {vista === 'proyectores' && esAdmin && (
-          Object.keys(proyectoresAgrupados).length === 0 ? (
-            <div className="weekly-empty">
-              <span>🔍</span>
-              <p>Sin resultados — no hay clases con proyector</p>
-            </div>
-          ) : (
-            <div className="rooms-grid">
-              {Object.entries(proyectoresAgrupados)
-                .sort(([a], [b]) => a.localeCompare(b))
-                .map(([proyector, clases]) => (
-                  <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
-                ))}
-            </div>
-          )
-        )}
-
-        {vista === 'print' && (
-          <PrintPage
-            horarios={horariosDinamicos}
-            salones={opcionesFiltros.salones}
-            onVolver={() => setVista('tabla')}
-          />
-        )}
-
-        {vista === 'admin' && esAdmin && (
-          <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} />
-        )}
+          } />
+          <Route path="/mis-clases" element={
+            esDocente
+              ? <MisClases
+                  horarios={horariosDinamicos.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
+                  profesorNombre={usuario?.preferencias?.profesorLabel}
+                  onClaseClick={(clase) => {
+                    setClaseParaBitacora(clase)
+                    navigate('/bitacora')
+                  }}
+                />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/bitacora" element={<BitacoraLab usuario={usuario} clasePrellenada={claseParaBitacora} onLimpiarPrellenado={() => setClaseParaBitacora(null)} />} />
+          <Route path="/salones" element={
+            horariosFiltrados.length === 0
+              ? <div className="weekly-empty"><span>🔍</span><p>Sin resultados — intenta cambiar los filtros</p></div>
+              : <div className="rooms-grid">
+                  {Object.entries(salonesAgrupados).sort(([a], [b]) => a.localeCompare(b)).map(([salon, clases]) => (
+                    <RoomCard key={salon} salon={salon} clases={clases} />
+                  ))}
+                </div>
+          } />
+          <Route path="/proyectores" element={
+            (esAdmin || esServicio)
+              ? (Object.keys(proyectoresAgrupados).length === 0
+                  ? <div className="weekly-empty"><span>🔍</span><p>Sin resultados — no hay clases con proyector</p></div>
+                  : <div className="rooms-grid">
+                      {Object.entries(proyectoresAgrupados).sort(([a], [b]) => a.localeCompare(b)).map(([proyector, clases]) => (
+                        <ProjectorCard key={proyector} proyector={proyector} clases={clases} />
+                      ))}
+                    </div>)
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/print" element={
+            (esAdmin || esServicio)
+              ? <PrintPage horarios={horariosDinamicos} salones={opcionesFiltros.salones} onVolver={() => navigate('/tabla')} />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/conflictos" element={
+            (esAdmin || esServicio)
+              ? (conflictos.length === 0
+                  ? <div className="weekly-empty"><p>No se detectaron conflictos en los horarios.</p></div>
+                  : <div className="conflictos-view">
+                      <div className="conflictos-view-header">
+                        <h2>Conflictos detectados</h2>
+                        <span className="conflictos-view-count">{conflictos.length} conflicto{conflictos.length !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="conflictos-view-body">
+                        {conflictos.map((conf, i) => (
+                          <div key={i} className={`conflicto-card conflicto-card--${conf.gravedad}`}>
+                            <div className="conflicto-card-top">
+                              <span className="conflicto-card-tipo">
+                                {conf.tipo === 'salon_ocupado' ? 'Salon ocupado' : conf.tipo === 'grupo_duplicado' ? 'Grupo duplicado' : 'Profesor duplicado'}
+                              </span>
+                              <span className={`conflicto-card-badge conflicto-card-badge--${conf.gravedad}`}>
+                                {conf.gravedad}
+                              </span>
+                            </div>
+                            <p className="conflicto-card-mensaje">{conf.mensaje}</p>
+                            <div className="conflicto-card-clases">
+                              {conf.clases.map((c, j) => (
+                                <div key={j} className="conflicto-card-clase">
+                                  <span className="conflicto-card-clase-mat">{c.materia}</span>
+                                  <span className="conflicto-card-clase-profe">{c.profesor}</span>
+                                  <span className="conflicto-card-clase-info">
+                                    {c.salon ? c.salon + ' - ' : ''}{c.grupo ? c.carrera + ' ' + c.grupo : ''} - {c.turno}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>)
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/admin" element={
+            esAdmin
+              ? <AdminPanel usuario={usuario} horariosDinamicos={horariosDinamicos} setVista={setVista} />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="*" element={<Navigate to="/tabla" replace />} />
+        </Routes>
 
       </main>
 
@@ -436,13 +592,66 @@ function App() {
       {mostrarSolicitud && (
         <SolicitudEquipoModal
           usuario={usuario}
-          horariosProfesor={horarios.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
+          horariosProfesor={fuenteHorarios.filter(h => slugify(h.profesor) === usuario?.preferencias?.profesorId)}
           onClose={() => setMostrarSolicitud(false)}
         />
       )}
 
       {mostrarInfo && (
         <InfoPage onClose={() => setMostrarInfo(false)} />
+      )}
+
+      {mostrarAyudaICS && (
+        <div className="crud-modal-backdrop" onClick={() => setMostrarAyudaICS(false)}>
+          <div className="crud-modal" style={{ maxWidth: '580px' }} onClick={e => e.stopPropagation()}>
+            <div className="crud-modal-header">
+              <h3>Como importar tu horario</h3>
+              <button className="crud-modal-close" onClick={() => setMostrarAyudaICS(false)}>x</button>
+            </div>
+            <div className="crud-modal-body">
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Google Calendar (Web)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre <a href="https://calendar.google.com" target="_blank" rel="noopener">calendar.google.com</a></li>
+                  <li>Haz clic en el engranaje (arriba a la derecha) y selecciona <strong>Configuracion</strong></li>
+                  <li>Ve a <strong>Importar y exportar</strong></li>
+                  <li>En "Importar", selecciona el archivo <code>.ics</code> descargado</li>
+                  <li>Elige el calendario destino y haz clic en <strong>Importar</strong></li>
+                </ol>
+                <p style={{ margin: 'var(--space-2) 0 0', fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)', fontStyle: 'italic' }}>Tambien puedes arrastrar el archivo .ics directamente a la ventana de Google Calendar.</p>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Google Calendar (Android)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre la app <strong>Google Calendar</strong></li>
+                  <li>Toca las 3 lineas (menu) y luego <strong>Configuracion</strong></li>
+                  <li>Toca <strong>Importar</strong> y selecciona el archivo <code>.ics</code></li>
+                </ol>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Apple Calendar (iPhone / Mac)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Descarga el archivo <code>.ics</code> en tu dispositivo</li>
+                  <li>Abrelo desde la app <strong>Archivos</strong> o desde <strong>Descargas</strong></li>
+                  <li>Selecciona <strong>Calendario</strong> para importarlo</li>
+                  <li>Elige el calendario donde agregarlo</li>
+                </ol>
+              </div>
+              <div style={{ marginBottom: 'var(--space-4)' }}>
+                <h4 style={{ margin: '0 0 var(--space-2)', fontSize: 'var(--text-sm)', color: 'var(--color-primary)' }}>Outlook (Web / Escritorio)</h4>
+                <ol style={{ margin: 0, paddingLeft: 'var(--space-6)', fontSize: 'var(--text-sm)', lineHeight: '1.8' }}>
+                  <li>Abre <a href="https://outlook.live.com/calendar" target="_blank" rel="noopener">Outlook Calendar</a></li>
+                  <li>Haz clic en <strong>Agregar calendario</strong> y luego <strong>Cargar desde archivo</strong></li>
+                  <li>Selecciona el archivo <code>.ics</code> descargado</li>
+                </ol>
+              </div>
+            </div>
+            <div className="crud-modal-footer" style={{ justifyContent: 'space-between', gap: 'var(--space-4)' }}>
+              <p style={{ margin: 0, fontSize: 'var(--text-xs)', color: 'var(--color-text-muted)' }}>Los eventos se generan respetando los dias festivos del calendario academico. Las clases apareceran como eventos semanales hasta el fin del cuatrimestre.</p>
+              <button className="crud-btn-guardar" onClick={() => setMostrarAyudaICS(false)}>Entendido</button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>

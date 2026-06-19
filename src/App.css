@@ -185,6 +185,183 @@ img, svg { display: block; }
   background: var(--color-primary-soft);
 }
 
+.resultados-acciones {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.btn-exportar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 150ms;
+  white-space: nowrap;
+}
+
+.btn-exportar:hover {
+  border-color: #2d8a4e;
+  color: #2d8a4e;
+  background: #e8f5e9;
+}
+
+.btn-ayuda-ics {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 150ms;
+  flex-shrink: 0;
+}
+
+.btn-ayuda-ics:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.conflictos-view {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.conflictos-view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.conflictos-view-header h2 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text);
+}
+
+.conflictos-view-count {
+  font-size: var(--text-sm);
+  background: var(--color-bg);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+}
+
+.conflictos-view-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.conflicto-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.conflicto-card--alta {
+  border-left: 4px solid #dc2626;
+}
+
+.conflicto-card--media {
+  border-left: 4px solid #f59e0b;
+}
+
+.conflicto-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.conflicto-card-tipo {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.conflicto-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.conflicto-card-badge--alta {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.conflicto-card-badge--media {
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.conflicto-card-mensaje {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.conflicto-card-clases {
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.conflicto-card-clase {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+}
+
+.conflicto-card-clase-mat {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.conflicto-card-clase-profe {
+  color: var(--color-text-muted);
+}
+
+.conflicto-card-clase-info {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  text-align: right;
+}
+
+
+
+.btn-exportar--floating {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
 /* ════════════════════════════════════════
    RESPONSIVE
 ════════════════════════════════════════ */
@@ -238,15 +415,41 @@ img, svg { display: block; }
   justify-content: center;
 }
 
-/* ── Native Select Dropdowns Dark Mode Fix ── */
-select option {
-  background-color: var(--color-surface);
+/* ── Reactive Iconography ── */
+svg {
+  color: currentColor;
+  transition: color var(--transition);
+}
+
+/* Forzar color de texto base para SVGs que no estén dentro de elementos con color definido */
+.app svg {
   color: var(--color-text);
 }
 
-.dark-mode select option {
-  background-color: #121215 !important;
-  color: #f4f4f5 !important;
+/* Iconos específicos que deben mantener su color primario o heredado */
+.navbar__logo svg,
+.btn-primary svg,
+.vs-btn svg,
+.view-selector__btn svg {
+  color: inherit;
+}
+
+.dark-mode .conflicto-card--alta {
+  border-left-color: #ef4444;
+}
+
+.dark-mode .conflicto-card--media {
+  border-left-color: #f59e0b;
+}
+
+.dark-mode .conflicto-card-badge--alta {
+  background: #450a0a;
+  color: #fca5a5;
+}
+
+.dark-mode .conflicto-card-badge--media {
+  background: #1c1917;
+  color: #fbbf24;
 }
 
 

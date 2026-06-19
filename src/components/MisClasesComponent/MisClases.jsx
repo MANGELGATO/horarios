@@ -1,5 +1,5 @@
 import './MisClases.css'
-import { getBloqueById } from '../../data/horarios'
+import { getBloqueById, consolidarClases } from '../../data/horarios'
 
 const DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
 
@@ -14,7 +14,7 @@ function getColorMateria(materia) {
   return COLORES_MATERIA[Math.abs(hash) % COLORES_MATERIA.length]
 }
 
-function MisClases({ horarios, profesorNombre }) {
+function MisClases({ horarios, profesorNombre, onClaseClick }) {
   if (horarios.length === 0) {
     return (
       <div className="mc-empty">
@@ -28,7 +28,10 @@ function MisClases({ horarios, profesorNombre }) {
   const clasesPorDia = {}
   DIAS.forEach(d => clasesPorDia[d] = [])
   horarios.forEach(h => { if (clasesPorDia[h.dia]) clasesPorDia[h.dia].push(h) })
-  Object.keys(clasesPorDia).forEach(dia => clasesPorDia[dia].sort((a, b) => a.bloque - b.bloque))
+  Object.keys(clasesPorDia).forEach(dia => {
+    clasesPorDia[dia] = consolidarClases(clasesPorDia[dia]);
+    clasesPorDia[dia].sort((a, b) => a.bloque - b.bloque);
+  })
 
   const diasConClases = DIAS.filter(d => clasesPorDia[d].length > 0)
 
@@ -63,7 +66,13 @@ function MisClases({ horarios, profesorNombre }) {
                     const color = getColorMateria(c.materia)
                     const esVirtual = c.diaVirtual && c.diaVirtual !== c.dia
                     return (
-                      <div key={i} className={`mc-clase${esVirtual ? ' mc-clase--virtual' : ''}`} style={{ '--mc-color': color }}>
+                      <div 
+                        key={i} 
+                        className={`mc-clase${esVirtual ? ' mc-clase--virtual' : ''}`} 
+                        style={{ '--mc-color': color, cursor: 'pointer' }}
+                        onClick={() => onClaseClick?.(c)}
+                        title="Click para llenar bitácora de esta clase"
+                      >
                         <div className="mc-clase__barra" />
                         <div className="mc-clase__body">
                           <div className="mc-clase__hora">
