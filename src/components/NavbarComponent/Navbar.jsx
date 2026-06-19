@@ -4,6 +4,7 @@ import './Navbar.css'
 const ETIQUETAS_ROL = {
   estudiante: 'Estudiante',
   docente: 'Docente',
+  servicio: 'Servicio',
   admin: 'Admin',
   superadmin: 'Super Admin',
 }

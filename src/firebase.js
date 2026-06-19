@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, addDoc, collection, deleteDoc, enableMultiTabIndexedDbPersistence } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { horarios } from './data/horarios';
 
@@ -18,6 +18,15 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
 export const db = getFirestore(app);
+
+enableMultiTabIndexedDbPersistence(db).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn('[Firestore] Persistencia offline no disponible: múltiples pestañas abiertas');
+  } else if (err.code === 'unimplemented') {
+    console.warn('[Firestore] Persistencia offline no soportada en este navegador');
+  }
+});
+
 export const auth = getAuth(app);
 export const provider = new GoogleAuthProvider();
 
@@ -213,7 +222,23 @@ export function slugify(text) {
 export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
   const email = usuarioFirebase.email;
   const dominio = email.split('@')[1];
+  const esAdminEmail = ADMIN_EMAILS.includes(email);
   const rolBase = getRolPorDominio(email);
+
+  // Validacion de dominio: solo correos institucionales,
+  // a menos que el correo este explicitamente en la whitelist
+  if (!esAdminEmail && !dominioPermitido(email)) {
+    try {
+      const authRef = doc(db, 'correos_autorizados', email);
+      const authSnap = await getDoc(authRef);
+      if (!authSnap.exists()) {
+        throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar tu correo institucional.');
+      }
+    } catch (e) {
+      if (e.message?.includes('ACCESO DENEGADO')) throw e;
+      throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar un correo institucional.');
+    }
+  }
 
   console.log('[firebase] photoURL desde Google:', usuarioFirebase.photoURL);
 
@@ -222,7 +247,6 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
     const snap = await getDoc(userRef);
 
     if (!snap.exists()) {
-      // Verificar lista blanca (correos_autorizados) si no es admin
       let rolDefinitivo = rolBase;
       if (rolBase !== 'admin') {
         const authRef = doc(db, 'correos_autorizados', email);
@@ -230,7 +254,7 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
         if (authSnap.exists()) {
           rolDefinitivo = authSnap.data().rol;
         } else if (!rolBase) {
-          throw new Error('ACCESO DENEGADO: Tu correo no está registrado en la lista blanca de la institución.');
+          throw new Error('ACCESO DENEGADO: Tu correo no está autorizado para acceder al sistema.');
         }
       }
 
@@ -278,6 +302,10 @@ export async function obtenerCrearPerfilUsuario(usuarioFirebase) {
     if (err.message?.includes('desactivada')) throw err;
 
     console.warn('[firebase] Firestore no disponible, usando fallback:', err.message);
+
+    if (!esAdminEmail && !dominioPermitido(email)) {
+      throw new Error('ACCESO DENEGADO: Correo no autorizado. Debes usar un correo institucional.');
+    }
 
     const preferencias = crearPreferenciasIniciales(rolBase, email);
 
