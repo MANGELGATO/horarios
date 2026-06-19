@@ -67,6 +67,18 @@ function ViewSelector({ usuario, onPedirEquipo, onMiHorario, onVerTodos, filtroA
         Por salón
       </button>
 
+      <button
+        className={`view-selector__btn ${vista === 'ocupacion' ? 'view-selector__btn--active' : ''}`}
+        onClick={() => navigate('/ocupacion')}
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <rect x="2" y="2" width="20" height="20" rx="2" />
+          <path d="M2 12h20M12 2v20" />
+        </svg>
+        Ocupación
+      </button>
+
       {(esAdmin || esServicio) && (
         <button
           className={`view-selector__btn ${vista === 'proyectores' ? 'view-selector__btn--active' : ''}`}

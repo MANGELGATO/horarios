@@ -153,6 +153,7 @@ function App() {
     tabla: true,
     salones: !esEstudianteFiltrado,
     proyectores: esAdmin || esServicio,
+    ocupacion: !esEstudianteFiltrado,
     conflictos: esAdmin || esServicio,
     print: esAdmin || esServicio,
     admin: esAdmin,
@@ -332,6 +333,21 @@ function App() {
   }
 
   const conflictos = useMemo(() => detectarConflictos(horariosDinamicos), [horariosDinamicos])
+
+  const ocupacion = useMemo(() => {
+    const ahora = getClasesActuales(simulacion, horariosDinamicos)
+    const ocupados = new Set()
+    const mapa = {}
+    ahora.forEach(c => {
+      if (c.salon) {
+        ocupados.add(c.salon)
+        if (!mapa[c.salon]) mapa[c.salon] = []
+        mapa[c.salon].push(c)
+      }
+    })
+    const todosSalones = [...new Set(horariosDinamicos.map(h => h.salon).filter(Boolean))].sort()
+    return { ocupados: [...ocupados], mapa, todosSalones }
+  }, [horariosDinamicos, simulacion])
 
   const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' ||
@@ -522,6 +538,41 @@ function App() {
                     <RoomCard key={salon} salon={salon} clases={clases} />
                   ))}
                 </div>
+          } />
+          <Route path="/ocupacion" element={
+            <div className="ocupacion-view">
+              <div className="ocupacion-header">
+                <h2 className="ocupacion-titulo">Ocupacion de salones</h2>
+                <p className="ocupacion-sub">{ocupacion.ocupados.length} ocupados · {ocupacion.todosSalones.length - ocupacion.ocupados.length} libres</p>
+              </div>
+              <div className="ocupacion-grid">
+                {ocupacion.todosSalones.map(salon => {
+                  const clases = ocupacion.mapa[salon]
+                  return (
+                    <div key={salon} className={`ocupacion-card ${clases ? 'ocupacion-card--ocupado' : 'ocupacion-card--libre'}`}>
+                      <div className="ocupacion-card-header">
+                        <span className={`ocupacion-card-estado-dot ${clases ? 'ocupacion-card-estado-dot--ocupado' : 'ocupacion-card-estado-dot--libre'}`} />
+                        <span className="ocupacion-card-nombre">{salon}</span>
+                        <span className={`ocupacion-card-estado-texto ${clases ? 'ocupacion-card-estado-texto--ocupado' : 'ocupacion-card-estado-texto--libre'}`}>
+                          {clases ? 'Ocupado' : 'Libre'}
+                        </span>
+                      </div>
+                      {clases && (
+                        <div className="ocupacion-card-clases">
+                          {clases.map((c, i) => (
+                            <div key={i} className="ocupacion-card-clase">
+                              <span className="ocupacion-card-clase-mat">{c.materia}</span>
+                              <span className="ocupacion-card-clase-profe">{c.profesor}</span>
+                              <span className="ocupacion-card-clase-info">{c.carrera} {c.grupo}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           } />
           <Route path="/proyectores" element={
             (esAdmin || esServicio)
