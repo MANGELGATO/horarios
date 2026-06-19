@@ -2178,7 +2178,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
       )}
 
       <div className="admin-footer">
-        <p>Los cambios en horarios y usuarios se guardan en tiempo real en la nube (Firestore).</p>
+        <p>Los cambios en horarios y usuarios se guardan en tiempo real.</p>
       </div>
 
       {/* ─────────────────────────────────────────────
@@ -2203,7 +2203,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
                 fontSize: '0.9rem',
                 lineHeight: '1.4'
               }}>
-                <strong>💡 Acceso Inteligente Activo:</strong> Los docentes que figuran en el horario escolar tienen acceso <strong>automático</strong>. El sistema predice sus correos UTJ (ej. <code>ebarbosa@utj.edu.mx</code> para <em>Eduardo Barbosa Olivares</em>) e inicializa sus preferencias sin requerir registro manual en esta lista.
+                <strong>Acceso Inteligente Activo:</strong> Los docentes que figuran en el horario escolar tienen acceso <strong>automático</strong>. El sistema predice sus correos institucionales e inicializa sus preferencias sin requerir registro manual en esta lista.
               </div>
             </div>
           </div>
@@ -2211,7 +2211,7 @@ function AdminPanel({ usuario, horariosDinamicos = [], setVista }) {
           <div className="admin-whitelist-form" style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', alignItems: 'center' }}>
             <input 
               type="email" 
-              placeholder="correo@utj.edu.mx" 
+              placeholder="correo@institucion.edu.mx" 
               value={nuevoCorreoAuth}
               onChange={(e) => setNuevoCorreoAuth(e.target.value)}
               className="admin-select"

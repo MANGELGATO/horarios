@@ -5,6 +5,7 @@ import { useNavigate, useLocation, Routes, Route, Navigate } from 'react-router-
 import { auth, obtenerCrearPerfilUsuario, db } from './firebase'
 import { horarios as horariosEstaticos, getClasesActuales, getClasesProximas, getClasesTerminando, getPiso, getTurnoActual, slugify } from './data/horarios'
 import { generarICS, descargarICS } from './utils/calendar'
+import { detectarConflictos } from './utils/conflictos'
 import Navbar from './components/NavbarComponent/Navbar'
 import CurrentClassPanel from './components/CurrentClassPanelComponent/CurrentClassPanel'
 import ProjectorPanel from './components/ProjectorPanelComponent/ProjectorPanel'
@@ -152,6 +153,7 @@ function App() {
     tabla: true,
     salones: !esEstudianteFiltrado,
     proyectores: esAdmin || esServicio,
+    conflictos: esAdmin || esServicio,
     print: esAdmin || esServicio,
     admin: esAdmin,
     'mis-clases': esDocente,
@@ -328,6 +330,8 @@ function App() {
     setProfesorFiltro('Todos')
     setPisoFiltro('Todos')
   }
+
+  const conflictos = useMemo(() => detectarConflictos(horariosDinamicos), [horariosDinamicos])
 
   const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' ||
@@ -533,6 +537,44 @@ function App() {
           <Route path="/print" element={
             (esAdmin || esServicio)
               ? <PrintPage horarios={horariosDinamicos} salones={opcionesFiltros.salones} onVolver={() => navigate('/tabla')} />
+              : <Navigate to="/tabla" replace />
+          } />
+          <Route path="/conflictos" element={
+            (esAdmin || esServicio)
+              ? (conflictos.length === 0
+                  ? <div className="weekly-empty"><p>No se detectaron conflictos en los horarios.</p></div>
+                  : <div className="conflictos-view">
+                      <div className="conflictos-view-header">
+                        <h2>Conflictos detectados</h2>
+                        <span className="conflictos-view-count">{conflictos.length} conflicto{conflictos.length !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="conflictos-view-body">
+                        {conflictos.map((conf, i) => (
+                          <div key={i} className={`conflicto-card conflicto-card--${conf.gravedad}`}>
+                            <div className="conflicto-card-top">
+                              <span className="conflicto-card-tipo">
+                                {conf.tipo === 'salon_ocupado' ? 'Salon ocupado' : conf.tipo === 'grupo_duplicado' ? 'Grupo duplicado' : 'Profesor duplicado'}
+                              </span>
+                              <span className={`conflicto-card-badge conflicto-card-badge--${conf.gravedad}`}>
+                                {conf.gravedad}
+                              </span>
+                            </div>
+                            <p className="conflicto-card-mensaje">{conf.mensaje}</p>
+                            <div className="conflicto-card-clases">
+                              {conf.clases.map((c, j) => (
+                                <div key={j} className="conflicto-card-clase">
+                                  <span className="conflicto-card-clase-mat">{c.materia}</span>
+                                  <span className="conflicto-card-clase-profe">{c.profesor}</span>
+                                  <span className="conflicto-card-clase-info">
+                                    {c.salon ? c.salon + ' - ' : ''}{c.grupo ? c.carrera + ' ' + c.grupo : ''} - {c.turno}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>)
               : <Navigate to="/tabla" replace />
           } />
           <Route path="/admin" element={
