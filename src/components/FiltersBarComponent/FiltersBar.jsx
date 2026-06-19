@@ -8,6 +8,7 @@ function FiltersBar({
   salones,  salonFiltro,   setSalonFiltro,
   profesores, profesorFiltro, setProfesorFiltro,
   pisos,    pisoFiltro,    setPisoFiltro,
+  textoBusqueda, setTextoBusqueda,
 }) {
   const hayFiltrosActivos =
     carreraFiltro !== 'Todas' ||
@@ -138,6 +139,19 @@ function FiltersBar({
           >
             {pisos.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
+        </div>
+
+        {/* Busqueda */}
+        <div className="filter-group filter-group--search">
+          <label className="filter-group__label" htmlFor="f-busqueda">Buscar</label>
+          <input
+            id="f-busqueda"
+            className={`filter-group__input ${textoBusqueda ? 'filter-group__select--active' : ''}`}
+            type="text"
+            placeholder="Materia o profesor..."
+            value={textoBusqueda || ''}
+            onChange={e => setTextoBusqueda(e.target.value)}
+          />
         </div>
 
       </div>

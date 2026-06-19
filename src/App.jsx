@@ -47,6 +47,7 @@ function App() {
   const [salonFiltro, setSalonFiltro] = useState('Todos')
   const [profesorFiltro, setProfesorFiltro] = useState('Todos')
   const [pisoFiltro, setPisoFiltro] = useState('Todos')
+  const [textoBusqueda, setTextoBusqueda] = useState('')
   const [clasesAhora, setClasesAhora] = useState([])
   const [clasesProximas, setClasesProximas] = useState([])
   const [clasesProximas10, setClasesProximas10] = useState([])
@@ -153,6 +154,7 @@ function App() {
     tabla: true,
     salones: !esEstudianteFiltrado,
     proyectores: esAdmin || esServicio,
+    ocupacion: !esEstudianteFiltrado,
     conflictos: esAdmin || esServicio,
     print: esAdmin || esServicio,
     admin: esAdmin,
@@ -290,18 +292,28 @@ function App() {
 
   const horariosFiltrados = useMemo(() => {
     const f = { carrera: carreraFiltro, turno: turnoFiltro, grupo: grupoFiltro, dia: diaFiltro, salon: salonFiltro, profesor: profesorFiltro, piso: pisoFiltro }
-    if (Object.values(f).every(v => v === 'Todas' || v === 'Todos')) return baseHorarios
-    return baseHorarios.filter(h => {
-      if (f.carrera !== 'Todas' && h.carrera !== f.carrera) return false
-      if (f.turno !== 'Todos' && h.turno !== f.turno) return false
-      if (f.grupo !== 'Todos' && h.grupo !== f.grupo) return false
-      if (f.dia !== 'Todos' && h.dia !== f.dia) return false
-      if (f.salon !== 'Todos' && h.salon !== f.salon) return false
-      if (f.profesor !== 'Todos' && h.profesor !== f.profesor) return false
-      if (f.piso !== 'Todos' && getPiso(h.salon) !== f.piso) return false
-      return true
-    })
-  }, [baseHorarios, carreraFiltro, turnoFiltro, grupoFiltro, diaFiltro, salonFiltro, profesorFiltro, pisoFiltro])
+    const busq = textoBusqueda.trim().toLowerCase()
+    let resultado = baseHorarios
+    if (!Object.values(f).every(v => v === 'Todas' || v === 'Todos')) {
+      resultado = baseHorarios.filter(h => {
+        if (f.carrera !== 'Todas' && h.carrera !== f.carrera) return false
+        if (f.turno !== 'Todos' && h.turno !== f.turno) return false
+        if (f.grupo !== 'Todos' && h.grupo !== f.grupo) return false
+        if (f.dia !== 'Todos' && h.dia !== f.dia) return false
+        if (f.salon !== 'Todos' && h.salon !== f.salon) return false
+        if (f.profesor !== 'Todos' && h.profesor !== f.profesor) return false
+        if (f.piso !== 'Todos' && getPiso(h.salon) !== f.piso) return false
+        return true
+      })
+    }
+    if (busq) {
+      resultado = resultado.filter(h =>
+        h.materia?.toLowerCase().includes(busq) ||
+        h.profesor?.toLowerCase().includes(busq)
+      )
+    }
+    return resultado
+  }, [baseHorarios, carreraFiltro, turnoFiltro, grupoFiltro, diaFiltro, salonFiltro, profesorFiltro, pisoFiltro, textoBusqueda])
 
   const salonesAgrupados = useMemo(() =>
     horariosFiltrados.reduce((acc, h) => {
@@ -329,14 +341,30 @@ function App() {
     setSalonFiltro('Todos')
     setProfesorFiltro('Todos')
     setPisoFiltro('Todos')
+    setTextoBusqueda('')
   }
 
   const conflictos = useMemo(() => detectarConflictos(horariosDinamicos), [horariosDinamicos])
 
+  const ocupacion = useMemo(() => {
+    const ahora = getClasesActuales(simulacion, horariosDinamicos)
+    const ocupados = new Set()
+    const mapa = {}
+    ahora.forEach(c => {
+      if (c.salon) {
+        ocupados.add(c.salon)
+        if (!mapa[c.salon]) mapa[c.salon] = []
+        mapa[c.salon].push(c)
+      }
+    })
+    const todosSalones = [...new Set(horariosDinamicos.map(h => h.salon).filter(Boolean))].sort()
+    return { ocupados: [...ocupados], mapa, todosSalones }
+  }, [horariosDinamicos, simulacion])
+
   const hayFiltros = carreraFiltro !== 'Todas' || turnoFiltro !== 'Todos' ||
     grupoFiltro !== 'Todos' || diaFiltro !== 'Todos' ||
     salonFiltro !== 'Todos' || profesorFiltro !== 'Todos' ||
-    pisoFiltro !== 'Todos'
+    pisoFiltro !== 'Todos' || textoBusqueda !== ''
 
   if (authCargando) {
     return (
@@ -386,7 +414,7 @@ function App() {
             if (p?.turno) setTurnoFiltro(p.turno)
             if (p?.grupo) setGrupoFiltro(p.grupo)
           }}
-          onVerTodos={() => { setCarreraFiltro('Todas'); setTurnoFiltro('Todos'); setGrupoFiltro('Todos'); setDiaFiltro('Todos'); setSalonFiltro('Todos'); setProfesorFiltro('Todos'); setPisoFiltro('Todos') }}
+          onVerTodos={() => { setCarreraFiltro('Todas'); setTurnoFiltro('Todos'); setGrupoFiltro('Todos'); setDiaFiltro('Todos'); setSalonFiltro('Todos'); setProfesorFiltro('Todos'); setPisoFiltro('Todos'); setTextoBusqueda('') }}
           filtroActivo={
             esServicio && usuario?.preferencias?.tipo === 'estudiante' &&
             carreraFiltro === usuario?.preferencias?.carrera &&
@@ -425,16 +453,17 @@ function App() {
                   salones={opcionesFiltros.salones} salonFiltro={salonFiltro} setSalonFiltro={setSalonFiltro}
                   profesores={opcionesFiltros.profesores} profesorFiltro={profesorFiltro} setProfesorFiltro={setProfesorFiltro}
                   pisos={opcionesFiltros.pisos} pisoFiltro={pisoFiltro} setPisoFiltro={setPisoFiltro}
+                  textoBusqueda={textoBusqueda} setTextoBusqueda={setTextoBusqueda}
                 />
 
                 <div className="resultados-meta">
-                  <span>
-                    {horariosFiltrados.length === 0
-                      ? 'Sin resultados'
-                      : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
-                  </span>
                   <div className="resultados-acciones">
-                    {hayFiltros && (
+                    <span>
+                      {horariosFiltrados.length === 0
+                        ? 'Sin resultados'
+                        : `${horariosFiltrados.length} clase${horariosFiltrados.length !== 1 ? 's' : ''}`}
+                    </span>
+                    {(hayFiltros || textoBusqueda) && (
                       <button className="btn-limpiar" onClick={limpiarFiltros}>
                         Limpiar filtros
                       </button>
@@ -522,6 +551,41 @@ function App() {
                     <RoomCard key={salon} salon={salon} clases={clases} />
                   ))}
                 </div>
+          } />
+          <Route path="/ocupacion" element={
+            <div className="ocupacion-view">
+              <div className="ocupacion-header">
+                <h2 className="ocupacion-titulo">Ocupacion de salones</h2>
+                <p className="ocupacion-sub">{ocupacion.ocupados.length} ocupados · {ocupacion.todosSalones.length - ocupacion.ocupados.length} libres</p>
+              </div>
+              <div className="ocupacion-grid">
+                {ocupacion.todosSalones.map(salon => {
+                  const clases = ocupacion.mapa[salon]
+                  return (
+                    <div key={salon} className={`ocupacion-card ${clases ? 'ocupacion-card--ocupado' : 'ocupacion-card--libre'}`}>
+                      <div className="ocupacion-card-header">
+                        <span className={`ocupacion-card-estado-dot ${clases ? 'ocupacion-card-estado-dot--ocupado' : 'ocupacion-card-estado-dot--libre'}`} />
+                        <span className="ocupacion-card-nombre">{salon}</span>
+                        <span className={`ocupacion-card-estado-texto ${clases ? 'ocupacion-card-estado-texto--ocupado' : 'ocupacion-card-estado-texto--libre'}`}>
+                          {clases ? 'Ocupado' : 'Libre'}
+                        </span>
+                      </div>
+                      {clases && (
+                        <div className="ocupacion-card-clases">
+                          {clases.map((c, i) => (
+                            <div key={i} className="ocupacion-card-clase">
+                              <span className="ocupacion-card-clase-mat">{c.materia}</span>
+                              <span className="ocupacion-card-clase-profe">{c.profesor}</span>
+                              <span className="ocupacion-card-clase-info">{c.carrera} {c.grupo}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           } />
           <Route path="/proyectores" element={
             (esAdmin || esServicio)
